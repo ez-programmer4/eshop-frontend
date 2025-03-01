@@ -23,10 +23,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post("/api/users/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://eshop-backend-e11f.onrender.com/api/users/login",
+        {
+          email,
+          password,
+        }
+      );
       const userData = response.data.user; // Extract user object
       setUser({
         token: response.data.token,
