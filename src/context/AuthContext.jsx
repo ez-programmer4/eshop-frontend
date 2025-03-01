@@ -49,7 +49,10 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, name) => {
     try {
-      await axios.post("/api/users/register", { email, password, name });
+      await axios.post(
+        "https://eshop-backend-e11f.onrender.com/api/users/register",
+        { email, password, name }
+      );
       await login(email, password);
     } catch (error) {
       console.error("Register failed:", error);
