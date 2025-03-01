@@ -1,0 +1,41 @@
+Add subtle animations and spacing .container {
+  padding: 20px;
+}
+
+.MuiCard-root {
+  transition: transform 0.2s ease-in-out;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-5px);
+}
+
+.MuiButton-contained {
+  background-color: #3498db;
+}
+
+.MuiButton-contained:hover {
+  background-color: #2980b9;
+}
+
+/* Add subtle animations and spacing */
+
+.container {
+  padding: 20px;
+}
+
+.MuiCard-root {
+  transition: transform 0.2s ease-in-out;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-5px);
+}
+
+.MuiButton-contained {
+  background-color: #3498db;
+}
+
+.MuiButton-contained:hover {
+  background-color: #2980b9;
+}
