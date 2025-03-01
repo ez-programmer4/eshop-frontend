@@ -109,9 +109,12 @@ function Products() {
     setLoading(true);
     try {
       const params = new URLSearchParams(window.location.search);
-      const response = await axios.get("http://localhost:5000/api/products", {
-        params,
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/products",
+        {
+          params,
+        }
+      );
       const fetchedProducts = Array.isArray(response.data)
         ? response.data
         : response.data.products || [];
@@ -127,7 +130,9 @@ function Products() {
 
   const fetchBundles = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/bundles");
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/bundles"
+      );
       const fetchedBundles = Array.isArray(response.data) ? response.data : [];
       setBundles(fetchedBundles);
     } catch (error) {

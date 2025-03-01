@@ -71,7 +71,9 @@ function Categories() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/products");
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/products"
+      );
       const uniqueCategories = [
         ...new Set(response.data.map((product) => product.category)),
       ];

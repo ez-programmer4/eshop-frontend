@@ -157,7 +157,7 @@ function OrderHistory() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${user.userId}`,
+        `https://eshop-backend-e11f.onrender.com/api/orders/${user.userId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -194,7 +194,7 @@ function OrderHistory() {
   const handleCancelOrder = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${cancelOrderId}/cancel`,
+        `https://eshop-backend-e11f.onrender.com/api/orders/${cancelOrderId}/cancel`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

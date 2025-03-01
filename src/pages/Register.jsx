@@ -148,7 +148,8 @@ function Register() {
 
   const handleGoogleSignup = () => {
     // Placeholder for Google OAuth - requires backend setup
-    window.location.href = "http://localhost:5000/api/auth/google"; // Redirect to backend Google OAuth route
+    window.location.href =
+      "https://eshop-backend-e11f.onrender.com/api/auth/google"; // Redirect to backend Google OAuth route
   };
 
   return (

@@ -148,7 +148,7 @@ function UserProfile() {
   const fetchProfile = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/users/profile",
+        "https://eshop-backend-e11f.onrender.com/api/users/profile",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -167,7 +167,7 @@ function UserProfile() {
   const fetchOrders = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/orders/my-orders",
+        "https://eshop-backend-e11f.onrender.com/api/orders/my-orders",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -181,7 +181,7 @@ function UserProfile() {
   const fetchActivities = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/activities/me",
+        "https://eshop-backend-e11f.onrender.com/api/activities/me",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -212,9 +212,12 @@ function UserProfile() {
 
   const handleDeleteAccount = async () => {
     try {
-      await axios.delete("http://localhost:5000/api/users/me", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        "https://eshop-backend-e11f.onrender.com/api/users/me",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       logout();
       navigate("/");
     } catch (error) {

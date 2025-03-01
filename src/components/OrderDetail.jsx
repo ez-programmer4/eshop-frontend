@@ -149,7 +149,7 @@ function OrderDetail() {
   const fetchOrder = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/orders/detail/${id}`,
+        `https://eshop-backend-e11f.onrender.com/api/orders/detail/${id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -165,7 +165,7 @@ function OrderDetail() {
   const fetchFeedback = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/feedback/order/${id}`,
+        `https://eshop-backend-e11f.onrender.com/api/feedback/order/${id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -184,7 +184,7 @@ function OrderDetail() {
   const fetchReturnRequest = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/return-requests/my-requests",
+        "https://eshop-backend-e11f.onrender.com/api/return-requests/my-requests",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -206,7 +206,7 @@ function OrderDetail() {
     }
     try {
       await axios.post(
-        "http://localhost:5000/api/feedback",
+        "https://eshop-backend-e11f.onrender.com/api/feedback",
         { orderId: id, rating, comment },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -226,7 +226,7 @@ function OrderDetail() {
     }
     try {
       await axios.post(
-        "http://localhost:5000/api/return-requests",
+        "https://eshop-backend-e11f.onrender.com/api/return-requests",
         { orderId: id, reason: returnReason },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

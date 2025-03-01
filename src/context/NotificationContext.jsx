@@ -18,7 +18,7 @@ export const NotificationProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/notifications",
+        "https://eshop-backend-e11f.onrender.com/api/notifications",
         {
           headers: {
             Authorization: `Bearer ${user.token}`, // Include token

@@ -21,7 +21,7 @@ import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://eshop-backend-e11f.onrender.com");
 
 // Animation keyframes
 const slideIn = keyframes`

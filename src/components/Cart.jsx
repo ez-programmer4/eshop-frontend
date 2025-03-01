@@ -193,7 +193,7 @@ function Cart() {
     }
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/discounts/validate",
+        "https://eshop-backend-e11f.onrender.com/api/discounts/validate",
         { code: discountCode },
         { headers: { Authorization: `Bearer ${user?.token}` } }
       );
@@ -316,7 +316,7 @@ function Cart() {
       };
 
       const response = await axios.post(
-        "http://localhost:5000/api/orders",
+        "https://eshop-backend-e11f.onrender.com/api/orders",
         orderData,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -349,7 +349,7 @@ function Cart() {
       switch (paymentMethod) {
         case "telebirr":
           const telebirrResponse = await axios.post(
-            "http://localhost:5000/api/telebirr/pay",
+            "https://eshop-backend-e11f.onrender.com/api/telebirr/pay",
             { amount: total, phone: phoneNumber, pnr: pnrCode }
           );
           await createOrder({ method: "telebirr" });
@@ -357,7 +357,7 @@ function Cart() {
 
         case "mpesa":
           const mpesaResponse = await axios.post(
-            "http://localhost:5000/api/mpesa/pay",
+            "https://eshop-backend-e11f.onrender.com/api/mpesa/pay",
             { amount: total, phone: phoneNumber, pnr: pnrCode }
           );
           await createOrder({ method: "mpesa" });
@@ -530,7 +530,7 @@ function Cart() {
                   const totalInCents = Math.round(calculateTotal() * 100);
                   axios
                     .post(
-                      "http://localhost:5000/api/create-payment-intent",
+                      "https://eshop-backend-e11f.onrender.com/api/create-payment-intent",
                       { amount: totalInCents },
                       { headers: { Authorization: `Bearer ${user.token}` } }
                     )

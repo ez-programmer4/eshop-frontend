@@ -193,7 +193,7 @@ function ProductDetail() {
   const fetchProduct = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/products/${id}`
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}`
       );
       setProduct(response.data);
     } catch (error) {
@@ -204,7 +204,7 @@ function ProductDetail() {
   const fetchRelatedProducts = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/products/related/${id}`
+        `https://eshop-backend-e11f.onrender.com/api/products/related/${id}`
       );
       const uniqueRelated = Array.from(
         new Set(response.data.map((p) => p._id))
@@ -220,7 +220,7 @@ function ProductDetail() {
     if (!user) return;
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/products/recommendations",
+        "https://eshop-backend-e11f.onrender.com/api/products/recommendations",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -273,7 +273,7 @@ function ProductDetail() {
     }
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/products/${id}/reviews`,
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}/reviews`,
         { rating, comment },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

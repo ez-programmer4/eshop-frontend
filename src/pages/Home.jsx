@@ -235,9 +235,12 @@ function Home() {
         if (cat !== "All") params.category = cat;
         if (sortBy) params.sort = sortBy;
 
-        const response = await axios.get("http://localhost:5000/api/products", {
-          params,
-        });
+        const response = await axios.get(
+          "https://eshop-backend-e11f.onrender.com/api/products",
+          {
+            params,
+          }
+        );
 
         setProducts(response.data.products || response.data);
         setTotalPages(response.data.totalPages || 1);
@@ -254,9 +257,12 @@ function Home() {
 
   const fetchFeaturedProducts = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/products", {
-        params: { limit: 6 },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/products",
+        {
+          params: { limit: 6 },
+        }
+      );
 
       setFeaturedProducts(response.data.products || response.data);
     } catch (error) {

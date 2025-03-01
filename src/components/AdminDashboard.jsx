@@ -62,7 +62,7 @@ ChartJS.register(
   Legend
 );
 
-const socket = io("http://localhost:5000");
+const socket = io("https://eshop-backend-e11f.onrender.com");
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -324,10 +324,13 @@ function AdminDashboard() {
     try {
       const params = { ...filterData };
       if (!params.category) delete params.category;
-      const response = await axios.get("http://localhost:5000/api/products", {
-        headers: { Authorization: `Bearer ${user.token}` },
-        params,
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/products",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+          params,
+        }
+      );
       setProducts(response.data);
     } catch (error) {
       console.error(
@@ -339,9 +342,12 @@ function AdminDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/orders", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/orders",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setOrders(response.data);
     } catch (error) {
       console.error(
@@ -354,7 +360,7 @@ function AdminDashboard() {
   const fetchAnalytics = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/orders/analytics",
+        "https://eshop-backend-e11f.onrender.com/api/orders/analytics",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -370,9 +376,12 @@ function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/users",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setUsers(response.data);
     } catch (error) {
       console.error(
@@ -384,9 +393,12 @@ function AdminDashboard() {
 
   const fetchActivities = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/activities", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/activities",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setActivities(response.data);
     } catch (error) {
       console.error(
@@ -399,7 +411,7 @@ function AdminDashboard() {
   const fetchReviewStats = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/products/analytics",
+        "https://eshop-backend-e11f.onrender.com/api/products/analytics",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -416,7 +428,7 @@ function AdminDashboard() {
   const fetchActivityTrends = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/activities/trends",
+        "https://eshop-backend-e11f.onrender.com/api/activities/trends",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -432,9 +444,12 @@ function AdminDashboard() {
 
   const fetchPendingReviews = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/products", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/products",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       const allReviews = response.data.flatMap((product) =>
         product.reviews
           .filter((review) => review.pending)
@@ -456,7 +471,7 @@ function AdminDashboard() {
   const fetchReturnRequests = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/return-requests",
+        "https://eshop-backend-e11f.onrender.com/api/return-requests",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -473,7 +488,7 @@ function AdminDashboard() {
   const fetchSalesByCategory = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/products/sales-analytics",
+        "https://eshop-backend-e11f.onrender.com/api/products/sales-analytics",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -490,7 +505,7 @@ function AdminDashboard() {
   const fetchHeatmapData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/activities/heatmap",
+        "https://eshop-backend-e11f.onrender.com/api/activities/heatmap",
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -506,9 +521,12 @@ function AdminDashboard() {
 
   const fetchBundles = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/bundles", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/bundles",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setBundles(response.data);
     } catch (error) {
       console.error(
@@ -520,9 +538,12 @@ function AdminDashboard() {
 
   const fetchReferrals = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/referrals", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/referrals",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setReferrals(response.data);
     } catch (error) {
       console.error(
@@ -534,9 +555,12 @@ function AdminDashboard() {
 
   const fetchDiscounts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/discounts", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/discounts",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setDiscounts(response.data);
     } catch (error) {
       console.error(
@@ -665,7 +689,7 @@ function AdminDashboard() {
         stock: Number(formData.stock),
       };
       const response = await axios.post(
-        "http://localhost:5000/api/products",
+        "https://eshop-backend-e11f.onrender.com/api/products",
         payload,
         {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -698,7 +722,7 @@ function AdminDashboard() {
         stock: Number(formData.stock),
       };
       const response = await axios.put(
-        `http://localhost:5000/api/products/${editingProduct._id}`,
+        `https://eshop-backend-e11f.onrender.com/api/products/${editingProduct._id}`,
         payload,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -719,9 +743,12 @@ function AdminDashboard() {
 
   const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setProducts(products.filter((p) => p._id !== id));
       setSuccess(t("Product deleted successfully"));
       setTimeout(() => setSuccess(""), 3000);
@@ -737,7 +764,7 @@ function AdminDashboard() {
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}`,
+        `https://eshop-backend-e11f.onrender.com/api/orders/${orderId}`,
         { status },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -762,7 +789,7 @@ function AdminDashboard() {
     if (!validateUserForm()) return;
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/users/${editingUser._id}`,
+        `https://eshop-backend-e11f.onrender.com/api/users/${editingUser._id}`,
         userFormData,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -783,9 +810,12 @@ function AdminDashboard() {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/users/${id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setUsers(users.filter((u) => u._id !== id));
       setSuccess(t("User deleted successfully"));
       setTimeout(() => setSuccess(""), 3000);
@@ -801,7 +831,7 @@ function AdminDashboard() {
   const handleApproveReview = async (productId, reviewId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/products/${productId}/reviews/${reviewId}/approve`,
+        `https://eshop-backend-e11f.onrender.com/api/products/${productId}/reviews/${reviewId}/approve`,
         {},
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -820,7 +850,7 @@ function AdminDashboard() {
   const handleUpdateReturnRequest = async (requestId, status) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/return-requests/${requestId}`,
+        `https://eshop-backend-e11f.onrender.com/api/return-requests/${requestId}`,
         { status },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -848,7 +878,7 @@ function AdminDashboard() {
         discount: Number(bundleFormData.discount),
       };
       const response = await axios.post(
-        "http://localhost:5000/api/bundles",
+        "https://eshop-backend-e11f.onrender.com/api/bundles",
         payload,
         {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -885,7 +915,7 @@ function AdminDashboard() {
         discount: Number(bundleFormData.discount),
       };
       const response = await axios.put(
-        `http://localhost:5000/api/bundles/${editingBundle._id}`,
+        `https://eshop-backend-e11f.onrender.com/api/bundles/${editingBundle._id}`,
         payload,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -906,9 +936,12 @@ function AdminDashboard() {
 
   const handleDeleteBundle = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/bundles/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/bundles/${id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setBundles(bundles.filter((b) => b._id !== id));
       setSuccess(t("Bundle deleted successfully"));
       setTimeout(() => setSuccess(""), 3000);
@@ -930,7 +963,7 @@ function AdminDashboard() {
         expiresAt: discountFormData.expiresAt || undefined,
       };
       const response = await axios.post(
-        "http://localhost:5000/api/discounts",
+        "https://eshop-backend-e11f.onrender.com/api/discounts",
         payload,
         {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -967,7 +1000,7 @@ function AdminDashboard() {
         expiresAt: discountFormData.expiresAt || undefined,
       };
       const response = await axios.put(
-        `http://localhost:5000/api/discounts/${editingDiscount._id}`,
+        `https://eshop-backend-e11f.onrender.com/api/discounts/${editingDiscount._id}`,
         payload,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -990,9 +1023,12 @@ function AdminDashboard() {
 
   const handleDeleteDiscount = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/discounts/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/discounts/${id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
       setDiscounts(discounts.filter((d) => d._id !== id));
       setSuccess(t("Discount deleted successfully"));
       setTimeout(() => setSuccess(""), 3000);

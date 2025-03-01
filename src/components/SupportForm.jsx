@@ -126,7 +126,7 @@ function SupportForm() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/support/${user.userId}`,
+        `https://eshop-backend-e11f.onrender.com/api/support/${user.userId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -152,7 +152,7 @@ function SupportForm() {
     }
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/support",
+        "https://eshop-backend-e11f.onrender.com/api/support",
         { userId: user.userId, subject, message },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

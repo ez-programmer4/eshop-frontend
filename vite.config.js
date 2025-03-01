@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:5000", // Ensure this matches your backend port
+      "/api": "https://eshop-backend-e11f.onrender.com", // Ensure this matches your backend port
     },
   },
 });

@@ -122,7 +122,7 @@ function Navbar() {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/notifications",
+        "https://eshop-backend-e11f.onrender.com/api/notifications",
         {
           headers: { Authorization: `Bearer ${user?.token}` },
         }
@@ -146,7 +146,7 @@ function Navbar() {
   const markAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/notifications/${id}`,
+        `https://eshop-backend-e11f.onrender.com/api/notifications/${id}`,
         { read: true },
         { headers: { Authorization: `Bearer ${user?.token}` } }
       );

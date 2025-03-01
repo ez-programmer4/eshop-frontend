@@ -22,7 +22,7 @@ export const WishlistProvider = ({ children }) => {
   const fetchWishlist = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/wishlist/${user.userId}`,
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.userId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -34,7 +34,7 @@ export const WishlistProvider = ({ children }) => {
           .map(async (item) => {
             try {
               const productResponse = await axios.get(
-                `http://localhost:5000/api/products/${item.productId}`,
+                `https://eshop-backend-e11f.onrender.com/api/products/${item.productId}`,
                 { headers: { Authorization: `Bearer ${user.token}` } }
               );
               return { _id: item.productId, ...productResponse.data };
@@ -75,7 +75,7 @@ export const WishlistProvider = ({ children }) => {
     }
     try {
       const productResponse = await axios.get(
-        `http://localhost:5000/api/products/${productId}`,
+        `https://eshop-backend-e11f.onrender.com/api/products/${productId}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -83,7 +83,7 @@ export const WishlistProvider = ({ children }) => {
       const newItem = { _id: productId, ...productResponse.data };
       setWishlist((prev) => [...prev, newItem]); // Optimistic update
       await axios.post(
-        "http://localhost:5000/api/wishlist",
+        "https://eshop-backend-e11f.onrender.com/api/wishlist",
         { userId: user.userId, productId },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -105,9 +105,12 @@ export const WishlistProvider = ({ children }) => {
     const updatedWishlist = wishlist.filter((item) => item._id !== productId);
     setWishlist(updatedWishlist); // Optimistic update
     try {
-      await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${productId}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
     } catch (error) {
       console.error(
         "Failed to remove from wishlist:",
