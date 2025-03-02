@@ -190,14 +190,18 @@ function ProductDetail() {
     }
   }, [id, user, t]);
 
-  const fetchProduct = async () => {
+  const fetchProduct = async (id) => {
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/products/${id}`
+        `https://ethioshop-820b.onrender.com/api/products/${id}`
       );
-      setProduct(response.data);
+      return response.data;
     } catch (error) {
-      throw new Error(t("Failed to load product details"));
+      if (error.response?.status === 404) {
+        console.error(`Product ${id} not found`);
+        return null; // Handle gracefully
+      }
+      throw error; // Rethrow other errors
     }
   };
 

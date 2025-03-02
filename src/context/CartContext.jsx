@@ -12,10 +12,30 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  const fetchProduct = async (id) => {
+    try {
+      const response = await axios.get(
+        `https://ethioshop-820b.onrender.com/api/products/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 404) {
+        console.error(`Product ${id} not found`);
+        return null; // Handle gracefully
+      }
+      throw error; // Rethrow other errors
+    }
+  };
+
   const addToCart = async (productId) => {
     try {
-      const response = await axios.get(`/api/products/${productId}`);
-      const product = response.data;
+      const product = await fetchProduct(productId);
+      if (!product) {
+        console.warn(`Product ${productId} not found, skipping add to cart`);
+        alert("This product is no longer available.");
+        return; // Exit early if product isn’t found
+      }
+
       setCart((prevCart) => {
         const updatedCart = [...prevCart];
         const existingItem = updatedCart.find(
@@ -26,7 +46,6 @@ export const CartProvider = ({ children }) => {
         } else {
           updatedCart.push({ productId: product._id, product, quantity: 1 });
         }
-
         return updatedCart;
       });
     } catch (error) {
@@ -34,7 +53,7 @@ export const CartProvider = ({ children }) => {
         "Failed to add to cart:",
         error.response?.data || error.message
       );
-      throw error;
+      alert("Failed to add item to cart. Please try again.");
     }
   };
 
