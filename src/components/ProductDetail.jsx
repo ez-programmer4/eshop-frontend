@@ -1,4 +1,3 @@
-// src/components/ProductDetail.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { CartContext } from "../context/CartContext.jsx";
@@ -56,7 +55,6 @@ ChartJS.register(
   Legend
 );
 
-// Animation keyframes
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -68,7 +66,6 @@ const pulse = keyframes`
   100% { transform: scale(1); }
 `;
 
-// Styled components
 const ProductContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1200,
   margin: "auto",
@@ -77,9 +74,7 @@ const ProductContainer = styled(Box)(({ theme }) => ({
   borderRadius: "12px",
   minHeight: "80vh",
   animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
 }));
 
 const ProductCard = styled(Card)(({ theme }) => ({
@@ -104,10 +99,7 @@ const ActionButton = styled(Button)(({ theme }) => ({
     transform: "scale(1.05)",
     transition: "background-color 0.2s, transform 0.2s",
   },
-  "&:disabled": {
-    backgroundColor: "#ccc",
-    color: "#888",
-  },
+  "&:disabled": { backgroundColor: "#ccc", color: "#888" },
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(0.5, 1),
     fontSize: "0.75rem",
@@ -127,22 +119,12 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#fff",
-    "& fieldset": {
-      borderColor: "#ccc",
-    },
-    "&:hover fieldset": {
-      borderColor: "#999",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#f0c14b",
-    },
+    "& fieldset": { borderColor: "#ccc" },
+    "&:hover fieldset": { borderColor: "#999" },
+    "&.Mui-focused fieldset": { borderColor: "#f0c14b" },
   },
-  "& .MuiInputLabel-root": {
-    color: "#555",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#f0c14b",
-  },
+  "& .MuiInputLabel-root": { color: "#555" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
 }));
 
 function ProductDetail() {
@@ -171,11 +153,9 @@ function ProductDetail() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        await Promise.all([
-          fetchProduct(),
-          fetchRelatedProducts(),
-          fetchRecommendations(),
-        ]);
+        const productData = await fetchProduct(id); // Pass id here
+        setProduct(productData); // Set the fetched product
+        await Promise.all([fetchRelatedProducts(), fetchRecommendations()]);
       } catch (error) {
         setError(t("Failed to load product data"));
       } finally {
@@ -198,7 +178,7 @@ function ProductDetail() {
     }
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/products/${id}` // Must be this
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}`
       );
       return response.data;
     } catch (error) {
@@ -230,9 +210,7 @@ function ProductDetail() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products/recommendations",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       const uniqueRecs = Array.from(
         new Set(response.data.map((p) => p._id))
@@ -251,7 +229,7 @@ function ProductDetail() {
       navigate("/login");
       return;
     }
-    addToCart(product._id);
+    addToCart(product?._id); // Ensure product._id exists
     setSuccess(t("Added to cart!"));
     setTimeout(() => setSuccess(""), 3000);
   };
@@ -262,10 +240,10 @@ function ProductDetail() {
       return;
     }
     if (wishlist.some((item) => item._id === product._id)) {
-      removeFromWishlist(product._id); // Pass string ID
+      removeFromWishlist(product._id);
       setSuccess(t("Removed from wishlist"));
     } else {
-      addToWishlist(product._id); // Pass string ID
+      addToWishlist(product._id);
       setSuccess(t("Added to wishlist"));
     }
     setTimeout(() => setSuccess(""), 3000);
