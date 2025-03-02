@@ -13,6 +13,11 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const fetchProduct = async (id) => {
+    console.log("fetchProduct called with ID:", id); // Debug
+    if (!id || id === "undefined") {
+      console.error("fetchProduct received invalid ID:", id);
+      return null;
+    }
     try {
       const response = await axios.get(
         `https://ethioshop-820b.onrender.com/api/products/${id}`
@@ -21,19 +26,20 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       if (error.response?.status === 404) {
         console.error(`Product ${id} not found`);
-        return null; // Handle gracefully
+        return null;
       }
-      throw error; // Rethrow other errors
+      throw error;
     }
   };
 
   const addToCart = async (productId) => {
+    console.log("addToCart called with productId:", productId); // Debug
     try {
       const product = await fetchProduct(productId);
       if (!product) {
         console.warn(`Product ${productId} not found, skipping add to cart`);
         alert("This product is no longer available.");
-        return; // Exit early if product isn’t found
+        return;
       }
 
       setCart((prevCart) => {
