@@ -1,4 +1,3 @@
-// src/components/Home.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import ProductList from "../components/ProductList.jsx";
@@ -46,9 +45,7 @@ const HomeContainer = styled(Box)(({ theme }) => ({
   borderRadius: "12px",
   minHeight: "80vh",
   animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
@@ -66,34 +63,28 @@ const HeroSection = styled(Box)(({ theme }) => ({
 
 const FilterBar = styled(Box)(({ theme }) => ({
   display: "flex",
+  flexDirection: { xs: "column", sm: "row" }, // Stack vertically on mobile
   alignItems: "center",
   gap: theme.spacing(1),
+  padding: theme.spacing(1),
   backgroundColor: "#fff",
   borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(1),
-  marginBottom: theme.spacing(2),
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
   flexWrap: "wrap",
   justifyContent: "center",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.5),
-    gap: theme.spacing(0.5),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(0.5) },
 }));
 
-const FilterButton = styled(IconButton)(({ theme, active }) => ({
-  backgroundColor: active ? "#f0c14b" : "#fff",
-  color: active ? "#111" : "#555",
+const FilterButton = styled(IconButton)(({ theme }) => ({
+  backgroundColor: "#f5f5f5",
+  color: "#555",
   border: "1px solid #ccc",
   borderRadius: "8px",
-  padding: theme.spacing(0.5),
+  padding: { xs: theme.spacing(0.5), sm: theme.spacing(1) },
   "&:hover": {
-    backgroundColor: active ? "#e0b03a" : "#f5f5f5",
+    backgroundColor: "#e0e0e0",
     transform: "scale(1.1)",
     transition: "background-color 0.2s, transform 0.2s",
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.3),
   },
 }));
 
@@ -101,9 +92,7 @@ const SliderContainer = styled(Box)(({ theme }) => ({
   position: "relative",
   overflow: "hidden",
   marginBottom: theme.spacing(2),
-  [theme.breakpoints.down("sm")]: {
-    marginBottom: theme.spacing(1),
-  },
+  [theme.breakpoints.down("sm")]: { marginBottom: theme.spacing(1) },
 }));
 
 const SlideTrack = styled(Box)(({ theme, offset }) => ({
@@ -153,7 +142,7 @@ const AboutSection = styled(Box)(({ theme }) => ({
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  backgroundColor: "#232f3e", // Figma-inspired dark blue-gray
+  backgroundColor: "#232f3e",
   color: "#fff",
   padding: theme.spacing(4, 2),
   marginTop: theme.spacing(2),
@@ -169,10 +158,7 @@ const FooterLink = styled(Link)(({ theme }) => ({
   textDecoration: "none",
   fontSize: { xs: "0.75rem", sm: "0.875rem" },
   margin: theme.spacing(0, 1),
-  "&:hover": {
-    color: "#f0c14b",
-    transition: "color 0.2s",
-  },
+  "&:hover": { color: "#f0c14b", transition: "color 0.2s" },
 }));
 
 const FooterIconButton = styled(IconButton)(({ theme }) => ({
@@ -188,25 +174,13 @@ const FooterTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#fff",
-    "& fieldset": {
-      borderColor: "#ccc",
-    },
-    "&:hover fieldset": {
-      borderColor: "#999",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#f0c14b",
-    },
+    "& fieldset": { borderColor: "#ccc" },
+    "&:hover fieldset": { borderColor: "#999" },
+    "&.Mui-focused fieldset": { borderColor: "#f0c14b" },
   },
-  "& .MuiInputLabel-root": {
-    color: "#555",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#f0c14b",
-  },
-  "& input": {
-    padding: "8px 12px",
-  },
+  "& .MuiInputLabel-root": { color: "#555" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
+  "& input": { padding: "8px 12px" },
 }));
 
 function Home() {
@@ -216,7 +190,7 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [category, setCategory] = useState("All");
-  const [sort, setSort] = useState("name");
+  const [sort, setSort] = useState("name-asc");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -237,9 +211,7 @@ function Home() {
 
         const response = await axios.get(
           "https://eshop-backend-e11f.onrender.com/api/products",
-          {
-            params,
-          }
+          { params }
         );
 
         setProducts(response.data.products || response.data);
@@ -259,11 +231,8 @@ function Home() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products",
-        {
-          params: { limit: 6 },
-        }
+        { params: { limit: 6 } }
       );
-
       setFeaturedProducts(response.data.products || response.data);
     } catch (error) {
       console.error("Failed to fetch featured products:", error);
@@ -280,8 +249,10 @@ function Home() {
 
   const categories = ["All", "T-Shirts", "Jackets", "Pants", "Accessories"];
   const sortOptions = [
-    { value: "name", label: t("Name"), icon: <SortIcon /> },
-    { value: "price", label: t("Price"), icon: <SortIcon /> },
+    { value: "name-asc", label: t("Name: A-Z") },
+    { value: "name-desc", label: t("Name: Z-A") },
+    { value: "price-asc", label: t("Price: Low to High") },
+    { value: "price-desc", label: t("Price: High to Low") },
   ];
 
   const handleSlideNext = () => {
@@ -299,8 +270,6 @@ function Home() {
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
-
-    // Add backend API call here to handle subscription
     setNewsletterEmail("");
     alert(t("Thank you for subscribing!"));
   };
@@ -396,19 +365,28 @@ function Home() {
         </IconButton>
       </SliderContainer>
 
-      {/* Filters and Sorting */}
+      {/* Updated Browse Products Section */}
       <Typography
         variant={isMobile ? "subtitle1" : "h6"}
-        sx={{ color: "#111", fontWeight: 600, mb: 1 }}
+        sx={{
+          color: "#111",
+          fontWeight: 600,
+          mb: 1,
+          textAlign: isMobile ? "center" : "left",
+        }}
       >
         {t("Browse Products")}
       </Typography>
       <FilterBar>
+        {/* Category Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             gap: isMobile ? 0.5 : 1,
+            flexWrap: "wrap",
+            justifyContent: isMobile ? "center" : "flex-start",
+            width: isMobile ? "100%" : "auto",
           }}
         >
           <FilterButton>
@@ -425,7 +403,9 @@ function Home() {
                 borderColor: "#ccc",
                 borderRadius: "8px",
                 padding: isMobile ? "4px 8px" : "6px 12px",
-                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                fontSize: isMobile ? "0.7rem" : "0.875rem",
+                minWidth: isMobile ? "60px" : "80px",
+                textTransform: "capitalize",
                 "&:hover": {
                   bgcolor: category === cat ? "#e0b03a" : "#f5f5f5",
                 },
@@ -435,16 +415,28 @@ function Home() {
             </Button>
           ))}
         </Box>
+
+        {/* Divider */}
         <Divider
           orientation={isMobile ? "horizontal" : "vertical"}
           flexItem
-          sx={{ bgcolor: "#eee", mx: isMobile ? 0 : 1, my: isMobile ? 1 : 0 }}
+          sx={{
+            bgcolor: "#eee",
+            mx: isMobile ? 0 : 1,
+            my: isMobile ? 1 : 0,
+            width: isMobile ? "80%" : "auto",
+          }}
         />
+
+        {/* Sort Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             gap: isMobile ? 0.5 : 1,
+            flexWrap: "wrap",
+            justifyContent: isMobile ? "center" : "flex-start",
+            width: isMobile ? "100%" : "auto",
           }}
         >
           <FilterButton>
@@ -461,7 +453,9 @@ function Home() {
                 borderColor: "#ccc",
                 borderRadius: "8px",
                 padding: isMobile ? "4px 8px" : "6px 12px",
-                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                fontSize: isMobile ? "0.7rem" : "0.875rem",
+                minWidth: isMobile ? "70px" : "100px",
+                textTransform: "none",
                 "&:hover": {
                   bgcolor: sort === option.value ? "#e0b03a" : "#f5f5f5",
                 },
