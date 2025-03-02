@@ -1,3 +1,4 @@
+// src/components/Cart.jsx
 import React, { useState, useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -38,7 +39,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const stripePromise = loadStripe("pk_test_YOUR_PUBLISHABLE_KEY"); // Replace with your Stripe publishable key
+const stripePromise = loadStripe("pk_test_YOUR_PUBLISHABLE_KEY"); // Replace with your Stripe key
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -105,13 +106,25 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#fff",
-    "& fieldset": { borderColor: "#ccc" },
-    "&:hover fieldset": { borderColor: "#999" },
-    "&.Mui-focused fieldset": { borderColor: "#1976d2" },
+    "& fieldset": {
+      borderColor: "#ccc",
+    },
+    "&:hover fieldset": {
+      borderColor: "#999",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#1976d2",
+    },
   },
-  "& .MuiInputLabel-root": { color: "#555" },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#1976d2" },
-  "& input": { padding: "10px 14px" },
+  "& .MuiInputLabel-root": {
+    color: "#555",
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#1976d2",
+  },
+  "& input": {
+    padding: "10px 14px",
+  },
 }));
 
 function Cart() {
@@ -124,7 +137,6 @@ function Cart() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [products, setProducts] = useState([]);
   const [discountCode, setDiscountCode] = useState("");
-  const [referralCode, setReferralCode] = useState(""); // New state for referral code
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState("");
   const [isPaymentStep, setIsPaymentStep] = useState(false);
@@ -279,7 +291,7 @@ function Cart() {
     try {
       const orderData = {
         pnr: pnrCode,
-        userId: user.userId, // Changed from _id to userId to match AuthContext
+        userId: user._id,
         items: cart.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -301,7 +313,6 @@ function Cart() {
               ? paymentDetails.last4
               : undefined,
         },
-        referralCode: referralCode.trim() || undefined, // Include referral code
       };
 
       const response = await axios.post(
@@ -410,7 +421,9 @@ function Cart() {
         if (paymentMethod === "stripe") {
           const { paymentIntent, error: stripeError } =
             await stripe.confirmCardPayment(clientSecret, {
-              payment_method: { card: elements.getElement(CardElement) },
+              payment_method: {
+                card: elements.getElement(CardElement),
+              },
             });
 
           if (stripeError) {
@@ -1070,33 +1083,6 @@ function Cart() {
                     sx={{
                       bgcolor: "#1976d2",
                       "&:hover": { bgcolor: "#1565c0" },
-                      px: { xs: 2, sm: 3 },
-                    }}
-                  >
-                    {t("Apply")}
-                  </Button>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 1,
-                    mb: 2,
-                    flexDirection: { xs: "column", sm: "row" },
-                  }}
-                >
-                  <StyledTextField
-                    label={t("Referral Code")}
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value)}
-                    size="small"
-                    sx={{ flexGrow: 1 }}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={() => setReferralCode(referralCode.trim())} // Optional: Simple apply action
-                    sx={{
-                      bgcolor: "#2ecc71",
-                      "&:hover": { bgcolor: "#27ae60" },
                       px: { xs: 2, sm: 3 },
                     }}
                   >
