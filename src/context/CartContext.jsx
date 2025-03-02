@@ -13,14 +13,14 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const fetchProduct = async (id) => {
-    console.log("fetchProduct called with ID:", id); // Debug
+    console.log("fetchProduct called with ID:", id);
     if (!id || id === "undefined") {
       console.error("fetchProduct received invalid ID:", id);
       return null;
     }
     try {
       const response = await axios.get(
-        `https://ethioshop-820b.onrender.com/api/products/${id}`
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}` // Correct URL
       );
       return response.data;
     } catch (error) {
@@ -33,7 +33,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (productId) => {
-    console.log("addToCart called with productId:", productId); // Debug
+    console.log("addToCart called with productId:", productId);
     try {
       const product = await fetchProduct(productId);
       if (!product) {
