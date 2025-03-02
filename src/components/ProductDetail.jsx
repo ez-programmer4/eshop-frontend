@@ -191,17 +191,22 @@ function ProductDetail() {
   }, [id, user, t]);
 
   const fetchProduct = async (id) => {
+    console.log("fetchProduct called with ID:", id);
+    if (!id || id === "undefined") {
+      console.error("fetchProduct received invalid ID:", id);
+      return null;
+    }
     try {
       const response = await axios.get(
-        `https://ethioshop-820b.onrender.com/api/products/${id}`
+        `https://eshop-backend-e11f.onrender.com/api/products/${id}` // Must be this
       );
       return response.data;
     } catch (error) {
       if (error.response?.status === 404) {
         console.error(`Product ${id} not found`);
-        return null; // Handle gracefully
+        return null;
       }
-      throw error; // Rethrow other errors
+      throw error;
     }
   };
 
