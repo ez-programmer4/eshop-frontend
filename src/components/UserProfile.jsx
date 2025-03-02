@@ -1,4 +1,3 @@
-// src/components/UserProfile.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { WishlistContext } from "../context/WishlistContext.jsx";
@@ -49,9 +48,7 @@ const ProfileContainer = styled(Box)(({ theme }) => ({
   borderRadius: "12px",
   minHeight: "80vh",
   animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
 }));
 
 const ProfileCard = styled(Card)(({ theme }) => ({
@@ -64,9 +61,7 @@ const ProfileCard = styled(Card)(({ theme }) => ({
     transform: "translateY(-4px)",
     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
   },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
@@ -88,22 +83,12 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     backgroundColor: "#fff",
-    "& fieldset": {
-      borderColor: "#ccc",
-    },
-    "&:hover fieldset": {
-      borderColor: "#999",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#f0c14b",
-    },
+    "& fieldset": { borderColor: "#ccc" },
+    "&:hover fieldset": { borderColor: "#999" },
+    "&.Mui-focused fieldset": { borderColor: "#f0c14b" },
   },
-  "& .MuiInputLabel-root": {
-    color: "#555",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#f0c14b",
-  },
+  "& .MuiInputLabel-root": { color: "#555" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
 }));
 
 function UserProfile() {
@@ -149,9 +134,7 @@ function UserProfile() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/users/profile",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setProfile(response.data);
       setFormData({
@@ -168,9 +151,7 @@ function UserProfile() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/orders/my-orders",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setOrders(response.data);
     } catch (error) {
@@ -182,9 +163,7 @@ function UserProfile() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/activities/me",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setActivities(response.data);
     } catch (error) {
@@ -204,7 +183,7 @@ function UserProfile() {
       setSuccess(t("Profile updated successfully"));
       setError("");
       setTimeout(() => setSuccess(""), 3000);
-      fetchProfile();
+      await fetchProfile();
     } catch (error) {
       setError(error.response?.data.message || t("Failed to update profile"));
     }
@@ -214,9 +193,7 @@ function UserProfile() {
     try {
       await axios.delete(
         "https://eshop-backend-e11f.onrender.com/api/users/me",
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       logout();
       navigate("/");
@@ -234,6 +211,27 @@ function UserProfile() {
     navigator.clipboard.writeText(referralLink);
     setSuccess(t("Referral link copied to clipboard!"));
     setTimeout(() => setSuccess(""), 3000);
+  };
+
+  const handleApplyReferralDiscount = async () => {
+    try {
+      const response = await axios.put(
+        "https://eshop-backend-e11f.onrender.com/api/users/apply-referral-discount",
+        {},
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setProfile({ ...profile, referralDiscount: 0 });
+      setSuccess(
+        t(`Applied ${response.data.discount}% discount to your next order!`)
+      );
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      setError(
+        t("Failed to apply discount") +
+          ": " +
+          (error.response?.data.message || error.message)
+      );
+    }
   };
 
   if (loading) {
@@ -449,6 +447,18 @@ function UserProfile() {
                     {t("Referral Discount Available")}:{" "}
                     {profile.referralDiscount}%
                   </Typography>
+                  <ActionButton
+                    variant="contained"
+                    onClick={handleApplyReferralDiscount}
+                    disabled={profile.referralDiscount <= 0}
+                    sx={{
+                      bgcolor: "#3498db",
+                      "&:hover": { bgcolor: "#2980b9" },
+                      mt: 2,
+                    }}
+                  >
+                    {t("Apply Referral Discount")}
+                  </ActionButton>
                   <Typography variant="h6" sx={{ color: "#111", mt: 3, mb: 2 }}>
                     {t("Referred Friends")}
                   </Typography>

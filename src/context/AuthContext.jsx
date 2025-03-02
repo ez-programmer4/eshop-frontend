@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
       const storedUser = JSON.parse(localStorage.getItem("user")) || {};
       setUser({
         token,
-        userId: storedUser.id, // Align with backend 'id'
+        userId: storedUser.id,
         name: storedUser.name,
         email: storedUser.email,
         role: storedUser.role,
@@ -25,22 +25,19 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/users/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
-      const userData = response.data.user; // Extract user object
+      const userData = response.data.user;
       setUser({
         token: response.data.token,
-        userId: userData.id, // Use 'id' from backend
+        userId: userData.id,
         name: userData.name,
         email: userData.email,
         role: userData.role,
         referralCode: userData.referralCode,
       });
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(userData)); // Store full user object
+      localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -68,9 +65,11 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = async (data) => {
     try {
-      const response = await axios.put("/api/users/profile", data, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const response = await axios.put(
+        "https://eshop-backend-e11f.onrender.com/api/users/profile",
+        data,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
       const updatedUser = response.data;
       setUser({ ...user, ...updatedUser });
       localStorage.setItem("user", JSON.stringify(updatedUser));
