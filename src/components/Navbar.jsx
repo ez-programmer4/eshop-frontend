@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -51,6 +50,12 @@ const slideIn = keyframes`
   to { transform: translateX(0); }
 `;
 
+const bounce = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+`;
+
 // Styled components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#fff",
@@ -68,6 +73,12 @@ const NavIconButton = styled(IconButton)(({ theme }) => ({
     transform: "scale(1.1)",
     transition: "color 0.2s, transform 0.2s",
   },
+}));
+
+const CartIconButton = styled(NavIconButton)(({ theme, animate }) => ({
+  ...(animate && {
+    animation: `${bounce} 0.5s ease-out`,
+  }),
 }));
 
 const LogoTypography = styled(Typography)(({ theme }) => ({
@@ -112,12 +123,22 @@ function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [cartAnimate, setCartAnimate] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchNotifications();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Trigger animation when cart length changes
+    if (cart.length > 0) {
+      setCartAnimate(true);
+      const timer = setTimeout(() => setCartAnimate(false), 500); // Reset after animation
+      return () => clearTimeout(timer);
+    }
+  }, [cart.length]);
 
   const fetchNotifications = async () => {
     try {
@@ -319,141 +340,155 @@ function Navbar() {
           }}
         />
 
-        {/* Navigation and User Actions */}
-        {isLaptop ? (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <NavIconButton component={Link} to="/" title={t("Home")}>
-              <HomeIcon />
-            </NavIconButton>
-            <NavIconButton
-              component={Link}
-              to="/products"
-              title={t("Products")}
-            >
-              <StoreIcon />
-            </NavIconButton>
-            <NavIconButton component={Link} to="/my-orders" title={t("Orders")}>
-              <ListAltIcon />
-            </NavIconButton>
-            {user && user.role === "admin" && (
-              <NavIconButton
-                component={Link}
-                to="/admin"
-                title={t("Admin Dashboard")}
-              >
-                <AdminPanelSettingsIcon />
-              </NavIconButton>
-            )}
-            {user ? (
-              <>
-                <NavIconButton component={Link} to="/cart" title={t("Cart")}>
-                  <Badge badgeContent={cart.length} color="error">
-                    <ShoppingCartIcon />
-                  </Badge>
-                </NavIconButton>
-                <NavIconButton
-                  component={Link}
-                  to="/wishlist"
-                  title={t("Wishlist")}
-                >
-                  <Badge badgeContent={wishlist.length} color="error">
-                    <FavoriteIcon />
-                  </Badge>
-                </NavIconButton>
-                <NavIconButton
-                  onClick={handleNotifMenuOpen}
-                  title={t("Notifications")}
-                >
-                  <Badge badgeContent={notifications.length} color="error">
-                    <NotificationsIcon />
-                  </Badge>
-                </NavIconButton>
-                <NavIconButton
-                  onClick={handleMenuOpen}
-                  title={user.name || user.email.split("@")[0]}
-                >
-                  <PersonIcon />
-                </NavIconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  PaperProps={{
-                    sx: { mt: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
-                  }}
-                >
-                  <MenuItem
-                    onClick={() => {
-                      navigate("/profile");
-                      handleMenuClose();
-                    }}
-                  >
-                    {t("Profile")}
-                  </MenuItem>
-                  {user.role === "admin" && (
-                    <MenuItem
-                      onClick={() => {
-                        navigate("/admin");
-                        handleMenuClose();
-                      }}
-                    >
-                      {t("Admin Dashboard")}
-                    </MenuItem>
-                  )}
-                  <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <NavIconButton component={Link} to="/login" title={t("Login")}>
-                <PersonIcon />
-              </NavIconButton>
-            )}
-          </Box>
-        ) : (
-          <NavIconButton edge="end" onClick={toggleDrawer(true)}>
-            <MenuIcon />
-          </NavIconButton>
-        )}
-
-        {/* Notification Menu (Shared for all screen sizes) */}
-        <Menu
-          anchorEl={notifAnchorEl}
-          open={Boolean(notifAnchorEl)}
-          onClose={handleNotifMenuClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-          PaperProps={{
-            sx: {
-              maxHeight: 300,
-              width: { xs: 200, sm: 250, md: 300 },
-              mt: 1,
-              overflowY: "auto",
-              bgcolor: "#fff",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            },
+        {/* Navigation and Cart */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0.5, md: 1.5 },
           }}
         >
-          {notifications.length === 0 ? (
-            <MenuItem>
-              <Typography sx={{ fontSize: 14 }}>
-                {t("No new notifications")}
-              </Typography>
-            </MenuItem>
-          ) : (
-            notifications.map((notif) => (
-              <MenuItem
-                key={notif._id}
-                onClick={() => markAsRead(notif._id)}
-                sx={{ whiteSpace: "normal", py: 1 }}
+          <CartIconButton
+            onClick={() => navigate("/cart")}
+            title={t("Cart")}
+            animate={cartAnimate}
+          >
+            <Badge badgeContent={cart.length} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </CartIconButton>
+          {isLaptop ? (
+            <>
+              <NavIconButton component={Link} to="/" title={t("Home")}>
+                <HomeIcon />
+              </NavIconButton>
+              <NavIconButton
+                component={Link}
+                to="/products"
+                title={t("Products")}
               >
-                <Typography sx={{ fontSize: 14 }}>{notif.message}</Typography>
-              </MenuItem>
-            ))
+                <StoreIcon />
+              </NavIconButton>
+              <NavIconButton
+                component={Link}
+                to="/my-orders"
+                title={t("Orders")}
+              >
+                <ListAltIcon />
+              </NavIconButton>
+              {user && user.role === "admin" && (
+                <NavIconButton
+                  component={Link}
+                  to="/admin"
+                  title={t("Admin Dashboard")}
+                >
+                  <AdminPanelSettingsIcon />
+                </NavIconButton>
+              )}
+              {user ? (
+                <>
+                  <NavIconButton
+                    component={Link}
+                    to="/wishlist"
+                    title={t("Wishlist")}
+                  >
+                    <Badge badgeContent={wishlist.length} color="error">
+                      <FavoriteIcon />
+                    </Badge>
+                  </NavIconButton>
+                  <NavIconButton
+                    onClick={handleNotifMenuOpen}
+                    title={t("Notifications")}
+                  >
+                    <Badge badgeContent={notifications.length} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </NavIconButton>
+                  <NavIconButton
+                    onClick={handleMenuOpen}
+                    title={user.name || user.email.split("@")[0]}
+                  >
+                    <PersonIcon />
+                  </NavIconButton>
+                </>
+              ) : (
+                <NavIconButton component={Link} to="/login" title={t("Login")}>
+                  <PersonIcon />
+                </NavIconButton>
+              )}
+            </>
+          ) : (
+            <NavIconButton edge="end" onClick={toggleDrawer(true)}>
+              <MenuIcon />
+            </NavIconButton>
           )}
-        </Menu>
+        </Box>
       </Toolbar>
 
-      {/* Drawer for Mobile/Tablet */}
+      {/* Menus and Drawer */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: { mt: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate("/profile");
+            handleMenuClose();
+          }}
+        >
+          {t("Profile")}
+        </MenuItem>
+        {user && user.role === "admin" && (
+          <MenuItem
+            onClick={() => {
+              navigate("/admin");
+              handleMenuClose();
+            }}
+          >
+            {t("Admin Dashboard")}
+          </MenuItem>
+        )}
+        <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
+      </Menu>
+      <Menu
+        anchorEl={notifAnchorEl}
+        open={Boolean(notifAnchorEl)}
+        onClose={handleNotifMenuClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            maxHeight: 300,
+            width: { xs: 200, sm: 250, md: 300 },
+            mt: 1,
+            overflowY: "auto",
+            bgcolor: "#fff",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        {notifications.length === 0 ? (
+          <MenuItem>
+            <Typography sx={{ fontSize: 14 }}>
+              {t("No new notifications")}
+            </Typography>
+          </MenuItem>
+        ) : (
+          notifications.map((notif) => (
+            <MenuItem
+              key={notif._id}
+              onClick={() => markAsRead(notif._id)}
+              sx={{ whiteSpace: "normal", py: 1 }}
+            >
+              <Typography sx={{ fontSize: 14 }}>{notif.message}</Typography>
+            </MenuItem>
+          ))
+        )}
+      </Menu>
       <Drawer
         anchor="right"
         open={drawerOpen}
