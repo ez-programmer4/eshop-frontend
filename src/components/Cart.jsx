@@ -1,4 +1,3 @@
-// src/components/Cart.jsx
 import React, { useState, useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -23,6 +22,8 @@ import {
   Collapse,
   useMediaQuery,
   keyframes,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
 import AddIcon from "@mui/icons-material/Add";
@@ -47,6 +48,12 @@ const slideIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const bounce = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
 // Custom styled components
 const CartCard = styled(Card)(({ theme }) => ({
   borderRadius: "12px",
@@ -58,6 +65,7 @@ const CartCard = styled(Card)(({ theme }) => ({
     transform: "translateY(-4px)",
     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
   },
+  marginBottom: theme.spacing(2), // Improved spacing on mobile
 }));
 
 const PaymentCard = styled(Card)(({ theme }) => ({
@@ -65,25 +73,29 @@ const PaymentCard = styled(Card)(({ theme }) => ({
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   backgroundColor: "#fff",
   border: "1px solid #eee",
+  padding: { xs: theme.spacing(1), sm: theme.spacing(2) }, // Enhanced mobile padding
 }));
 
 const CheckoutButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#f0c14b",
   color: "#111",
-  padding: { xs: "8px 16px", sm: "12px 24px" },
+  padding: { xs: "10px 20px", sm: "12px 24px" },
   borderRadius: "8px",
-  fontWeight: 600,
+  fontWeight: 700,
+  fontSize: { xs: "0.9rem", sm: "1rem" },
+  textTransform: "uppercase",
   "&:hover": {
     backgroundColor: "#e0b03a",
-    transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
+    animation: `${bounce} 0.3s ease-out`,
   },
+  width: "100%", // Full width on mobile
+  marginTop: theme.spacing(1),
 }));
 
 const RemoveButton = styled(Button)(({ theme }) => ({
   color: "#d32f2f",
   borderColor: "#d32f2f",
-  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+  fontSize: { xs: "0.7rem", sm: "0.875rem" },
   borderRadius: "6px",
   padding: { xs: "4px 8px", sm: "6px 12px" },
   "&:hover": {
@@ -94,7 +106,7 @@ const RemoveButton = styled(Button)(({ theme }) => ({
 
 const ActionButton = styled(IconButton)(({ theme }) => ({
   color: "#1976d2",
-  padding: { xs: 1, sm: 1.5 },
+  padding: { xs: 0.5, sm: 1.5 },
   "&:hover": {
     backgroundColor: "#e3f2fd",
     transform: "scale(1.1)",
@@ -118,13 +130,15 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
   "& .MuiInputLabel-root": {
     color: "#555",
+    fontSize: { xs: "0.85rem", sm: "1rem" },
   },
   "& .MuiInputLabel-root.Mui-focused": {
     color: "#1976d2",
   },
   "& input": {
-    padding: "10px 14px",
+    padding: { xs: "8px 12px", sm: "10px 14px" },
   },
+  marginBottom: theme.spacing(1), // Tighter spacing on mobile
 }));
 
 function Cart() {
@@ -146,7 +160,7 @@ function Cart() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [shippingAddressOpen, setShippingAddressOpen] = useState(true);
-  const [billingAddressOpen, setBillingAddressOpen] = useState(true);
+  const [billingAddressOpen, setBillingAddressOpen] = useState(false);
   const [shippingAddress, setShippingAddress] = useState({
     street: "",
     city: "",
@@ -161,6 +175,8 @@ function Cart() {
     postalCode: "",
     country: "ET",
   });
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     setProducts(
@@ -201,12 +217,7 @@ function Cart() {
       setError("");
     } catch (err) {
       setDiscount(0);
-      if (err.response?.status === 404) {
-        setError(t("Discount validation service unavailable"));
-      } else {
-        setError(err.response?.data.message || t("Invalid discount code"));
-      }
-      console.error("Discount apply error:", err.response?.data || err.message);
+      setError(err.response?.data.message || t("Invalid discount code"));
     }
   };
 
@@ -230,11 +241,9 @@ function Cart() {
 
   const validatePhoneNumber = (value) => {
     if (paymentMethod === "telebirr") {
-      const telebirrRegex = /^09\d{8}$/;
-      return telebirrRegex.test(value);
+      return /^09\d{8}$/.test(value);
     } else if (paymentMethod === "mpesa") {
-      const mpesaRegex = /^07\d{8}$/;
-      return mpesaRegex.test(value);
+      return /^07\d{8}$/.test(value);
     }
     return false;
   };
@@ -257,29 +266,50 @@ function Cart() {
     }
   };
 
+  const validateAddress = (address, type) => {
+    const errors = {};
+    if (!address.street.trim()) errors.street = t(`${type} street is required`);
+    if (!address.city.trim()) errors.city = t(`${type} city is required`);
+    if (!address.state.trim())
+      errors.state = t(`${type} state/region is required`);
+    if (!address.postalCode.trim())
+      errors.postalCode = t(`${type} postal code is required`);
+    if (!address.country.trim())
+      errors.country = t(`${type} country is required`);
+    return errors;
+  };
+
   const handleCheckout = () => {
     if (!user || !user.email) {
       navigate("/login");
       return;
     }
-    if (
-      !shippingAddress.street ||
-      !shippingAddress.city ||
-      !shippingAddress.state ||
-      !shippingAddress.postalCode ||
-      !shippingAddress.country ||
-      !billingAddress.street ||
-      !billingAddress.city ||
-      !billingAddress.state ||
-      !billingAddress.postalCode ||
-      !billingAddress.country
-    ) {
-      setError(t("Please fill in all required address fields"));
+
+    const shippingErrors = validateAddress(shippingAddress, "Shipping");
+    let billingErrors = {};
+    if (!billingSameAsShipping) {
+      billingErrors = validateAddress(billingAddress, "Billing");
+    }
+
+    const allErrors = { ...shippingErrors, ...billingErrors };
+    setValidationErrors(allErrors);
+
+    if (Object.keys(allErrors).length > 0) {
+      setError(
+        t("Please fill in the following required fields: ") +
+          Object.values(allErrors).join(", ")
+      );
       return;
     }
+
+    if (billingSameAsShipping) {
+      setBillingAddress({ ...shippingAddress });
+    }
+
     const newPnr = generatePNR();
     setPnrCode(newPnr);
     setIsPaymentStep(true);
+    setError(""); // Clear error on success
   };
 
   const handleCopyPNR = () => {
@@ -452,7 +482,7 @@ function Cart() {
             sx={{
               color: "#111",
               fontWeight: 600,
-              mb: 3,
+              mb: 2,
               textAlign: "center",
               letterSpacing: 0.5,
             }}
@@ -516,7 +546,7 @@ function Cart() {
             {t("Total to Pay")}:{" "}
             <strong style={{ color: "#111" }}>${calculateTotal()}</strong>
           </Typography>
-          <FormControl fullWidth sx={{ mb: 3 }}>
+          <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel sx={{ color: "#555", fontWeight: 500 }}>
               {t("Payment Method")}
             </InputLabel>
@@ -580,13 +610,13 @@ function Cart() {
               }
               error={!!phoneError}
               helperText={phoneError}
-              sx={{ mb: 3 }}
+              sx={{ mb: 2 }}
             />
           )}
           {paymentMethod === "stripe" && clientSecret && (
             <Box
               sx={{
-                mb: 3,
+                mb: 2,
                 bgcolor: "#fff",
                 p: 2,
                 borderRadius: 2,
@@ -608,40 +638,48 @@ function Cart() {
               />
             </Box>
           )}
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-            <form onSubmit={handleSubmit}>
-              <Button
-                variant="contained"
-                type="submit"
-                disabled={
-                  !paymentMethod ||
-                  (paymentMethod === "stripe" && (!stripe || !clientSecret)) ||
-                  phoneError
-                }
-                sx={{
-                  px: { xs: 3, sm: 4 },
-                  py: 1.5,
-                  bgcolor: "#1976d2",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  "&:hover": { bgcolor: "#1565c0", transform: "scale(1.05)" },
-                  "&:disabled": { bgcolor: "#b0bec5", cursor: "not-allowed" },
-                }}
-              >
-                {t("Pay Now")}
-              </Button>
-            </form>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="contained"
+              type="submit"
+              onClick={handleSubmit}
+              disabled={
+                !paymentMethod ||
+                (paymentMethod === "stripe" && (!stripe || !clientSecret)) ||
+                phoneError
+              }
+              sx={{
+                px: { xs: 3, sm: 4 },
+                py: 1,
+                bgcolor: "#1976d2",
+                borderRadius: "8px",
+                fontWeight: 600,
+                "&:hover": { bgcolor: "#1565c0", transform: "scale(1.05)" },
+                "&:disabled": { bgcolor: "#b0bec5", cursor: "not-allowed" },
+                flex: 1,
+              }}
+            >
+              {t("Pay Now")}
+            </Button>
             <Button
               variant="outlined"
               onClick={() => setIsPaymentStep(false)}
               sx={{
                 px: { xs: 3, sm: 4 },
-                py: 1.5,
+                py: 1,
                 borderColor: "#ccc",
                 color: "#555",
                 borderRadius: "8px",
                 fontWeight: 600,
                 "&:hover": { borderColor: "#999", backgroundColor: "#f5f5f5" },
+                flex: 1,
               }}
             >
               {t("Cancel")}
@@ -657,17 +695,23 @@ function Cart() {
       sx={{
         maxWidth: 1200,
         mx: "auto",
-        mt: 4,
+        mt: { xs: 2, sm: 4 },
         p: { xs: 1, sm: 2, md: 4 },
         bgcolor: "#f7f7f7",
-        borderRadius: 3,
+        borderRadius: { xs: 2, sm: 3 },
         minHeight: "80vh",
       }}
     >
       <Typography
         variant={isMobile ? "h5" : "h4"}
         gutterBottom
-        sx={{ color: "#111", fontWeight: 700, mb: 4, textAlign: "center" }}
+        sx={{
+          color: "#111",
+          fontWeight: 700,
+          mb: { xs: 2, sm: 4 },
+          textAlign: "center",
+          textTransform: "uppercase",
+        }}
       >
         {t("Your Cart")}
       </Typography>
@@ -686,15 +730,15 @@ function Cart() {
         <Grid container spacing={isMobile ? 1 : 3}>
           <Grid item xs={12} md={8}>
             <CartCard>
-              <CardContent>
-                <List sx={{ bgcolor: "#fff" }}>
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+                <List sx={{ bgcolor: "#fff", borderRadius: "8px" }}>
                   {products.map((product) => (
                     <ListItem
                       key={product._id}
                       sx={{
                         flexDirection: { xs: "column", sm: "row" },
                         alignItems: { xs: "flex-start", sm: "center" },
-                        py: 2,
+                        py: { xs: 1, sm: 2 },
                         borderBottom: "1px solid #eee",
                         "&:last-child": { borderBottom: "none" },
                       }}
@@ -725,7 +769,7 @@ function Cart() {
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 1,
+                          gap: 0.5,
                           flexWrap: "wrap",
                         }}
                       >
@@ -760,7 +804,7 @@ function Cart() {
             </CartCard>
 
             <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
-              <CardContent>
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -772,7 +816,11 @@ function Cart() {
                 >
                   <Typography
                     variant="h6"
-                    sx={{ color: "#111", fontWeight: 600 }}
+                    sx={{
+                      color: "#111",
+                      fontWeight: 600,
+                      fontSize: { xs: "1rem", sm: "1.25rem" },
+                    }}
                   >
                     {t("Shipping Address")}
                   </Typography>
@@ -800,6 +848,8 @@ function Cart() {
                         }
                         fullWidth
                         required
+                        error={!!validationErrors.street}
+                        helperText={validationErrors.street}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -814,6 +864,8 @@ function Cart() {
                         }
                         fullWidth
                         required
+                        error={!!validationErrors.city}
+                        helperText={validationErrors.city}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -828,6 +880,8 @@ function Cart() {
                         }
                         fullWidth
                         required
+                        error={!!validationErrors.state}
+                        helperText={validationErrors.state}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -842,6 +896,8 @@ function Cart() {
                         }
                         fullWidth
                         required
+                        error={!!validationErrors.postalCode}
+                        helperText={validationErrors.postalCode}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -856,6 +912,8 @@ function Cart() {
                         }
                         fullWidth
                         required
+                        error={!!validationErrors.country}
+                        helperText={validationErrors.country}
                       />
                     </Grid>
                   </Grid>
@@ -864,7 +922,7 @@ function Cart() {
             </CartCard>
 
             <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
-              <CardContent>
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -876,7 +934,11 @@ function Cart() {
                 >
                   <Typography
                     variant="h6"
-                    sx={{ color: "#111", fontWeight: 600 }}
+                    sx={{
+                      color: "#111",
+                      fontWeight: 600,
+                      fontSize: { xs: "1rem", sm: "1.25rem" },
+                    }}
                   >
                     {t("Billing Address")}
                   </Typography>
@@ -891,78 +953,108 @@ function Cart() {
                   </ActionButton>
                 </Box>
                 <Collapse in={billingAddressOpen}>
-                  <Grid container spacing={isMobile ? 1 : 2} sx={{ mt: 1 }}>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("Street")}
-                        value={billingAddress.street}
-                        onChange={(e) =>
-                          setBillingAddress({
-                            ...billingAddress,
-                            street: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("City")}
-                        value={billingAddress.city}
-                        onChange={(e) =>
-                          setBillingAddress({
-                            ...billingAddress,
-                            city: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("State/Region")}
-                        value={billingAddress.state}
-                        onChange={(e) =>
-                          setBillingAddress({
-                            ...billingAddress,
-                            state: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("Postal Code")}
-                        value={billingAddress.postalCode}
-                        onChange={(e) =>
-                          setBillingAddress({
-                            ...billingAddress,
-                            postalCode: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <StyledTextField
-                        label={t("Country")}
-                        value={billingAddress.country}
-                        onChange={(e) =>
-                          setBillingAddress({
-                            ...billingAddress,
-                            country: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                  </Grid>
+                  <Box sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={billingSameAsShipping}
+                          onChange={(e) =>
+                            setBillingSameAsShipping(e.target.checked)
+                          }
+                          sx={{
+                            color: "#1976d2",
+                            "&.Mui-checked": { color: "#1976d2" },
+                          }}
+                        />
+                      }
+                      label={t("Same as shipping address")}
+                      sx={{ mb: 1, fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                    />
+                    {!billingSameAsShipping && (
+                      <Grid container spacing={isMobile ? 1 : 2}>
+                        <Grid item xs={12} sm={6}>
+                          <StyledTextField
+                            label={t("Street")}
+                            value={billingAddress.street}
+                            onChange={(e) =>
+                              setBillingAddress({
+                                ...billingAddress,
+                                street: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors.street}
+                            helperText={validationErrors.street}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <StyledTextField
+                            label={t("City")}
+                            value={billingAddress.city}
+                            onChange={(e) =>
+                              setBillingAddress({
+                                ...billingAddress,
+                                city: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors.city}
+                            helperText={validationErrors.city}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <StyledTextField
+                            label={t("State/Region")}
+                            value={billingAddress.state}
+                            onChange={(e) =>
+                              setBillingAddress({
+                                ...billingAddress,
+                                state: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors.state}
+                            helperText={validationErrors.state}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <StyledTextField
+                            label={t("Postal Code")}
+                            value={billingAddress.postalCode}
+                            onChange={(e) =>
+                              setBillingAddress({
+                                ...billingAddress,
+                                postalCode: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors.postalCode}
+                            helperText={validationErrors.postalCode}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <StyledTextField
+                            label={t("Country")}
+                            value={billingAddress.country}
+                            onChange={(e) =>
+                              setBillingAddress({
+                                ...billingAddress,
+                                country: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors.country}
+                            helperText={validationErrors.country}
+                          />
+                        </Grid>
+                      </Grid>
+                    )}
+                  </Box>
                 </Collapse>
               </CardContent>
             </CartCard>
@@ -972,7 +1064,7 @@ function Cart() {
             <CartCard
               sx={{ position: { xs: "static", md: "sticky" }, top: 20 }}
             >
-              <CardContent>
+              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -980,6 +1072,7 @@ function Cart() {
                     fontWeight: 600,
                     mb: 2,
                     textAlign: "center",
+                    fontSize: { xs: "1rem", sm: "1.25rem" },
                   }}
                 >
                   {t("Order Summary")}
@@ -1084,12 +1177,28 @@ function Cart() {
                       bgcolor: "#1976d2",
                       "&:hover": { bgcolor: "#1565c0" },
                       px: { xs: 2, sm: 3 },
+                      py: 1,
                     }}
                   >
                     {t("Apply")}
                   </Button>
                 </Box>
-                <CheckoutButton fullWidth onClick={handleCheckout}>
+                {error && (
+                  <Typography
+                    color="error"
+                    sx={{
+                      mb: 2,
+                      textAlign: "center",
+                      fontSize: { xs: 12, sm: 14 },
+                      bgcolor: "#ffebee",
+                      p: 1,
+                      borderRadius: 2,
+                    }}
+                  >
+                    {error}
+                  </Typography>
+                )}
+                <CheckoutButton onClick={handleCheckout}>
                   {t("Proceed to Checkout")}
                 </CheckoutButton>
               </CardContent>
