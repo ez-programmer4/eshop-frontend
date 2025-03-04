@@ -1,4 +1,3 @@
-// src/components/Products.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { CartContext } from "../context/CartContext.jsx";
@@ -30,6 +29,12 @@ import { useNavigate } from "react-router-dom";
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 `;
 
 // Custom styled components
@@ -75,6 +80,26 @@ const ActionButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+const BundleButton = styled(Button)(({ theme, added }) => ({
+  backgroundColor: added ? "#4caf50" : "#ff5722", // Green if added, orange otherwise
+  color: "#fff",
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
+  fontWeight: 700,
+  fontSize: { xs: "0.85rem", sm: "1rem" },
+  textTransform: "uppercase",
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+  "&:hover": {
+    backgroundColor: added ? "#388e3c" : "#e64a19",
+    animation: `${pulse} 0.5s infinite`,
+  },
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 2),
+    fontSize: "0.8rem",
+  },
+  transition: "background-color 0.3s",
+}));
+
 const FavoriteButton = styled(IconButton)(({ theme, active }) => ({
   color: active ? "#e74c3c" : "#555",
   "&:hover": {
@@ -96,13 +121,13 @@ function Products() {
   const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [addedBundles, setAddedBundles] = useState({}); // Track added bundles
 
   useEffect(() => {
     fetchProducts();
     fetchBundles();
   }, []);
 
-  // Log cart state whenever it changes
   useEffect(() => {}, [cart]);
 
   const fetchProducts = async () => {
@@ -111,9 +136,7 @@ function Products() {
       const params = new URLSearchParams(window.location.search);
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products",
-        {
-          params,
-        }
+        { params }
       );
       const fetchedProducts = Array.isArray(response.data)
         ? response.data
@@ -145,7 +168,6 @@ function Products() {
       navigate("/login");
       return;
     }
-
     addToCart(productId);
   };
 
@@ -168,13 +190,7 @@ function Products() {
     }
 
     const productIds = (bundle.products || [])
-      .map((product) => {
-        const id = product._id || product.productId;
-        if (!id) {
-          console.warn("Invalid product in bundle:", product);
-        }
-        return id;
-      })
+      .map((product) => product._id || product.productId)
       .filter(Boolean);
 
     if (productIds.length === 0) {
@@ -186,7 +202,11 @@ function Products() {
       for (const productId of productIds) {
         await addToCart(productId);
       }
-      // Note: Cart logging moved to useEffect to reflect actual state updates
+      setAddedBundles((prev) => ({ ...prev, [bundle._id]: true }));
+      setTimeout(
+        () => setAddedBundles((prev) => ({ ...prev, [bundle._id]: false })),
+        2000
+      ); // Reset after 2s
     } catch (error) {
       console.error("Failed to add bundle to cart:", error);
     }
@@ -262,7 +282,7 @@ function Products() {
                       mb: 1,
                     }}
                   >
-                    {t("Discount")}: {bundle.discount || 0}%
+                    {t("Save")}: {bundle.discount || 0}%
                   </Typography>
                   <Typography
                     sx={{
@@ -275,12 +295,17 @@ function Products() {
                   </Typography>
                 </CardContent>
                 <Box sx={{ display: "flex", justifyContent: "center", pb: 2 }}>
-                  <ActionButton onClick={() => handleAddBundleToCart(bundle)}>
+                  <BundleButton
+                    added={addedBundles[bundle._id]}
+                    onClick={() => handleAddBundleToCart(bundle)}
+                  >
                     <ShoppingCartIcon
                       sx={{ mr: 1, fontSize: isMobile ? 16 : 20 }}
-                    />{" "}
-                    {t("Add to Cart")}
-                  </ActionButton>
+                    />
+                    {addedBundles[bundle._id]
+                      ? t("Added!")
+                      : `${t("Add Bundle")} - ${bundle.discount}%`}
+                  </BundleButton>
                 </Box>
               </ProductCard>
             </Grid>
