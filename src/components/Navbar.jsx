@@ -50,98 +50,61 @@ const slideIn = keyframes`
   to { transform: translateX(0); }
 `;
 
-const pulse = keyframes`
+const bounce = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 `;
 
 // Styled components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  background: "linear-gradient(to right, #ffffff, #f9fafb)", // Subtle gradient
+  backgroundColor: "#fff",
   color: "#111",
-  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
-  animation: `${fadeIn} 0.6s ease-out`,
-  borderRadius: "0 0 16px 16px",
-  borderBottom: "1px solid #eee",
-  position: "sticky",
-  top: 0,
-  zIndex: 1200,
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  animation: `${fadeIn} 0.5s ease-out`,
+  borderRadius: "0 0 8px 8px",
 }));
 
 const NavIconButton = styled(IconButton)(({ theme }) => ({
   color: "#111",
-  padding: { xs: "8px", sm: "10px" },
-  borderRadius: "50%",
-  backgroundColor: "#f5f5f5",
+  padding: { xs: "6px", sm: "8px" },
   "&:hover": {
     color: "#f0c14b",
-    backgroundColor: "#e0e0e0",
     transform: "scale(1.1)",
-    transition: "color 0.2s, background-color 0.2s, transform 0.2s",
+    transition: "color 0.2s, transform 0.2s",
   },
-  margin: { xs: "0 2px", sm: "0 4px" },
 }));
 
 const CartIconButton = styled(NavIconButton)(({ theme, animate }) => ({
-  backgroundColor: animate ? "#f0c14b" : "#f5f5f5",
-  color: animate ? "#fff" : "#111",
-  "&:hover": {
-    backgroundColor: "#e0b03a",
-    color: "#fff",
-  },
   ...(animate && {
-    animation: `${pulse} 0.5s ease-out`,
+    animation: `${bounce} 0.5s ease-out`,
   }),
 }));
 
 const LogoTypography = styled(Typography)(({ theme }) => ({
-  fontWeight: 800,
+  fontWeight: 700,
   color: "#f0c14b",
   cursor: "pointer",
-  fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
-  letterSpacing: "1px",
-  textTransform: "uppercase",
+  fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" },
   flexShrink: 0,
-  "&:hover": {
-    color: "#e0b03a",
-    transition: "color 0.2s",
-  },
 }));
 
 const SearchBox = styled(TextField)(({ theme }) => ({
-  backgroundColor: "#fff",
-  borderRadius: "25px",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+  backgroundColor: "#f5f5f5",
+  borderRadius: "20px",
   "& .MuiInputBase-root": {
-    padding: "4px 12px",
-    fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+    padding: "2px 8px",
+    fontSize: { xs: "0.8rem", sm: "0.9rem" },
   },
   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-  width: { xs: "120px", sm: "200px", md: "300px" },
-  "&:hover .MuiInputBase-root": {
-    backgroundColor: "#f5f5f5",
-    transition: "background-color 0.2s",
-  },
+  width: { xs: "100px", sm: "150px", md: "250px" },
 }));
 
 const DrawerList = styled(List)(({ theme }) => ({
-  width: 280,
-  background: "linear-gradient(to bottom, #ffffff, #f9fafb)",
+  width: 250,
+  backgroundColor: "#fff",
   height: "100%",
-  animation: `${slideIn} 0.4s ease-out`,
-  borderRadius: "0 16px 16px 0",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-}));
-
-const DrawerItem = styled(ListItem)(({ theme }) => ({
-  padding: theme.spacing(1.5, 2),
-  "&:hover": {
-    backgroundColor: "#f0c14b",
-    color: "#fff",
-    "& .MuiListItemIcon-root": { color: "#fff" },
-    transition: "background-color 0.2s, color 0.2s",
-  },
+  animation: `${slideIn} 0.3s ease-out`,
 }));
 
 function Navbar() {
@@ -169,9 +132,10 @@ function Navbar() {
   }, [user]);
 
   useEffect(() => {
+    // Trigger animation when cart length changes
     if (cart.length > 0) {
       setCartAnimate(true);
-      const timer = setTimeout(() => setCartAnimate(false), 500);
+      const timer = setTimeout(() => setCartAnimate(false), 500); // Reset after animation
       return () => clearTimeout(timer);
     }
   }, [cart.length]);
@@ -180,7 +144,9 @@ function Navbar() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/notifications",
-        { headers: { Authorization: `Bearer ${user?.token}` } }
+        {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        }
       );
       setNotifications(response.data.filter((n) => !n.read));
     } catch (error) {
@@ -248,7 +214,7 @@ function Navbar() {
   const drawerContent = (
     <DrawerList>
       {navItems.map((item) => (
-        <DrawerItem
+        <ListItem
           button
           key={item.label}
           onClick={() => {
@@ -258,9 +224,9 @@ function Navbar() {
         >
           <ListItemIcon sx={{ color: "#111" }}>{item.icon}</ListItemIcon>
           <ListItemText primary={item.label} sx={{ color: "#111" }} />
-        </DrawerItem>
+        </ListItem>
       ))}
-      <DrawerItem
+      <ListItem
         button
         onClick={() => {
           navigate("/cart");
@@ -273,8 +239,8 @@ function Navbar() {
           </Badge>
         </ListItemIcon>
         <ListItemText primary={t("Cart")} sx={{ color: "#111" }} />
-      </DrawerItem>
-      <DrawerItem
+      </ListItem>
+      <ListItem
         button
         onClick={() => {
           navigate("/wishlist");
@@ -287,18 +253,18 @@ function Navbar() {
           </Badge>
         </ListItemIcon>
         <ListItemText primary={t("Wishlist")} sx={{ color: "#111" }} />
-      </DrawerItem>
-      <DrawerItem button onClick={handleNotifMenuOpen}>
+      </ListItem>
+      <ListItem button onClick={handleNotifMenuOpen}>
         <ListItemIcon sx={{ color: "#111" }}>
           <Badge badgeContent={notifications.length} color="error">
             <NotificationsIcon />
           </Badge>
         </ListItemIcon>
         <ListItemText primary={t("Notifications")} sx={{ color: "#111" }} />
-      </DrawerItem>
+      </ListItem>
       {user ? (
         <>
-          <DrawerItem
+          <ListItem
             button
             onClick={() => {
               navigate("/profile");
@@ -309,8 +275,8 @@ function Navbar() {
               <PersonIcon />
             </ListItemIcon>
             <ListItemText primary={t("Profile")} sx={{ color: "#111" }} />
-          </DrawerItem>
-          <DrawerItem
+          </ListItem>
+          <ListItem
             button
             onClick={() => {
               handleLogout();
@@ -321,10 +287,10 @@ function Navbar() {
               <LogoutIcon />
             </ListItemIcon>
             <ListItemText primary={t("Logout")} sx={{ color: "#111" }} />
-          </DrawerItem>
+          </ListItem>
         </>
       ) : (
-        <DrawerItem
+        <ListItem
           button
           onClick={() => {
             navigate("/login");
@@ -335,22 +301,21 @@ function Navbar() {
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary={t("Login")} sx={{ color: "#111" }} />
-        </DrawerItem>
+        </ListItem>
       )}
     </DrawerList>
   );
 
   return (
-    <StyledAppBar>
+    <StyledAppBar position="sticky">
       <Toolbar
         sx={{
-          py: { xs: 1.5, md: 2 },
-          minHeight: { xs: 56, sm: 64, md: 72 },
+          py: { xs: 1, md: 1.5 },
+          minHeight: { xs: 48, sm: 56, md: 64 },
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: { xs: 1, md: 2 },
-          px: { xs: 1, sm: 2 },
         }}
       >
         {/* Logo */}
@@ -369,7 +334,7 @@ function Navbar() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#666" }} />
+                <SearchIcon sx={{ color: "#555" }} />
               </InputAdornment>
             ),
           }}
@@ -466,12 +431,7 @@ function Navbar() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         PaperProps={{
-          sx: {
-            mt: 1.5,
-            borderRadius: "10px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            bgcolor: "#fff",
-          },
+          sx: { mt: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
         }}
       >
         <MenuItem
@@ -479,7 +439,6 @@ function Navbar() {
             navigate("/profile");
             handleMenuClose();
           }}
-          sx={{ "&:hover": { bgcolor: "#f0c14b", color: "#fff" } }}
         >
           {t("Profile")}
         </MenuItem>
@@ -489,17 +448,11 @@ function Navbar() {
               navigate("/admin");
               handleMenuClose();
             }}
-            sx={{ "&:hover": { bgcolor: "#f0c14b", color: "#fff" } }}
           >
             {t("Admin Dashboard")}
           </MenuItem>
         )}
-        <MenuItem
-          onClick={handleLogout}
-          sx={{ "&:hover": { bgcolor: "#f0c14b", color: "#fff" } }}
-        >
-          {t("Logout")}
-        </MenuItem>
+        <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
       </Menu>
       <Menu
         anchorEl={notifAnchorEl}
@@ -510,18 +463,17 @@ function Navbar() {
         PaperProps={{
           sx: {
             maxHeight: 300,
-            width: { xs: 220, sm: 280, md: 320 },
-            mt: 1.5,
+            width: { xs: 200, sm: 250, md: 300 },
+            mt: 1,
             overflowY: "auto",
             bgcolor: "#fff",
-            borderRadius: "10px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
           },
         }}
       >
         {notifications.length === 0 ? (
           <MenuItem>
-            <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
+            <Typography sx={{ fontSize: 14 }}>
               {t("No new notifications")}
             </Typography>
           </MenuItem>
@@ -530,15 +482,9 @@ function Navbar() {
             <MenuItem
               key={notif._id}
               onClick={() => markAsRead(notif._id)}
-              sx={{
-                whiteSpace: "normal",
-                py: 1.5,
-                "&:hover": { bgcolor: "#f5f5f5" },
-              }}
+              sx={{ whiteSpace: "normal", py: 1 }}
             >
-              <Typography sx={{ fontSize: "0.9rem", color: "#111" }}>
-                {notif.message}
-              </Typography>
+              <Typography sx={{ fontSize: 14 }}>{notif.message}</Typography>
             </MenuItem>
           ))
         )}
@@ -547,7 +493,7 @@ function Navbar() {
         anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
-        sx={{ "& .MuiDrawer-paper": { width: 280 } }}
+        sx={{ "& .MuiDrawer-paper": { width: 250 } }}
       >
         {drawerContent}
       </Drawer>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useTranslation } from "react-i18next";
 import {
@@ -7,14 +7,12 @@ import {
   TextField,
   Button,
   Divider,
-  IconButton,
   useMediaQuery,
   keyframes,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import GoogleIcon from "@mui/icons-material/Google";
-import axios from "axios";
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -34,7 +32,7 @@ const AuthCard = styled(Box)(({ theme }) => ({
   width: "100%",
   margin: "auto",
   padding: theme.spacing(4),
-  background: "linear-gradient(to bottom right, #ffffff, #f9fafb)", // Subtle gradient
+  background: "linear-gradient(to bottom right, #ffffff, #f9fafb)",
   borderRadius: "16px",
   boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
   border: "1px solid #eee",
@@ -73,9 +71,7 @@ const AuthButton = styled(Button)(({ theme }) => ({
   },
   position: "relative",
   zIndex: 1,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
@@ -87,43 +83,27 @@ const GoogleButton = styled(Button)(({ theme }) => ({
   fontWeight: 600,
   fontSize: { xs: "0.9rem", sm: "1rem" },
   boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-  "&:hover": {
-    backgroundColor: "#f5f5f5",
-    transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
-  },
+  "&:hover": { backgroundColor: "#f5f5f5", transform: "scale(1.05)" },
   position: "relative",
   zIndex: 1,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "10px",
     backgroundColor: "#fff",
-    "& fieldset": {
-      borderColor: "#ddd",
-    },
-    "&:hover fieldset": {
-      borderColor: "#f0c14b",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#1976d2",
-    },
+    "& fieldset": { borderColor: "#ddd" },
+    "&:hover fieldset": { borderColor: "#f0c14b" },
+    "&.Mui-focused fieldset": { borderColor: "#1976d2" },
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   },
   "& .MuiInputLabel-root": {
     color: "#666",
     fontSize: { xs: "0.9rem", sm: "1rem" },
   },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#1976d2",
-  },
-  "& input": {
-    padding: { xs: "12px", sm: "14px" },
-  },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#1976d2" },
+  "& input": { padding: { xs: "12px", sm: "14px" } },
   position: "relative",
   zIndex: 1,
 }));
@@ -132,6 +112,7 @@ function Register() {
   const { register } = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [email, setEmail] = useState("");
@@ -141,6 +122,16 @@ function Register() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
+
+  // Handle Google OAuth redirect
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+    if (token) {
+      register(null, null, null, token); // Pass Google token to AuthContext
+      navigate("/", { replace: true }); // Replace history to avoid back navigation
+    }
+  }, [location, register, navigate]);
 
   const validateForm = () => {
     let valid = true;
@@ -201,9 +192,8 @@ function Register() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "linear-gradient(to bottom, #f7f7f7, #e8ecef)", // Gradient background
+        background: "radial-gradient(circle, #f7f7f7 0%, #e8ecef 100%)",
         p: { xs: 2, sm: 4 },
-        background: "radial-gradient(circle, #f7f7f7 0%, #e8ecef 100%)", // Soft radial gradient
       }}
     >
       <AuthCard>
