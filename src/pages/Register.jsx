@@ -1,4 +1,3 @@
-// src/components/Register.jsx
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useTranslation } from "react-i18next";
@@ -14,7 +13,7 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
 import { useNavigate } from "react-router-dom";
-import GoogleIcon from "@mui/icons-material/Google"; // For Google signup
+import GoogleIcon from "@mui/icons-material/Google";
 import axios from "axios";
 
 // Animation keyframes
@@ -23,66 +22,110 @@ const slideIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
 // Custom styled components
 const AuthCard = styled(Box)(({ theme }) => ({
-  maxWidth: 400,
+  maxWidth: 450,
   width: "100%",
   margin: "auto",
-  padding: theme.spacing(3),
-  backgroundColor: "#fff",
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(4),
+  background: "linear-gradient(to bottom right, #ffffff, #f9fafb)", // Subtle gradient
+  borderRadius: "16px",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
   border: "1px solid #eee",
-  animation: `${slideIn} 0.5s ease-out`,
+  animation: `${slideIn} 0.6s ease-out`,
+  position: "relative",
+  overflow: "hidden",
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background:
+      "radial-gradient(circle at bottom left, rgba(240, 193, 75, 0.15), transparent 70%)",
+    zIndex: 0,
+  },
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(2),
+    borderRadius: "12px",
+  },
 }));
 
 const AuthButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#f0c14b",
   color: "#111",
-  padding: theme.spacing(1.5, 2),
-  borderRadius: "8px",
-  fontWeight: 600,
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
+  fontWeight: 700,
+  fontSize: { xs: "0.9rem", sm: "1rem" },
+  textTransform: "uppercase",
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
   "&:hover": {
     backgroundColor: "#e0b03a",
-    transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
+    animation: `${pulse} 0.5s infinite`,
+  },
+  position: "relative",
+  zIndex: 1,
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 2),
   },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#fff",
   color: "#555",
-  border: "1px solid #ccc",
-  padding: theme.spacing(1.5, 2),
-  borderRadius: "8px",
+  border: "1px solid #ddd",
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
   fontWeight: 600,
+  fontSize: { xs: "0.9rem", sm: "1rem" },
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
   "&:hover": {
     backgroundColor: "#f5f5f5",
     transform: "scale(1.05)",
     transition: "background-color 0.2s, transform 0.2s",
   },
+  position: "relative",
+  zIndex: 1,
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 2),
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "8px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
     "& fieldset": {
-      borderColor: "#ccc",
+      borderColor: "#ddd",
     },
     "&:hover fieldset": {
-      borderColor: "#999",
+      borderColor: "#f0c14b",
     },
     "&.Mui-focused fieldset": {
       borderColor: "#1976d2",
     },
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   },
   "& .MuiInputLabel-root": {
-    color: "#555",
+    color: "#666",
+    fontSize: { xs: "0.9rem", sm: "1rem" },
   },
   "& .MuiInputLabel-root.Mui-focused": {
     color: "#1976d2",
   },
+  "& input": {
+    padding: { xs: "12px", sm: "14px" },
+  },
+  position: "relative",
+  zIndex: 1,
 }));
 
 function Register() {
@@ -147,25 +190,35 @@ function Register() {
   };
 
   const handleGoogleSignup = () => {
-    // Placeholder for Google OAuth - requires backend setup
     window.location.href =
-      "https://eshop-backend-e11f.onrender.com/api/auth/google"; // Redirect to backend Google OAuth route
+      "https://eshop-backend-e11f.onrender.com/api/auth/google";
   };
 
   return (
     <Box
       sx={{
-        minHeight: "80vh",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
-        bgcolor: "#f7f7f7",
+        justifyContent: "center",
+        bgcolor: "linear-gradient(to bottom, #f7f7f7, #e8ecef)", // Gradient background
         p: { xs: 2, sm: 4 },
+        background: "radial-gradient(circle, #f7f7f7 0%, #e8ecef 100%)", // Soft radial gradient
       }}
     >
       <AuthCard>
         <Typography
           variant={isMobile ? "h5" : "h4"}
-          sx={{ color: "#111", fontWeight: 700, mb: 3, textAlign: "center" }}
+          sx={{
+            color: "#111",
+            fontWeight: 800,
+            mb: 3,
+            textAlign: "center",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            position: "relative",
+            zIndex: 1,
+          }}
         >
           {t("Sign Up")}
         </Typography>
@@ -175,10 +228,14 @@ function Register() {
             sx={{
               mb: 2,
               textAlign: "center",
-              fontSize: { xs: 12, sm: 14 },
+              fontSize: { xs: "0.85rem", sm: "0.9rem" },
               bgcolor: "#ffebee",
               p: 1,
-              borderRadius: 2,
+              borderRadius: "8px",
+              fontWeight: 500,
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             {error}
@@ -213,11 +270,22 @@ function Register() {
             error={!!passwordError}
             helperText={passwordError}
           />
-          <AuthButton type="submit" fullWidth sx={{ mt: 2 }}>
+          <AuthButton type="submit" fullWidth sx={{ mt: 3 }}>
             {t("Register")}
           </AuthButton>
         </form>
-        <Divider sx={{ my: 2, color: "#555" }}>{t("or")}</Divider>
+        <Divider
+          sx={{
+            my: 3,
+            color: "#666",
+            "&::before, &::after": { borderColor: "#ddd" },
+            fontSize: { xs: "0.85rem", sm: "0.9rem" },
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {t("or")}
+        </Divider>
         <GoogleButton
           fullWidth
           startIcon={<GoogleIcon />}
@@ -227,14 +295,24 @@ function Register() {
         </GoogleButton>
         <Typography
           sx={{
-            mt: 2,
+            mt: 3,
             textAlign: "center",
-            fontSize: { xs: 12, sm: 14 },
-            color: "#555",
+            fontSize: { xs: "0.85rem", sm: "0.9rem" },
+            color: "#666",
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {t("Already have an account?")}{" "}
-          <Button color="primary" onClick={() => navigate("/login")}>
+          <Button
+            color="primary"
+            onClick={() => navigate("/login")}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#f0c14b" },
+            }}
+          >
             {t("Log in")}
           </Button>
         </Typography>
