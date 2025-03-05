@@ -36,63 +36,89 @@ const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
 // Custom styled components
 const HomeContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1400,
   margin: "auto",
-  padding: theme.spacing(2),
-  backgroundColor: "#f7f7f7",
-  borderRadius: "12px",
+  padding: theme.spacing(3),
+  background: "linear-gradient(180deg, #f7f7f7 0%, #e8ecef 100%)",
+  borderRadius: "16px",
   minHeight: "80vh",
-  animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
+  animation: `${slideIn} 0.8s ease-out`,
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  backgroundColor: "#fff",
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
+  background: "linear-gradient(135deg, #f0c14b 0%, #ff5722 100%)",
+  borderRadius: "16px",
+  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.15)",
+  padding: theme.spacing(4),
+  marginBottom: theme.spacing(3),
   textAlign: "center",
+  position: "relative",
+  overflow: "hidden",
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(255, 255, 255, 0.1)",
+    zIndex: 0,
+  },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5),
-    marginBottom: theme.spacing(1),
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));
 
 const FilterBar = styled(Box)(({ theme }) => ({
   display: "flex",
-  flexDirection: { xs: "column", sm: "row" }, // Stack vertically on mobile
+  flexDirection: { xs: "column", sm: "row" },
   alignItems: "center",
-  gap: theme.spacing(1),
-  padding: theme.spacing(1),
+  gap: theme.spacing(1.5),
+  padding: theme.spacing(1.5),
   backgroundColor: "#fff",
   borderRadius: "12px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
   flexWrap: "wrap",
   justifyContent: "center",
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(0.5) },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
 }));
 
 const FilterButton = styled(IconButton)(({ theme }) => ({
-  backgroundColor: "#f5f5f5",
-  color: "#555",
-  border: "1px solid #ccc",
-  borderRadius: "8px",
-  padding: { xs: theme.spacing(0.5), sm: theme.spacing(1) },
+  backgroundColor: "#fff",
+  color: "#ff5722",
+  border: "2px solid #ff5722",
+  borderRadius: "10px",
+  padding: { xs: theme.spacing(0.75), sm: theme.spacing(1) },
   "&:hover": {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#ff5722",
+    color: "#fff",
     transform: "scale(1.1)",
-    transition: "background-color 0.2s, transform 0.2s",
+    transition: "all 0.3s ease",
   },
 }));
 
 const SliderContainer = styled(Box)(({ theme }) => ({
   position: "relative",
   overflow: "hidden",
-  marginBottom: theme.spacing(2),
-  [theme.breakpoints.down("sm")]: { marginBottom: theme.spacing(1) },
+  marginBottom: theme.spacing(3),
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(2),
+  [theme.breakpoints.down("sm")]: {
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(1),
+  },
 }));
 
 const SlideTrack = styled(Box)(({ theme, offset }) => ({
@@ -103,84 +129,104 @@ const SlideTrack = styled(Box)(({ theme, offset }) => ({
 
 const SlideCard = styled(Box)(({ theme }) => ({
   flex: "0 0 33.33%",
-  padding: theme.spacing(1),
+  padding: theme.spacing(1.5),
   textAlign: "center",
+  backgroundColor: "#fff",
+  borderRadius: "10px",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+  transition: "transform 0.3s ease",
+  "&:hover": { transform: "scale(1.03)" },
   [theme.breakpoints.down("sm")]: {
     flex: "0 0 100%",
-    padding: theme.spacing(0.5),
+    padding: theme.spacing(1),
   },
 }));
 
 const BrowseButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
-  color: "#111",
-  padding: theme.spacing(1, 2),
-  borderRadius: "8px",
-  fontWeight: 600,
+  background: "linear-gradient(135deg, #f0c14b 0%, #ff9800 100%)",
+  color: "#fff",
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
+  fontWeight: 700,
+  fontSize: { xs: "0.85rem", sm: "1rem" },
+  textTransform: "uppercase",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
   "&:hover": {
-    backgroundColor: "#e0b03a",
+    background: "linear-gradient(135deg, #e0b03a 0%, #fb8c00 100%)",
     transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
+    transition: "all 0.3s ease",
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.25)",
   },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.75, 1.5),
-    fontSize: "0.75rem",
+    padding: theme.spacing(1, 2),
   },
 }));
 
 const AboutSection = styled(Box)(({ theme }) => ({
   backgroundColor: "#fff",
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(2),
-  animation: `${fadeIn} 1s ease-out`,
+  borderRadius: "16px",
+  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(3),
+  marginTop: theme.spacing(3),
+  animation: `${fadeIn} 1.2s ease-out`,
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5),
-    marginTop: theme.spacing(1),
+    padding: theme.spacing(2),
+    marginTop: theme.spacing(2),
   },
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  backgroundColor: "#232f3e",
+  background: "linear-gradient(135deg, #232f3e 0%, #1a252f 100%)",
   color: "#fff",
-  padding: theme.spacing(4, 2),
-  marginTop: theme.spacing(2),
+  padding: theme.spacing(4),
+  marginTop: theme.spacing(3),
   textAlign: "center",
+  borderRadius: "16px 16px 0 0",
+  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.2)",
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2, 1),
-    marginTop: theme.spacing(1),
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(2),
   },
 }));
 
 const FooterLink = styled(Link)(({ theme }) => ({
-  color: "#ddd",
+  color: "#e0e0e0",
   textDecoration: "none",
-  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-  margin: theme.spacing(0, 1),
-  "&:hover": { color: "#f0c14b", transition: "color 0.2s" },
+  fontSize: { xs: "0.8rem", sm: "0.9rem" },
+  margin: theme.spacing(0, 1.5),
+  "&:hover": {
+    color: "#f0c14b",
+    transition: "color 0.3s ease",
+    textDecoration: "underline",
+  },
 }));
 
 const FooterIconButton = styled(IconButton)(({ theme }) => ({
-  color: "#ddd",
+  color: "#fff",
+  background: "rgba(255, 255, 255, 0.1)",
+  padding: theme.spacing(1),
   "&:hover": {
     color: "#f0c14b",
-    transform: "scale(1.1)",
-    transition: "color 0.2s, transform 0.2s",
+    transform: "scale(1.2)",
+    background: "rgba(255, 255, 255, 0.2)",
+    transition: "all 0.3s ease",
   },
 }));
 
 const FooterTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "8px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
     "& fieldset": { borderColor: "#ccc" },
-    "&:hover fieldset": { borderColor: "#999" },
+    "&:hover fieldset": { borderColor: "#f0c14b" },
     "&.Mui-focused fieldset": { borderColor: "#f0c14b" },
   },
-  "& .MuiInputLabel-root": { color: "#555" },
+  "& .MuiInputLabel-root": {
+    color: "#555",
+    fontSize: { xs: "0.85rem", sm: "1rem" },
+  },
   "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
-  "& input": { padding: "8px 12px" },
+  "& input": { padding: { xs: "6px 10px", sm: "8px 12px" } },
 }));
 
 function Home() {
@@ -279,16 +325,28 @@ function Home() {
       {/* Hero Section */}
       <HeroSection>
         <Typography
-          variant={isMobile ? "h6" : "h4"}
-          sx={{ color: "#111", fontWeight: 700, mb: isMobile ? 1 : 2 }}
+          variant={isMobile ? "h5" : "h3"}
+          sx={{
+            background: "linear-gradient(90deg, #fff 0%, #f0c14b 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 800,
+            mb: isMobile ? 1 : 2,
+            letterSpacing: 1,
+            zIndex: 1,
+            position: "relative",
+          }}
         >
           {t("Welcome to EthioShop")}
         </Typography>
         <Typography
           sx={{
-            color: "#555",
-            fontSize: { xs: 12, sm: 16 },
-            mb: isMobile ? 1 : 2,
+            color: "#fff",
+            fontSize: { xs: 14, sm: 18 },
+            mb: isMobile ? 2 : 3,
+            fontWeight: 500,
+            zIndex: 1,
+            position: "relative",
           }}
         >
           {t("Discover the latest trends in clothing and accessories")}
@@ -300,8 +358,15 @@ function Home() {
 
       {/* Featured Products Slider */}
       <Typography
-        variant={isMobile ? "subtitle1" : "h6"}
-        sx={{ color: "#111", fontWeight: 600, mb: 1 }}
+        variant={isMobile ? "h6" : "h5"}
+        sx={{
+          color: "#111",
+          fontWeight: 700,
+          mb: 2,
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: 0.5,
+        }}
       >
         {t("Featured Products")}
       </Typography>
@@ -311,12 +376,13 @@ function Home() {
           disabled={slideIndex === 0}
           sx={{
             position: "absolute",
-            left: isMobile ? -5 : 0,
+            left: isMobile ? 5 : 10,
             top: "50%",
             transform: "translateY(-50%)",
-            zIndex: 1,
+            zIndex: 2,
             bgcolor: "#fff",
-            "&:hover": { bgcolor: "#f5f5f5" },
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            "&:hover": { bgcolor: "#f0c14b", color: "#fff" },
           }}
         >
           <ArrowBackIcon fontSize={isMobile ? "small" : "medium"} />
@@ -330,16 +396,25 @@ function Home() {
                 alt={product.name}
                 sx={{
                   width: "100%",
-                  height: isMobile ? "120px" : "150px",
+                  height: isMobile ? "140px" : "180px",
                   objectFit: "cover",
-                  borderRadius: "8px",
-                  mb: 1,
+                  borderRadius: "10px",
+                  mb: 1.5,
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
                 }}
               />
-              <Typography sx={{ fontSize: { xs: 12, sm: 14 }, color: "#111" }}>
+              <Typography
+                sx={{
+                  fontSize: { xs: 14, sm: 16 },
+                  color: "#111",
+                  fontWeight: 600,
+                }}
+              >
                 {product.name || t("Unnamed Product")}
               </Typography>
-              <Typography sx={{ fontSize: { xs: 12, sm: 14 }, color: "#555" }}>
+              <Typography
+                sx={{ fontSize: { xs: 12, sm: 14 }, color: "#ff5722" }}
+              >
                 ${product.price || "N/A"}
               </Typography>
             </SlideCard>
@@ -353,26 +428,29 @@ function Home() {
           }
           sx={{
             position: "absolute",
-            right: isMobile ? -5 : 0,
+            right: isMobile ? 5 : 10,
             top: "50%",
             transform: "translateY(-50%)",
-            zIndex: 1,
+            zIndex: 2,
             bgcolor: "#fff",
-            "&:hover": { bgcolor: "#f5f5f5" },
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            "&:hover": { bgcolor: "#f0c14b", color: "#fff" },
           }}
         >
           <ArrowForwardIcon fontSize={isMobile ? "small" : "medium"} />
         </IconButton>
       </SliderContainer>
 
-      {/* Updated Browse Products Section */}
+      {/* Browse Products Section */}
       <Typography
-        variant={isMobile ? "subtitle1" : "h6"}
+        variant={isMobile ? "h6" : "h5"}
         sx={{
           color: "#111",
-          fontWeight: 600,
-          mb: 1,
-          textAlign: isMobile ? "center" : "left",
+          fontWeight: 700,
+          mb: 2,
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: 0.5,
         }}
       >
         {t("Browse Products")}
@@ -383,7 +461,7 @@ function Home() {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: isMobile ? 0.5 : 1,
+            gap: isMobile ? 1 : 1.5,
             flexWrap: "wrap",
             justifyContent: isMobile ? "center" : "flex-start",
             width: isMobile ? "100%" : "auto",
@@ -398,16 +476,17 @@ function Home() {
               onClick={() => setCategory(cat)}
               variant={category === cat ? "contained" : "outlined"}
               sx={{
-                bgcolor: category === cat ? "#f0c14b" : "#fff",
-                color: category === cat ? "#111" : "#555",
-                borderColor: "#ccc",
-                borderRadius: "8px",
-                padding: isMobile ? "4px 8px" : "6px 12px",
-                fontSize: isMobile ? "0.7rem" : "0.875rem",
-                minWidth: isMobile ? "60px" : "80px",
+                bgcolor: category === cat ? "#ff5722" : "#fff",
+                color: category === cat ? "#fff" : "#555",
+                borderColor: "#ff5722",
+                borderRadius: "10px",
+                padding: isMobile ? "6px 10px" : "8px 16px",
+                fontSize: isMobile ? "0.75rem" : "0.9rem",
+                minWidth: isMobile ? "70px" : "90px",
                 textTransform: "capitalize",
                 "&:hover": {
-                  bgcolor: category === cat ? "#e0b03a" : "#f5f5f5",
+                  bgcolor: category === cat ? "#e64a19" : "#fff5f0",
+                  color: category === cat ? "#fff" : "#ff5722",
                 },
               }}
             >
@@ -421,10 +500,13 @@ function Home() {
           orientation={isMobile ? "horizontal" : "vertical"}
           flexItem
           sx={{
-            bgcolor: "#eee",
-            mx: isMobile ? 0 : 1,
+            bgcolor: "linear-gradient(90deg, #f0c14b, #ff5722)",
+            mx: isMobile ? 0 : 2,
             my: isMobile ? 1 : 0,
             width: isMobile ? "80%" : "auto",
+            border: "none",
+            height: isMobile ? "1px" : "40px",
+            background: "linear-gradient(90deg, #f0c14b, #ff5722)",
           }}
         />
 
@@ -433,7 +515,7 @@ function Home() {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: isMobile ? 0.5 : 1,
+            gap: isMobile ? 1 : 1.5,
             flexWrap: "wrap",
             justifyContent: isMobile ? "center" : "flex-start",
             width: isMobile ? "100%" : "auto",
@@ -448,16 +530,17 @@ function Home() {
               onClick={() => setSort(option.value)}
               variant={sort === option.value ? "contained" : "outlined"}
               sx={{
-                bgcolor: sort === option.value ? "#f0c14b" : "#fff",
-                color: sort === option.value ? "#111" : "#555",
-                borderColor: "#ccc",
-                borderRadius: "8px",
-                padding: isMobile ? "4px 8px" : "6px 12px",
-                fontSize: isMobile ? "0.7rem" : "0.875rem",
-                minWidth: isMobile ? "70px" : "100px",
+                bgcolor: sort === option.value ? "#ff5722" : "#fff",
+                color: sort === option.value ? "#fff" : "#555",
+                borderColor: "#ff5722",
+                borderRadius: "10px",
+                padding: isMobile ? "6px 10px" : "8px 16px",
+                fontSize: isMobile ? "0.75rem" : "0.9rem",
+                minWidth: isMobile ? "80px" : "110px",
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: sort === option.value ? "#e0b03a" : "#f5f5f5",
+                  bgcolor: sort === option.value ? "#e64a19" : "#fff5f0",
+                  color: sort === option.value ? "#fff" : "#ff5722",
                 },
               }}
             >
@@ -473,11 +556,11 @@ function Home() {
           sx={{
             display: "flex",
             justifyContent: "center",
-            py: isMobile ? 2 : 4,
+            py: isMobile ? 3 : 4,
           }}
         >
           <CircularProgress
-            sx={{ color: "#f0c14b" }}
+            sx={{ color: "#ff5722" }}
             size={isMobile ? 30 : 40}
           />
         </Box>
@@ -487,10 +570,11 @@ function Home() {
           sx={{
             mb: 2,
             textAlign: "center",
-            fontSize: { xs: 12, sm: 16 },
+            fontSize: { xs: 14, sm: 16 },
             bgcolor: "#ffebee",
-            p: 1,
-            borderRadius: 2,
+            p: 1.5,
+            borderRadius: "8px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
           {error}
@@ -505,10 +589,14 @@ function Home() {
             sx={{
               display: "flex",
               justifyContent: "center",
-              mt: isMobile ? 2 : 4,
+              mt: isMobile ? 3 : 4,
+              "& .MuiPaginationItem-root": {
+                color: "#ff5722",
+                "&:hover": { bgcolor: "#fff5f0" },
+                "&.Mui-selected": { bgcolor: "#ff5722", color: "#fff" },
+              },
             }}
             size={isMobile ? "small" : "medium"}
-            color="primary"
           />
         </>
       )}
@@ -516,16 +604,24 @@ function Home() {
       {/* About the System */}
       <AboutSection>
         <Typography
-          variant={isMobile ? "subtitle1" : "h6"}
-          sx={{ color: "#111", fontWeight: 600, mb: 1, textAlign: "center" }}
+          variant={isMobile ? "h6" : "h5"}
+          sx={{
+            color: "#111",
+            fontWeight: 700,
+            mb: 2,
+            textAlign: "center",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+          }}
         >
           {t("About EthioShop")}
         </Typography>
         <Typography
           sx={{
-            color: "#555",
-            fontSize: { xs: 12, sm: 16 },
+            color: "#666",
+            fontSize: { xs: 14, sm: 16 },
             textAlign: "center",
+            lineHeight: 1.6,
           }}
         >
           {t(
@@ -537,16 +633,22 @@ function Home() {
       {/* Footer */}
       <FooterSection>
         <Typography
-          variant={isMobile ? "h6" : "h5"}
-          sx={{ fontWeight: 700, mb: 2 }}
+          variant={isMobile ? "h5" : "h4"}
+          sx={{
+            fontWeight: 800,
+            mb: 3,
+            background: "linear-gradient(90deg, #f0c14b 0%, #ff5722 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
           {t("EthioShop")}
         </Typography>
-        <Grid container spacing={isMobile ? 1 : 2} justifyContent="center">
+        <Grid container spacing={isMobile ? 2 : 3} justifyContent="center">
           <Grid item xs={12} sm={4}>
             <Typography
-              variant="subtitle2"
-              sx={{ color: "#fff", fontWeight: 600, mb: 1 }}
+              variant="subtitle1"
+              sx={{ color: "#fff", fontWeight: 700, mb: 1.5 }}
             >
               {t("Explore")}
             </Typography>
@@ -554,8 +656,8 @@ function Home() {
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 1,
-                alignItems: isMobile ? "center" : "flex-start",
+                gap: 1.5,
+                alignItems: "center",
               }}
             >
               <FooterLink to="/">{t("Home")}</FooterLink>
@@ -565,13 +667,13 @@ function Home() {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography
-              variant="subtitle2"
-              sx={{ color: "#fff", fontWeight: 600, mb: 1 }}
+              variant="subtitle1"
+              sx={{ color: "#fff", fontWeight: 700, mb: 1.5 }}
             >
               {t("Contact Us")}
             </Typography>
             <Typography
-              sx={{ color: "#ddd", fontSize: { xs: 12, sm: 14 }, mb: 1 }}
+              sx={{ color: "#e0e0e0", fontSize: { xs: 12, sm: 14 }, mb: 1 }}
             >
               {t("Email")}:{" "}
               <FooterLink to="mailto:ezedinebrahim131@gmail.com">
@@ -579,26 +681,26 @@ function Home() {
               </FooterLink>
             </Typography>
             <Typography
-              sx={{ color: "#ddd", fontSize: { xs: 12, sm: 14 }, mb: 1 }}
+              sx={{ color: "#e0e0e0", fontSize: { xs: 12, sm: 14 }, mb: 2 }}
             >
               {t("Phone")}: +251 991792427
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
               <FooterIconButton href="https://facebook.com" target="_blank">
-                <FacebookIcon fontSize={isMobile ? "small" : "medium"} />
+                <FacebookIcon fontSize={isMobile ? "medium" : "large"} />
               </FooterIconButton>
               <FooterIconButton href="https://twitter.com" target="_blank">
-                <TwitterIcon fontSize={isMobile ? "small" : "medium"} />
+                <TwitterIcon fontSize={isMobile ? "medium" : "large"} />
               </FooterIconButton>
               <FooterIconButton href="https://instagram.com" target="_blank">
-                <InstagramIcon fontSize={isMobile ? "small" : "medium"} />
+                <InstagramIcon fontSize={isMobile ? "medium" : "large"} />
               </FooterIconButton>
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography
-              variant="subtitle2"
-              sx={{ color: "#fff", fontWeight: 600, mb: 1 }}
+              variant="subtitle1"
+              sx={{ color: "#fff", fontWeight: 700, mb: 1.5 }}
             >
               {t("Stay Updated")}
             </Typography>
@@ -609,7 +711,7 @@ function Home() {
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 size="small"
                 fullWidth
-                sx={{ mb: 1 }}
+                sx={{ mb: 2 }}
                 variant="outlined"
               />
               <Button
@@ -618,10 +720,11 @@ function Home() {
                 sx={{
                   bgcolor: "#f0c14b",
                   color: "#111",
-                  borderRadius: "8px",
-                  "&:hover": { bgcolor: "#e0b03a" },
-                  padding: isMobile ? "4px 8px" : "6px 12px",
-                  fontSize: isMobile ? "0.75rem" : "0.875rem",
+                  borderRadius: "10px",
+                  padding: isMobile ? "6px 12px" : "8px 16px",
+                  fontSize: isMobile ? "0.8rem" : "0.9rem",
+                  fontWeight: 600,
+                  "&:hover": { bgcolor: "#e0b03a", transform: "scale(1.05)" },
                 }}
               >
                 {t("Subscribe")}
@@ -629,8 +732,10 @@ function Home() {
             </form>
           </Grid>
         </Grid>
-        <Divider sx={{ bgcolor: "#ddd", my: isMobile ? 1 : 2 }} />
-        <Typography sx={{ color: "#ddd", fontSize: { xs: 10, sm: 12 } }}>
+        <Divider
+          sx={{ bgcolor: "#fff5f0", my: isMobile ? 2 : 3, height: "1px" }}
+        />
+        <Typography sx={{ color: "#e0e0e0", fontSize: { xs: 11, sm: 13 } }}>
           © {new Date().getFullYear()} EthioShop. {t("All rights reserved.")}
         </Typography>
       </FooterSection>
