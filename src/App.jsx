@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import GoogleAuthCallback from "./components/GoogleAuthCallback";
 import ProductDetail from "./components/ProductDetail.jsx";
 import Cart from "./components/Cart.jsx";
 import OrderHistory from "./components/OrderHistory.jsx";
@@ -36,6 +37,7 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/auth/google" element={<GoogleAuthCallback />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route
