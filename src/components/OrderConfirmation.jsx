@@ -265,7 +265,7 @@ function OrderConfirmation() {
         alignItems: "center",
       }}
     >
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 4 }}>
         <img
           src="/logo.png"
           alt="EthioShop Logo"
