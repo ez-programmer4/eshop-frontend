@@ -1,10 +1,6 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ThemeContextProvider from "./context/ThemeContext.jsx";
-import { AuthProvider } from "./context/AuthContext.jsx";
-import { CartProvider } from "./context/CartContext.jsx";
-import { WishlistProvider } from "./context/WishlistContext.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
@@ -28,37 +24,27 @@ function App() {
   return (
     <Router>
       <ThemeContextProvider>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <Navbar />
-              <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/auth/google" element={<GoogleAuthCallback />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route
-                    path="/order-confirmation"
-                    element={<OrderConfirmation />}
-                  />
-                  <Route path="/orders" element={<OrderHistory />} />
-                  <Route path="/my-orders" element={<OrderHistory />} />{" "}
-                  {/* Added */}
-                  <Route path="/support" element={<SupportForm />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/profile" element={<UserProfile />} />
-                  <Route path="/order/:id" element={<OrderDetail />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route path="/products" element={<Products />} />
-                </Routes>
-              </Container>
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
+        <Navbar />
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth/google" element={<GoogleAuthCallback />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/my-orders" element={<OrderHistory />} />
+            <Route path="/support" element={<SupportForm />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/order/:id" element={<OrderDetail />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/products" element={<Products />} />
+          </Routes>
+        </Container>
       </ThemeContextProvider>
     </Router>
   );
