@@ -108,7 +108,7 @@ const DrawerList = styled(List)(({ theme }) => ({
 }));
 
 function Navbar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
@@ -198,6 +198,10 @@ function Navbar() {
     logout();
     handleMenuClose();
     navigate("/login");
+  };
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === "en" ? "am" : "en");
   };
 
   const navItems = [
@@ -307,6 +311,13 @@ function Navbar() {
           <ListItemText primary={t("Login")} sx={{ color: "#111" }} />
         </ListItem>
       )}
+      {/* Language toggle in drawer */}
+      <ListItem button onClick={toggleLanguage}>
+        <ListItemText
+          primary={i18n.language === "en" ? "en" : "አማ"}
+          sx={{ color: "#111" }}
+        />
+      </ListItem>
     </DrawerList>
   );
 
@@ -420,11 +431,28 @@ function Navbar() {
                   >
                     <PersonIcon />
                   </NavIconButton>
+                  {/* Language toggle button */}
+                  <NavIconButton onClick={toggleLanguage}>
+                    <Typography variant="body2">
+                      {i18n.language === "en" ? "en" : "አማ"}
+                    </Typography>
+                  </NavIconButton>
                 </>
               ) : (
-                <NavIconButton component={Link} to="/login" title={t("Login")}>
-                  <PersonIcon />
-                </NavIconButton>
+                <>
+                  <NavIconButton
+                    component={Link}
+                    to="/login"
+                    title={t("Login")}
+                  >
+                    <PersonIcon />
+                  </NavIconButton>
+                  <NavIconButton onClick={toggleLanguage}>
+                    <Typography variant="body2">
+                      {i18n.language === "en" ? "en" : "አማ"}
+                    </Typography>
+                  </NavIconButton>
+                </>
               )}
             </>
           ) : (
