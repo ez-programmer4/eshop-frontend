@@ -1,3 +1,4 @@
+// src/i18n.js
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -24,6 +25,7 @@ i18n
           Logout: "Logout",
           Language: "Language",
           "No new notifications": "No new notifications",
+          "Unnamed Notification": "Unnamed Notification", // Added fallback
 
           // Returns
           "Return Request": "Return Request",
@@ -115,6 +117,7 @@ i18n
           Logout: "ውጣ",
           Language: "ቋንቋ",
           "No new notifications": "አዲስ ማሳወቂያዎች የሉም",
+          "Unnamed Notification": "ስም የሌለው ማሳወቂያ", // Added fallback
 
           // Returns
           "Return Request": "የመመለሻ ጥያቄ",

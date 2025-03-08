@@ -10,7 +10,6 @@ export const WishlistProvider = ({ children }) => {
 
   useEffect(() => {
     if (user && user.id) {
-      // Changed from user._id to user.id
       fetchWishlist();
     } else {
       setWishlist([]);
@@ -18,10 +17,10 @@ export const WishlistProvider = ({ children }) => {
   }, [user]);
 
   const fetchWishlist = async () => {
-    if (!user || !user.id) return; // Changed from user._id to user.id
+    if (!user || !user.id) return;
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}`, // Changed to user.id
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -39,8 +38,17 @@ export const WishlistProvider = ({ children }) => {
               );
               return { _id: productId, ...productResponse.data };
             } catch (error) {
-              console.error(`Failed to fetch product ${productId}:`, error);
-              return { _id: productId, name: "Unknown Product", price: "N/A" };
+              console.error(
+                `Failed to fetch product ${productId}:`,
+                error.response?.data || error.message
+              );
+              // Return a placeholder for missing products
+              return {
+                _id: productId,
+                name: "Product Not Found",
+                price: "N/A",
+                unavailable: true,
+              };
             }
           })
       );
@@ -56,7 +64,6 @@ export const WishlistProvider = ({ children }) => {
 
   const addToWishlist = async (productId) => {
     if (!user || !user.id) {
-      // Changed from user._id to user.id
       console.error("User not logged in");
       return;
     }
@@ -76,7 +83,7 @@ export const WishlistProvider = ({ children }) => {
       setWishlist((prev) => [...prev, newItem]);
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/wishlist",
-        { userId: user.id, productId }, // Changed to user.id
+        { userId: user.id, productId },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       if (response.data.items) {
@@ -98,7 +105,6 @@ export const WishlistProvider = ({ children }) => {
 
   const removeFromWishlist = async (productId) => {
     if (!user || !user.id) {
-      // Changed from user._id to user.id
       console.error("User not logged in");
       return;
     }
@@ -109,7 +115,7 @@ export const WishlistProvider = ({ children }) => {
     setWishlist((prev) => prev.filter((item) => item._id !== productId));
     try {
       const response = await axios.delete(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}/${productId}`, // Changed to user.id
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}/${productId}`,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       if (response.data.items) {
