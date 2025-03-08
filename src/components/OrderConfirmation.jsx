@@ -123,31 +123,29 @@ function OrderConfirmation() {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
-    // Add logo to PDF (fetch from public folder)
+    // Add logo to PDF
     const logoUrl = "/logo.png";
     const img = new Image();
     img.src = logoUrl;
     img.onload = () => {
-      doc.addImage(img, "PNG", 20, 10, 30, 30); // Adjust position and size
+      doc.addImage(img, "PNG", 20, 10, 30, 30);
       addPDFContent(doc);
       doc.save(`Order_Confirmation_${order._id}.pdf`);
     };
     img.onerror = () => {
       console.error("Failed to load logo for PDF");
-      addPDFContent(doc); // Proceed without logo if it fails
+      addPDFContent(doc);
       doc.save(`Order_Confirmation_${order._id}.pdf`);
     };
   };
 
   const addPDFContent = (doc) => {
-    // Header
     doc.setFontSize(20);
-    doc.setTextColor(240, 193, 75); // #f0c14b
-    doc.text(t("Order Confirmation"), 60, 25); // Adjusted for logo space
+    doc.setTextColor(240, 193, 75);
+    doc.text(t("Order Confirmation"), 60, 25);
 
-    // Order Details
     doc.setFontSize(12);
-    doc.setTextColor(17, 17, 17); // #111
+    doc.setTextColor(17, 17, 17);
     doc.text(`${t("Order #")}${order._id}`, 20, 50);
     doc.text(`${t("PNR Code")}: ${order.pnr || "N/A"}`, 20, 60);
     doc.text(`${t("Total")}: $${order.total.toFixed(2)}`, 20, 70);
@@ -159,10 +157,13 @@ function OrderConfirmation() {
     }
     if (order.paymentMethod.last4) {
       yOffset += 10;
-      doc.text(`${t("Card Ending")}: ${order.paymentMethod.last4}`, 20, yOffset);
+      doc.text(
+        `${t("Card Ending")}: ${order.paymentMethod.last4}`,
+        20,
+        yOffset
+      );
     }
 
-    // Items
     doc.setFontSize(14);
     yOffset += 20;
     doc.text(t("Items"), 20, yOffset);
@@ -179,7 +180,6 @@ function OrderConfirmation() {
       yPos += 10;
     });
 
-    // Addresses
     doc.setFontSize(14);
     yPos += 10;
     doc.text(t("Shipping Address"), 20, yPos);
@@ -202,9 +202,8 @@ function OrderConfirmation() {
       yPos
     );
 
-    // Footer
     doc.setFontSize(8);
-    doc.setTextColor(153, 153, 153); // #999
+    doc.setTextColor(153, 153, 153);
     doc.text(`© ${new Date().getFullYear()} EthioShop`, 20, yPos + 20);
   };
 
@@ -266,12 +265,11 @@ function OrderConfirmation() {
         alignItems: "center",
       }}
     >
-      {/* Logo in UI */}
       <Box sx={{ mb: 2 }}>
         <img
           src="/logo.png"
           alt="EthioShop Logo"
-          style={{ height: isMobile ? "40px" : "60px" }} // Adjust size
+          style={{ height: isMobile ? "40px" : "60px" }}
         />
       </Box>
       <Typography
@@ -411,7 +409,7 @@ function OrderConfirmation() {
 
           <Divider sx={{ my: 3, bgcolor: "#eee" }} />
 
-          <arrage container spacing={isMobile ? 1 : 2}>
+          <Grid container spacing={isMobile ? 1 : 2}>
             <Grid item xs={12} sm={6}>
               <Typography
                 variant="h6"
@@ -449,7 +447,6 @@ function OrderConfirmation() {
             </Grid>
           </Grid>
 
-          {/* QR Code */}
           <QRCodeContainer>
             <QRCodeCanvas
               value={order.pnr || order._id}
