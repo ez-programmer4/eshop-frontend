@@ -335,10 +335,17 @@ function Navbar() {
           gap: { xs: 1, md: 2 },
         }}
       >
-        {/* Logo */}
-        <LogoTypography onClick={() => navigate("/")}>
-          {t("EthioShop")}
-        </LogoTypography>
+        {/* Logo and Title */}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="/logo.png" // Path to your logo in public/
+              alt="EthioShop Logo"
+              style={{ height: "40px", marginRight: "10px" }} // Adjust size as needed
+            />
+            <LogoTypography>{t("EthioShop")}</LogoTypography>
+          </Link>
+        </Box>
 
         {/* Search Bar */}
         <SearchBox

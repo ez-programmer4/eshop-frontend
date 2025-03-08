@@ -27,6 +27,27 @@ i18n
           "No new notifications": "No new notifications",
           "Unnamed Notification": "Unnamed Notification", // Added fallback
 
+          // General
+          "Clothing Store": "Clothing Store",
+          Shop: "Shop",
+          Categories: "Categories",
+          Support: "Support",
+          Register: "Register",
+          "Add to Cart": "Add to Cart",
+
+          // Product Details
+          Reviews: "Reviews",
+          "Leave a Review": "Leave a Review",
+          "Submit Review": "Submit Review",
+          "Recommended For You": "Recommended For You",
+          "Related Products": "Related Products",
+          "Share This Product": "Share This Product",
+          "Share on Twitter": "Share on Twitter",
+          "Share on WhatsApp": "Share on WhatsApp",
+          "Share on Facebook": "Share on Facebook",
+          "Share on Telegram": "Share on Telegram",
+          Close: "Close",
+
           // Returns
           "Return Request": "Return Request",
           "Reason for Return": "Reason for Return",
@@ -118,6 +139,27 @@ i18n
           Language: "ቋንቋ",
           "No new notifications": "አዲስ ማሳወቂያዎች የሉም",
           "Unnamed Notification": "ስም የሌለው ማሳወቂያ", // Added fallback
+
+          // General
+          "Clothing Store": "የልብስ መደብር",
+          Shop: "ግዢ",
+          Categories: "ምድቦች",
+          Support: "ድጋፍ",
+          Register: "መዝግብ",
+          "Add to Cart": "ወደ ጋሪ ጨምር",
+
+          // Product Details
+          Reviews: "ግምገማዎች",
+          "Leave a Review": "ግምገማ ይተው",
+          "Submit Review": "ግምገማ አስፈልግ",
+          "Recommended For You": "ለእርስዎ የተመከሩ",
+          "Related Products": "ተዛማጅ ምርቶች",
+          "Share This Product": "ይህን ምርት አጋራ",
+          "Share on Twitter": "በትዊተር ላይ አጋራ",
+          "Share on WhatsApp": "በዋትስአፕ ላይ አጋራ",
+          "Share on Facebook": "በፌስቡክ ላይ አጋራ",
+          "Share on Telegram": "በቴሌግራም ላይ አጋራ",
+          Close: "ዝጋ",
 
           // Returns
           "Return Request": "የመመለሻ ጥያቄ",

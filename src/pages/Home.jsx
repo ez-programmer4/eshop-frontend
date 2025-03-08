@@ -632,18 +632,33 @@ function Home() {
 
       {/* Footer */}
       <FooterSection>
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
+        <Box
           sx={{
-            fontWeight: 800,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             mb: 3,
-            background: "linear-gradient(90deg, #f0c14b 0%, #ff5722 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
           }}
         >
-          {t("EthioShop")}
-        </Typography>
+          <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="/logo.png" // Path to your logo in public/
+              alt="EthioShop Logo"
+              style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
+            />
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              sx={{
+                fontWeight: 800,
+                background: "linear-gradient(90deg, #f0c14b 0%, #ff5722 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {t("EthioShop")}
+            </Typography>
+          </Link>
+        </Box>
         <Grid container spacing={isMobile ? 2 : 3} justifyContent="center">
           <Grid item xs={12} sm={4}>
             <Typography
