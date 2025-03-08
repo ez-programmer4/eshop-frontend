@@ -343,7 +343,6 @@ function Navbar() {
               alt="EthioShop Logo"
               style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
             />
-            <LogoTypography>{t("EthioShop")}</LogoTypography>
           </Link>
         </Box>
 

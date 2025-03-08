@@ -642,7 +642,7 @@ function Home() {
         >
           <Link to="/" style={{ display: "flex", alignItems: "center" }}>
             <img
-              src="/logo.png" // Path to your logo in public/
+              src="/logo11.png" // Path to your logo in public/
               alt="EthioShop Logo"
               style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
             />
