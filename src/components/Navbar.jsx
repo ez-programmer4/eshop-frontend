@@ -341,7 +341,7 @@ function Navbar() {
             <img
               src="/logo.png" // Path to your logo in public/
               alt="EthioShop Logo"
-              style={{ height: "100px", marginRight: "10px" }} // Adjust size as needed
+              style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
             />
             <LogoTypography>{t("EthioShop")}</LogoTypography>
           </Link>
