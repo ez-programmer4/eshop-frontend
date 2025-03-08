@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import jwtDecode from "jwt-decode"; // Add this dependency
+import { jwtDecode } from "jwt-decode"; // Changed to named import
 
 export const AuthContext = createContext();
 
@@ -21,13 +21,13 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const userData = response.data;
-      const decodedToken = jwtDecode(token); // Decode JWT to get id
+      const decodedToken = jwtDecode(token); // Use named export
       setUser({
         token,
-        id: decodedToken.id || userData._id, // Use id from JWT or _id from response
-        name: userData.name || "User", // Fallback if name is missing
+        id: decodedToken.id || userData._id,
+        name: userData.name || "User",
         email: userData.email,
-        role: userData.role || "user", // Default to "user" if missing
+        role: userData.role || "user",
         referralCode: userData.referralCode,
       });
       localStorage.setItem("user", JSON.stringify(userData));
@@ -59,9 +59,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", response.data.token);
       }
 
-      const userData = response.data.user || response.data; // Handle nested user object
+      const userData = response.data.user || response.data;
       const token = googleToken || response.data.token;
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode(token); // Use named export
       setUser({
         token,
         id: decodedToken.id || userData._id,
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
         token = loginResponse.data.token;
       }
 
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode(token); // Use named export
       setUser({
         token,
         id: decodedToken.id || userData._id,
