@@ -26,6 +26,7 @@ export const WishlistProvider = ({ children }) => {
         }
       );
       const wishlistItems = response.data.items || response.data || [];
+      console.log("Wishlist items from backend:", wishlistItems); // Debug log
       const enrichedWishlist = await Promise.all(
         wishlistItems
           .filter((item) => item.productId || item._id)
@@ -42,7 +43,6 @@ export const WishlistProvider = ({ children }) => {
                 `Failed to fetch product ${productId}:`,
                 error.response?.data || error.message
               );
-              // Return a placeholder for missing products
               return {
                 _id: productId,
                 name: "Product Not Found",
