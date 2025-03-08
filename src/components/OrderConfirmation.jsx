@@ -1,4 +1,3 @@
-// src/components/OrderConfirmation.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -46,9 +45,7 @@ const ConfirmationCard = styled(Card)(({ theme }) => ({
   animation: `${slideIn} 0.5s ease-out`,
   position: "relative",
   padding: theme.spacing(2),
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
@@ -57,34 +54,25 @@ const ActionButton = styled(Button)(({ theme }) => ({
   fontWeight: 600,
   minWidth: theme.breakpoints.down("md") ? "auto" : "120px",
   transition: "transform 0.2s, background-color 0.2s",
-  "&:hover": {
-    transform: "scale(1.05)",
-  },
+  "&:hover": { transform: "scale(1.05)" },
 }));
 
 const ContinueShoppingButton = styled(ActionButton)(({ theme }) => ({
   backgroundColor: "#f0c14b",
   color: "#111",
-  "&:hover": {
-    backgroundColor: "#e0b03a",
-  },
+  "&:hover": { backgroundColor: "#e0b03a" },
 }));
 
 const ViewOrdersButton = styled(ActionButton)(({ theme }) => ({
   borderColor: "#1976d2",
   color: "#1976d2",
-  "&:hover": {
-    borderColor: "#1565c0",
-    color: "#1565c0",
-  },
+  "&:hover": { borderColor: "#1565c0", color: "#1565c0" },
 }));
 
 const DownloadButton = styled(ActionButton)(({ theme }) => ({
   backgroundColor: "#1976d2",
   color: "#fff",
-  "&:hover": {
-    backgroundColor: "#1565c0",
-  },
+  "&:hover": { backgroundColor: "#1565c0" },
 }));
 
 const QRCodeContainer = styled(Box)(({ theme }) => ({
@@ -104,9 +92,7 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
   top: 8,
   right: 8,
   color: "#555",
-  "&:hover": {
-    color: "#d32f2f",
-  },
+  "&:hover": { color: "#d32f2f" },
 }));
 
 function OrderConfirmation() {
@@ -114,7 +100,7 @@ function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Tablets and below
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -130,45 +116,50 @@ function OrderConfirmation() {
     }
   }, [location.state, navigate, t]);
 
-  const handleContinueShopping = () => {
-    navigate("/");
-  };
-
-  const handleViewOrders = () => {
-    navigate("/my-orders");
-  };
-
-  const handleClose = () => {
-    navigate("/");
-  };
+  const handleContinueShopping = () => navigate("/");
+  const handleViewOrders = () => navigate("/my-orders");
+  const handleClose = () => navigate("/");
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
+    // Add logo to PDF (fetch from public folder)
+    const logoUrl = "/logo.png";
+    const img = new Image();
+    img.src = logoUrl;
+    img.onload = () => {
+      doc.addImage(img, "PNG", 20, 10, 30, 30); // Adjust position and size
+      addPDFContent(doc);
+      doc.save(`Order_Confirmation_${order._id}.pdf`);
+    };
+    img.onerror = () => {
+      console.error("Failed to load logo for PDF");
+      addPDFContent(doc); // Proceed without logo if it fails
+      doc.save(`Order_Confirmation_${order._id}.pdf`);
+    };
+  };
+
+  const addPDFContent = (doc) => {
     // Header
     doc.setFontSize(20);
     doc.setTextColor(240, 193, 75); // #f0c14b
-    doc.text(t("Order Confirmation"), 20, 20);
+    doc.text(t("Order Confirmation"), 60, 25); // Adjusted for logo space
 
     // Order Details
     doc.setFontSize(12);
     doc.setTextColor(17, 17, 17); // #111
-    doc.text(`${t("Order #")}${order._id}`, 20, 40);
-    doc.text(`${t("PNR Code")}: ${order.pnr || "N/A"}`, 20, 50);
-    doc.text(`${t("Total")}: $${order.total.toFixed(2)}`, 20, 60);
-    doc.text(`${t("Payment Method")}: ${order.paymentMethod.type}`, 20, 70);
-    let yOffset = 70;
+    doc.text(`${t("Order #")}${order._id}`, 20, 50);
+    doc.text(`${t("PNR Code")}: ${order.pnr || "N/A"}`, 20, 60);
+    doc.text(`${t("Total")}: $${order.total.toFixed(2)}`, 20, 70);
+    doc.text(`${t("Payment Method")}: ${order.paymentMethod.type}`, 20, 80);
+    let yOffset = 80;
     if (order.paymentMethod.phone) {
       yOffset += 10;
       doc.text(`${t("Phone")}: ${order.paymentMethod.phone}`, 20, yOffset);
     }
     if (order.paymentMethod.last4) {
       yOffset += 10;
-      doc.text(
-        `${t("Card Ending")}: ${order.paymentMethod.last4}`,
-        20,
-        yOffset
-      );
+      doc.text(`${t("Card Ending")}: ${order.paymentMethod.last4}`, 20, yOffset);
     }
 
     // Items
@@ -214,14 +205,7 @@ function OrderConfirmation() {
     // Footer
     doc.setFontSize(8);
     doc.setTextColor(153, 153, 153); // #999
-    doc.text(
-      `© ${new Date().getFullYear()} ethioshop
-      `,
-      20,
-      yPos + 20
-    );
-
-    doc.save(`Order_Confirmation_${order._id}.pdf`);
+    doc.text(`© ${new Date().getFullYear()} EthioShop`, 20, yPos + 20);
   };
 
   if (loading) {
@@ -282,6 +266,14 @@ function OrderConfirmation() {
         alignItems: "center",
       }}
     >
+      {/* Logo in UI */}
+      <Box sx={{ mb: 2 }}>
+        <img
+          src="/logo.png"
+          alt="EthioShop Logo"
+          style={{ height: isMobile ? "40px" : "60px" }} // Adjust size
+        />
+      </Box>
       <Typography
         variant={isMobile ? "h5" : "h4"}
         gutterBottom
@@ -419,7 +411,7 @@ function OrderConfirmation() {
 
           <Divider sx={{ my: 3, bgcolor: "#eee" }} />
 
-          <Grid container spacing={isMobile ? 1 : 2}>
+          <arrage container spacing={isMobile ? 1 : 2}>
             <Grid item xs={12} sm={6}>
               <Typography
                 variant="h6"
@@ -451,7 +443,7 @@ function OrderConfirmation() {
                 >
                   {order.billingAddress.street}, {order.billingAddress.city},
                   {order.billingAddress.state} {order.billingAddress.postalCode}
-                  ,{order.billingAddress.country}
+                  , {order.billingAddress.country}
                 </Typography>
               </Box>
             </Grid>

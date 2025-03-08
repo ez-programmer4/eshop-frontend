@@ -345,6 +345,7 @@ function Cart() {
               ? paymentDetails.last4
               : undefined,
         },
+        logoUrl: "https://ethioshop-820b.onrender.com/logo.png", // Add logo URL
       };
 
       const response = await axios.post(
