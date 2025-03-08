@@ -26,7 +26,10 @@ export const WishlistProvider = ({ children }) => {
         }
       );
       const wishlistItems = response.data.items || response.data || [];
-      console.log("Wishlist items from backend:", wishlistItems); // Debug log
+      console.log(
+        "Wishlist items from backend:",
+        wishlistItems.map((item) => item.productId || item._id)
+      ); // Log IDs
       const enrichedWishlist = await Promise.all(
         wishlistItems
           .filter((item) => item.productId || item._id)
@@ -135,9 +138,29 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
+  const clearWishlist = async () => {
+    if (!user || !user.id) {
+      console.error("User not logged in");
+      return;
+    }
+    try {
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}`,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setWishlist([]);
+      console.log("Wishlist cleared");
+    } catch (error) {
+      console.error(
+        "Failed to clear wishlist:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
   return (
     <WishlistContext.Provider
-      value={{ wishlist, addToWishlist, removeFromWishlist }}
+      value={{ wishlist, addToWishlist, removeFromWishlist, clearWishlist }}
     >
       {children}
     </WishlistContext.Provider>

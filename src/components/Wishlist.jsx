@@ -88,7 +88,8 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 function Wishlist() {
-  const { wishlist, removeFromWishlist } = useContext(WishlistContext);
+  const { wishlist, removeFromWishlist, clearWishlist } =
+    useContext(WishlistContext);
   const { user } = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -118,56 +119,79 @@ function Wishlist() {
           {t("Your wishlist is empty")}
         </Typography>
       ) : (
-        <List>
-          {wishlist.map((item) => (
-            <WishlistItem
-              key={
-                item._id || `temp-${Math.random().toString(36).substr(2, 9)}`
-              }
-            >
-              <ListItemText
-                primary={item.name || t("Unnamed Product")}
-                secondary={
-                  item.price !== undefined ? `$${item.price}` : t("Price N/A")
+        <>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={clearWishlist}
+            sx={{ mb: 2 }}
+          >
+            {t("Clear Wishlist")}
+          </Button>
+          <List>
+            {wishlist.map((item) => (
+              <WishlistItem
+                key={
+                  item._id || `temp-${Math.random().toString(36).substr(2, 9)}`
                 }
-                onClick={() => item._id && navigate(`/product/${item._id}`)}
-                sx={{
-                  cursor: item._id ? "pointer" : "default",
-                  color: "#111",
-                  "& .MuiListItemText-secondary": { color: "#555" },
-                }}
-              />
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  mt: isMobile ? 2 : 0,
-                  flexDirection: isMobile ? "column" : "row",
-                }}
               >
-                {item._id ? (
-                  <>
-                    <ActionButton
-                      variant="contained"
-                      onClick={() => navigate(`/product/${item._id}`)}
-                    >
-                      {t("View")}
-                    </ActionButton>
+                <ListItemText
+                  primary={item.name || t("Unnamed Product")}
+                  secondary={
+                    item.unavailable
+                      ? t("Unavailable")
+                      : item.price !== undefined
+                      ? `$${item.price}`
+                      : t("Price N/A")
+                  }
+                  onClick={() =>
+                    !item.unavailable &&
+                    item._id &&
+                    navigate(`/product/${item._id}`)
+                  }
+                  sx={{
+                    cursor:
+                      item._id && !item.unavailable ? "pointer" : "default",
+                    color: "#111",
+                    "& .MuiListItemText-secondary": {
+                      color: item.unavailable ? "#e74c3c" : "#555",
+                    },
+                  }}
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mt: isMobile ? 2 : 0,
+                    flexDirection: isMobile ? "column" : "row",
+                  }}
+                >
+                  {item._id && !item.unavailable ? (
+                    <>
+                      <ActionButton
+                        variant="contained"
+                        onClick={() => navigate(`/product/${item._id}`)}
+                      >
+                        {t("View")}
+                      </ActionButton>
+                      <StyledIconButton
+                        onClick={() => removeFromWishlist(item._id)}
+                      >
+                        <DeleteIcon />
+                      </StyledIconButton>
+                    </>
+                  ) : (
                     <StyledIconButton
-                      onClick={() => removeFromWishlist(item._id)}
+                      onClick={() => item._id && removeFromWishlist(item._id)}
                     >
                       <DeleteIcon />
                     </StyledIconButton>
-                  </>
-                ) : (
-                  <Typography sx={{ color: "#e74c3c" }}>
-                    {t("Invalid item")}
-                  </Typography>
-                )}
-              </Box>
-            </WishlistItem>
-          ))}
-        </List>
+                  )}
+                </Box>
+              </WishlistItem>
+            ))}
+          </List>
+        </>
       )}
     </WishlistContainer>
   );
