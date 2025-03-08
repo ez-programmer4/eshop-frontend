@@ -9,7 +9,8 @@ export const WishlistProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    if (user && user._id) {
+    if (user && user.id) {
+      // Changed from user._id to user.id
       fetchWishlist();
     } else {
       setWishlist([]);
@@ -17,10 +18,10 @@ export const WishlistProvider = ({ children }) => {
   }, [user]);
 
   const fetchWishlist = async () => {
-    if (!user || !user._id) return;
+    if (!user || !user.id) return; // Changed from user._id to user.id
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user._id}`,
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}`, // Changed to user.id
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -28,7 +29,7 @@ export const WishlistProvider = ({ children }) => {
       const wishlistItems = response.data.items || response.data || [];
       const enrichedWishlist = await Promise.all(
         wishlistItems
-          .filter((item) => item.productId || item._id) // Handle both formats
+          .filter((item) => item.productId || item._id)
           .map(async (item) => {
             const productId = item.productId || item._id;
             try {
@@ -54,7 +55,8 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const addToWishlist = async (productId) => {
-    if (!user || !user._id) {
+    if (!user || !user.id) {
+      // Changed from user._id to user.id
       console.error("User not logged in");
       return;
     }
@@ -63,7 +65,7 @@ export const WishlistProvider = ({ children }) => {
       return;
     }
     if (wishlist.some((item) => item._id === productId)) {
-      return; // Already in wishlist
+      return;
     }
     try {
       const productResponse = await axios.get(
@@ -71,13 +73,12 @@ export const WishlistProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       const newItem = { _id: productId, ...productResponse.data };
-      setWishlist((prev) => [...prev, newItem]); // Optimistic update
+      setWishlist((prev) => [...prev, newItem]);
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/wishlist",
-        { userId: user._id, productId },
+        { userId: user.id, productId }, // Changed to user.id
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      // Sync with backend response if it returns the full wishlist
       if (response.data.items) {
         setWishlist(
           response.data.items.map((item) => ({
@@ -91,12 +92,13 @@ export const WishlistProvider = ({ children }) => {
         "Failed to add to wishlist:",
         error.response?.data || error.message
       );
-      setWishlist((prev) => prev.filter((item) => item._id !== productId)); // Rollback
+      setWishlist((prev) => prev.filter((item) => item._id !== productId));
     }
   };
 
   const removeFromWishlist = async (productId) => {
-    if (!user || !user._id) {
+    if (!user || !user.id) {
+      // Changed from user._id to user.id
       console.error("User not logged in");
       return;
     }
@@ -104,13 +106,12 @@ export const WishlistProvider = ({ children }) => {
       console.error("Invalid productId:", productId);
       return;
     }
-    setWishlist((prev) => prev.filter((item) => item._id !== productId)); // Optimistic update
+    setWishlist((prev) => prev.filter((item) => item._id !== productId));
     try {
       const response = await axios.delete(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user._id}/${productId}`,
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.id}/${productId}`, // Changed to user.id
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      // Sync with backend response if it returns the updated wishlist
       if (response.data.items) {
         setWishlist(
           response.data.items.map((item) => ({
@@ -124,7 +125,7 @@ export const WishlistProvider = ({ children }) => {
         "Failed to remove from wishlist:",
         error.response?.data || error.message
       );
-      fetchWishlist(); // Re-sync on error
+      fetchWishlist();
     }
   };
 
