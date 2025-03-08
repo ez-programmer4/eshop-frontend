@@ -1,4 +1,3 @@
-// src/components/Wishlist.jsx
 import React, { useContext } from "react";
 import { WishlistContext } from "../context/WishlistContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -122,14 +121,18 @@ function Wishlist() {
         <List>
           {wishlist.map((item) => (
             <WishlistItem
-              key={item._id || Math.random().toString(36).substr(2, 9)}
+              key={
+                item._id || `temp-${Math.random().toString(36).substr(2, 9)}`
+              }
             >
               <ListItemText
                 primary={item.name || t("Unnamed Product")}
-                secondary={item.price ? `$${item.price}` : t("Price N/A")}
-                onClick={() => navigate(`/product/${item._id}`)}
+                secondary={
+                  item.price !== undefined ? `$${item.price}` : t("Price N/A")
+                }
+                onClick={() => item._id && navigate(`/product/${item._id}`)}
                 sx={{
-                  cursor: "pointer",
+                  cursor: item._id ? "pointer" : "default",
                   color: "#111",
                   "& .MuiListItemText-secondary": { color: "#555" },
                 }}
@@ -142,15 +145,25 @@ function Wishlist() {
                   flexDirection: isMobile ? "column" : "row",
                 }}
               >
-                <ActionButton
-                  variant="contained"
-                  onClick={() => navigate(`/product/${item._id}`)}
-                >
-                  {t("View")}
-                </ActionButton>
-                <StyledIconButton onClick={() => removeFromWishlist(item._id)}>
-                  <DeleteIcon />
-                </StyledIconButton>
+                {item._id ? (
+                  <>
+                    <ActionButton
+                      variant="contained"
+                      onClick={() => navigate(`/product/${item._id}`)}
+                    >
+                      {t("View")}
+                    </ActionButton>
+                    <StyledIconButton
+                      onClick={() => removeFromWishlist(item._id)}
+                    >
+                      <DeleteIcon />
+                    </StyledIconButton>
+                  </>
+                ) : (
+                  <Typography sx={{ color: "#e74c3c" }}>
+                    {t("Invalid item")}
+                  </Typography>
+                )}
               </Box>
             </WishlistItem>
           ))}

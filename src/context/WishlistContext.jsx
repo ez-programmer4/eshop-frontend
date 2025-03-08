@@ -1,18 +1,15 @@
-// src/context/WishlistContext.jsx
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "./AuthContext.jsx";
-import { useTranslation } from "react-i18next";
 
 export const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const { user } = useContext(AuthContext);
-  const { t } = useTranslation();
 
   useEffect(() => {
-    if (user) {
+    if (user && user._id) {
       fetchWishlist();
     } else {
       setWishlist([]);
@@ -20,34 +17,29 @@ export const WishlistProvider = ({ children }) => {
   }, [user]);
 
   const fetchWishlist = async () => {
+    if (!user || !user._id) return;
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user.userId}`,
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user._id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
       );
-      const wishlistItems = response.data.items || [];
+      const wishlistItems = response.data.items || response.data || [];
       const enrichedWishlist = await Promise.all(
         wishlistItems
-          .filter((item) => item.productId) // Filter out invalid items
+          .filter((item) => item.productId || item._id) // Handle both formats
           .map(async (item) => {
+            const productId = item.productId || item._id;
             try {
               const productResponse = await axios.get(
-                `https://eshop-backend-e11f.onrender.com/api/products/${item.productId}`,
+                `https://eshop-backend-e11f.onrender.com/api/products/${productId}`,
                 { headers: { Authorization: `Bearer ${user.token}` } }
               );
-              return { _id: item.productId, ...productResponse.data };
+              return { _id: productId, ...productResponse.data };
             } catch (error) {
-              console.error(
-                `Failed to fetch product ${item.productId}:`,
-                error
-              );
-              return {
-                _id: item.productId,
-                name: t("Unknown Product"),
-                price: "N/A",
-              };
+              console.error(`Failed to fetch product ${productId}:`, error);
+              return { _id: productId, name: "Unknown Product", price: "N/A" };
             }
           })
       );
@@ -62,8 +54,8 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const addToWishlist = async (productId) => {
-    if (!user) {
-      alert(t("Please log in to add items to wishlist"));
+    if (!user || !user._id) {
+      console.error("User not logged in");
       return;
     }
     if (!productId || typeof productId !== "string") {
@@ -76,41 +68,57 @@ export const WishlistProvider = ({ children }) => {
     try {
       const productResponse = await axios.get(
         `https://eshop-backend-e11f.onrender.com/api/products/${productId}`,
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       const newItem = { _id: productId, ...productResponse.data };
       setWishlist((prev) => [...prev, newItem]); // Optimistic update
-      await axios.post(
+      const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/wishlist",
-        { userId: user.userId, productId },
+        { userId: user._id, productId },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+      // Sync with backend response if it returns the full wishlist
+      if (response.data.items) {
+        setWishlist(
+          response.data.items.map((item) => ({
+            _id: item.productId,
+            ...item,
+          }))
+        );
+      }
     } catch (error) {
       console.error(
         "Failed to add to wishlist:",
         error.response?.data || error.message
       );
-      setWishlist((prev) => prev.filter((item) => item._id !== productId)); // Rollback on error
+      setWishlist((prev) => prev.filter((item) => item._id !== productId)); // Rollback
     }
   };
 
   const removeFromWishlist = async (productId) => {
-    if (!user) return;
+    if (!user || !user._id) {
+      console.error("User not logged in");
+      return;
+    }
     if (!productId || typeof productId !== "string") {
       console.error("Invalid productId:", productId);
       return;
     }
-    const updatedWishlist = wishlist.filter((item) => item._id !== productId);
-    setWishlist(updatedWishlist); // Optimistic update
+    setWishlist((prev) => prev.filter((item) => item._id !== productId)); // Optimistic update
     try {
-      await axios.delete(
-        `https://eshop-backend-e11f.onrender.com/api/wishlist/${productId}`,
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+      const response = await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/wishlist/${user._id}/${productId}`,
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
+      // Sync with backend response if it returns the updated wishlist
+      if (response.data.items) {
+        setWishlist(
+          response.data.items.map((item) => ({
+            _id: item.productId,
+            ...item,
+          }))
+        );
+      }
     } catch (error) {
       console.error(
         "Failed to remove from wishlist:",
