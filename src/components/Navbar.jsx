@@ -125,6 +125,11 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
 
+  // Log user for debugging
+  useEffect(() => {
+    console.log("Navbar user:", user);
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       fetchNotifications();
@@ -132,10 +137,9 @@ function Navbar() {
   }, [user]);
 
   useEffect(() => {
-    // Trigger animation when cart length changes
     if (cart.length > 0) {
       setCartAnimate(true);
-      const timer = setTimeout(() => setCartAnimate(false), 500); // Reset after animation
+      const timer = setTimeout(() => setCartAnimate(false), 500);
       return () => clearTimeout(timer);
     }
   }, [cart.length]);
@@ -406,7 +410,13 @@ function Navbar() {
                   </NavIconButton>
                   <NavIconButton
                     onClick={handleMenuOpen}
-                    title={user.name || user.email.split("@")[0]}
+                    title={
+                      user && user.name
+                        ? user.name
+                        : user && user.email
+                        ? user.email.split("@")[0]
+                        : "User"
+                    }
                   >
                     <PersonIcon />
                   </NavIconButton>
