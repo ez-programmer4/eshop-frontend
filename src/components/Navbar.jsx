@@ -125,10 +125,11 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
 
-  // Log user for debugging
+  // Log user and language for debugging
   useEffect(() => {
     console.log("Navbar user:", user);
-  }, [user]);
+    console.log("Current language:", i18n.language);
+  }, [user, i18n.language]);
 
   useEffect(() => {
     if (user) {
@@ -201,7 +202,9 @@ function Navbar() {
   };
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === "en" ? "am" : "en");
+    const newLang = i18n.language === "en" ? "am" : "en";
+    i18n.changeLanguage(newLang);
+    console.log("Language toggled to:", newLang);
   };
 
   const navItems = [
@@ -311,7 +314,6 @@ function Navbar() {
           <ListItemText primary={t("Login")} sx={{ color: "#111" }} />
         </ListItem>
       )}
-      {/* Language toggle in drawer */}
       <ListItem button onClick={toggleLanguage}>
         <ListItemText
           primary={i18n.language === "en" ? "en" : "አማ"}
@@ -431,7 +433,6 @@ function Navbar() {
                   >
                     <PersonIcon />
                   </NavIconButton>
-                  {/* Language toggle button */}
                   <NavIconButton onClick={toggleLanguage}>
                     <Typography variant="body2">
                       {i18n.language === "en" ? "en" : "አማ"}

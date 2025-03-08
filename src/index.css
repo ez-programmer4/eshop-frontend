@@ -22,3 +22,6 @@ button {
   border-radius: 8px !important;
   text-transform: none !important;
 } */
+body {
+  font-family: "Noto Sans Ethiopic", "Roboto", sans-serif;
+}
