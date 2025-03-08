@@ -40,7 +40,9 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const stripePromise = loadStripe("pk_test_YOUR_PUBLISHABLE_KEY"); // Replace with your Stripe key
+const stripePromise = loadStripe(
+  "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3dR430ok9900C8ATrI9w"
+); // Replace with your Stripe key
 
 // Animation keyframes
 const slideIn = keyframes`
