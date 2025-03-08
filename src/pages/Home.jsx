@@ -641,11 +641,6 @@ function Home() {
           }}
         >
           <Link to="/" style={{ display: "flex", alignItems: "center" }}>
-            <img
-              src="/logo11.png" // Path to your logo in public/
-              alt="EthioShop Logo"
-              style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
-            />
             <Typography
               variant={isMobile ? "h5" : "h4"}
               sx={{
@@ -655,7 +650,7 @@ function Home() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              {t("EthioShop")}
+              {"EthioShop"}
             </Typography>
           </Link>
         </Box>
