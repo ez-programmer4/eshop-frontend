@@ -122,89 +122,203 @@ function OrderConfirmation() {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-
-    // Add logo to PDF
     const logoUrl = "/logo.png";
     const img = new Image();
     img.src = logoUrl;
+
+    // Generate QR code as an image
+    const qrCodeCanvas = document.createElement("canvas");
+    const qrCodeSize = 100; // Size in pixels for PDF
+    qrCodeCanvas.width = qrCodeSize;
+    qrCodeCanvas.height = qrCodeSize;
+    const qrCodeContext = qrCodeCanvas.getContext("2d");
+    const qrCodeComponent = (
+      <QRCodeCanvas value={order.pnr || order._id} size={qrCodeSize} />
+    );
+    const qrCodeDataUrl = qrCodeComponent.props.value
+      ? qrCodeCanvas.toDataURL("image/png")
+      : null;
+
     img.onload = () => {
-      doc.addImage(img, "PNG", 20, 10, 30, 30);
-      addPDFContent(doc);
+      doc.addImage(img, "PNG", 20, 10, 30, 30); // Logo at top-left
+      if (qrCodeDataUrl) {
+        addPDFContent(doc, qrCodeDataUrl);
+      } else {
+        addPDFContent(doc);
+      }
       doc.save(`Order_Confirmation_${order._id}.pdf`);
     };
     img.onerror = () => {
       console.error("Failed to load logo for PDF");
-      addPDFContent(doc);
+      if (qrCodeDataUrl) {
+        addPDFContent(doc, qrCodeDataUrl);
+      } else {
+        addPDFContent(doc);
+      }
       doc.save(`Order_Confirmation_${order._id}.pdf`);
+    };
+
+    // Draw QR code on canvas after React renders it
+    const qrCodeElement = document.createElement("div");
+    document.body.appendChild(qrCodeElement);
+    qrCodeElement.innerHTML = `<canvas width="${qrCodeSize}" height="${qrCodeSize}"></canvas>`;
+    const qrCanvas = qrCodeElement.querySelector("canvas");
+    const qrContext = qrCanvas.getContext("2d");
+    const qrImage = new Image();
+    qrImage.src = qrCodeDataUrl;
+    qrImage.onload = () => {
+      qrContext.drawImage(qrImage, 0, 0, qrCodeSize, qrCodeSize);
+      document.body.removeChild(qrCodeElement);
     };
   };
 
-  const addPDFContent = (doc) => {
-    doc.setFontSize(20);
-    doc.setTextColor(240, 193, 75);
-    doc.text(t("Order Confirmation"), 60, 25);
+  const addPDFContent = (doc, qrCodeDataUrl) => {
+    // Set font to match email (Arial-like)
+    doc.setFont("helvetica");
 
-    doc.setFontSize(12);
-    doc.setTextColor(17, 17, 17);
-    doc.text(`${t("Order #")}${order._id}`, 20, 50);
-    doc.text(`${t("PNR Code")}: ${order.pnr || "N/A"}`, 20, 60);
-    doc.text(`${t("Total")}: $${order.total.toFixed(2)}`, 20, 70);
-    doc.text(`${t("Payment Method")}: ${order.paymentMethod.type}`, 20, 80);
-    let yOffset = 80;
+    // Background box (white with shadow simulation)
+    doc.setFillColor(255, 255, 255); // #fff
+    doc.roundedRect(15, 45, 180, 240, 5, 5, "F"); // Adjusted height for QR code
+    doc.setDrawColor(0, 0, 0, 0.1); // Shadow simulation
+    doc.roundedRect(15, 45, 180, 240, 5, 5, "S");
+
+    // Header
+    doc.setFontSize(24);
+    doc.setTextColor(240, 193, 75); // #f0c14b
+    doc.setFont("helvetica", "bold");
+    doc.text(t("Order Confirmed!"), 105, 60, { align: "center" });
+
+    // Thank you message
+    doc.setFontSize(16);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${t("Thank you for your order")}! Your order #${
+        order._id
+      } has been placed successfully.`,
+      105,
+      75,
+      { align: "center", maxWidth: 160 }
+    );
+
+    // Order Summary Box
+    doc.setFillColor(245, 245, 245); // #f5f5f5
+    doc.roundedRect(20, 90, 170, 60, 5, 5, "F");
+    doc.setFontSize(14);
+    doc.setTextColor(17, 17, 17); // #111
+    doc.setFont("helvetica", "bold");
+    doc.text(`${t("PNR Code")}:`, 25, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.pnr || "N/A", 65, 100);
+    doc.setFont("helvetica", "bold");
+    doc.text(`${t("Total")}:`, 25, 110);
+    doc.setFont("helvetica", "normal");
+    doc.text(`$${order.total.toFixed(2)}`, 65, 110);
+    doc.setFont("helvetica", "bold");
+    doc.text(`${t("Payment Method")}:`, 25, 120);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.paymentMethod.type, 65, 120);
+    let yOffset = 120;
     if (order.paymentMethod.phone) {
       yOffset += 10;
-      doc.text(`${t("Phone")}: ${order.paymentMethod.phone}`, 20, yOffset);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${t("Phone")}:`, 25, yOffset);
+      doc.setFont("helvetica", "normal");
+      doc.text(order.paymentMethod.phone, 65, yOffset);
     }
     if (order.paymentMethod.last4) {
       yOffset += 10;
-      doc.text(
-        `${t("Card Ending")}: ${order.paymentMethod.last4}`,
-        20,
-        yOffset
-      );
+      doc.setFont("helvetica", "bold");
+      doc.text(`${t("Card Ending")}:`, 25, yOffset);
+      doc.setFont("helvetica", "normal");
+      doc.text(order.paymentMethod.last4, 65, yOffset);
     }
 
-    doc.setFontSize(14);
+    // Items
+    doc.setFontSize(18);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "bold");
     yOffset += 20;
     doc.text(t("Items"), 20, yOffset);
-    doc.setFontSize(10);
+    doc.setFontSize(12);
+    doc.setTextColor(17, 17, 17); // #111
+    doc.setFont("helvetica", "normal");
     let yPos = yOffset + 10;
     order.items.forEach((item) => {
       doc.text(
         `${item.productId.name} x ${item.quantity} - $${(
           item.quantity * item.productId.price
         ).toFixed(2)}`,
-        20,
+        25,
         yPos
       );
       yPos += 10;
     });
 
-    doc.setFontSize(14);
+    // Addresses
+    doc.setFontSize(18);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "bold");
     yPos += 10;
     doc.text(t("Shipping Address"), 20, yPos);
-    doc.setFontSize(10);
+    doc.setFontSize(12);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "normal");
     yPos += 10;
     doc.text(
       `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}`,
-      20,
-      yPos
+      25,
+      yPos,
+      { maxWidth: 160 }
     );
 
-    doc.setFontSize(14);
     yPos += 20;
+    doc.setFontSize(18);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "bold");
     doc.text(t("Billing Address"), 20, yPos);
-    doc.setFontSize(10);
+    doc.setFontSize(12);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.setFont("helvetica", "normal");
     yPos += 10;
     doc.text(
       `${order.billingAddress.street}, ${order.billingAddress.city}, ${order.billingAddress.state} ${order.billingAddress.postalCode}, ${order.billingAddress.country}`,
-      20,
-      yPos
+      25,
+      yPos,
+      { maxWidth: 160 }
     );
 
-    doc.setFontSize(8);
-    doc.setTextColor(153, 153, 153);
-    doc.text(`© ${new Date().getFullYear()} EthioShop`, 20, yPos + 20);
+    // QR Code with styled container
+    yPos += 20;
+    doc.setFillColor(255, 255, 255); // #fff
+    doc.roundedRect(75, yPos, 60, 60, 5, 5, "F"); // White box for QR code
+    doc.setDrawColor(0, 0, 0, 0.1); // Shadow simulation
+    doc.roundedRect(75, yPos, 60, 60, 5, 5, "S");
+    if (qrCodeDataUrl) {
+      doc.addImage(qrCodeDataUrl, "PNG", 80, yPos + 5, 50, 50); // Centered QR code
+    }
+    doc.setFontSize(10);
+    doc.setTextColor(85, 85, 85); // #555
+    doc.text(
+      `${t("Scan this QR code with your PNR")}: ${order.pnr || order._id}`,
+      105,
+      yPos + 65,
+      { align: "center", maxWidth: 160 }
+    );
+
+    // Footer
+    yPos += 75; // Adjusted for QR code height
+    doc.setDrawColor(238, 238, 238); // #eee
+    doc.line(20, yPos, 190, yPos); // Footer divider
+    doc.setFontSize(12);
+    doc.setTextColor(153, 153, 153); // #999
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `© ${new Date().getFullYear()} EthioShop. All rights reserved.`,
+      105,
+      yPos + 10,
+      { align: "center" }
+    );
   };
 
   if (loading) {

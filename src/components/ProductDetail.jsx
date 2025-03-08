@@ -55,6 +55,7 @@ ChartJS.register(
   Legend
 );
 
+// Animations
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -62,69 +63,93 @@ const slideIn = keyframes`
 
 const pulse = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 `;
 
+const glow = keyframes`
+  0% { box-shadow: 0 0 5px rgba(240, 193, 75, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(240, 193, 75, 0.7); }
+  100% { box-shadow: 0 0 5px rgba(240, 193, 75, 0.3); }
+`;
+
+// Styled Components
 const ProductContainer = styled(Box)(({ theme }) => ({
-  maxWidth: 1200,
+  maxWidth: 1400,
   margin: "auto",
-  padding: theme.spacing(2),
-  backgroundColor: "#f7f7f7",
-  borderRadius: "12px",
+  padding: theme.spacing(4),
+  background: "linear-gradient(135deg, #f7f7f7 0%, #fff 100%)",
+  borderRadius: "16px",
   minHeight: "80vh",
-  animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1) },
+  animation: `${slideIn} 0.6s ease-out`,
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const ProductCard = styled(Card)(({ theme }) => ({
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  transition: "transform 0.3s, box-shadow 0.3s",
+  borderRadius: "16px",
+  backgroundColor: "#fff",
+  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.08)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
   "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+    transform: "translateY(-6px)",
+    boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)",
+    animation: `${glow} 1.5s infinite`,
   },
   cursor: "pointer",
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
+  background: "linear-gradient(45deg, #f0c14b 30%, #ffca28 90%)",
   color: "#111",
-  padding: theme.spacing(1, 2),
-  borderRadius: "8px",
-  fontWeight: 600,
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
+  fontWeight: 700,
+  textTransform: "uppercase",
+  letterSpacing: "0.5px",
   "&:hover": {
-    backgroundColor: "#e0b03a",
+    background: "linear-gradient(45deg, #e0b03a 30%, #ffb300 90%)",
     transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
+    boxShadow: "0 4px 12px rgba(240, 193, 75, 0.5)",
   },
-  "&:disabled": { backgroundColor: "#ccc", color: "#888" },
+  "&:disabled": { background: "#e0e0e0", color: "#888" },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.5, 1),
-    fontSize: "0.75rem",
+    padding: theme.spacing(1, 2),
+    fontSize: "0.85rem",
   },
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
-  transition: "transform 0.2s, color 0.2s",
+  padding: theme.spacing(1.2),
+  transition: "transform 0.3s ease, color 0.3s ease",
   "&:hover": {
-    transform: "scale(1.2) rotate(5deg)",
+    transform: "scale(1.3) rotate(10deg)",
     color: "#f0c14b",
-    animation: `${pulse} 0.5s infinite`,
+    animation: `${pulse} 0.6s infinite`,
+    backgroundColor: "rgba(240, 193, 75, 0.1)",
   },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "8px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
-    "& fieldset": { borderColor: "#ccc" },
-    "&:hover fieldset": { borderColor: "#999" },
-    "&.Mui-focused fieldset": { borderColor: "#f0c14b" },
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)",
+    "& fieldset": { borderColor: "#ddd" },
+    "&:hover fieldset": { borderColor: "#f0c14b" },
+    "&.Mui-focused fieldset": { borderColor: "#f0c14b", borderWidth: 2 },
   },
-  "& .MuiInputLabel-root": { color: "#555" },
+  "& .MuiInputLabel-root": { color: "#666", fontWeight: 500 },
   "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
+}));
+
+const ReviewCard = styled(Card)(({ theme }) => ({
+  borderRadius: "12px",
+  backgroundColor: "#fafafa",
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.06)",
+  padding: theme.spacing(2),
+  transition: "background-color 0.3s",
+  "&:hover": { backgroundColor: "#f5f5f5" },
 }));
 
 function ProductDetail() {
@@ -153,8 +178,8 @@ function ProductDetail() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const productData = await fetchProduct(id); // Pass id here
-        setProduct(productData); // Set the fetched product
+        const productData = await fetchProduct(id);
+        setProduct(productData);
         await Promise.all([fetchRelatedProducts(), fetchRecommendations()]);
       } catch (error) {
         setError(t("Failed to load product data"));
@@ -171,7 +196,6 @@ function ProductDetail() {
   }, [id, user, t]);
 
   const fetchProduct = async (id) => {
-    console.log("fetchProduct called with ID:", id);
     if (!id || id === "undefined") {
       console.error("fetchProduct received invalid ID:", id);
       return null;
@@ -229,7 +253,7 @@ function ProductDetail() {
       navigate("/login");
       return;
     }
-    addToCart(product?._id); // Ensure product._id exists
+    addToCart(product?._id);
     setSuccess(t("Added to cart!"));
     setTimeout(() => setSuccess(""), 3000);
   };
@@ -284,31 +308,33 @@ function ProductDetail() {
 
   const shareViaPlatform = (platform) => {
     const url = `${window.location.origin}/product/${id}`;
-    const text = `${t("Check out this")} ${product?.name || t("product")} ${t(
-      "on Clothing Store! Only"
-    )} $${product?.price || "N/A"}. ${url}`;
+    const styledText = `🌟 *EthioShop Exclusive!* 🌟\nCheck out *${
+      product?.name || t("this amazing product")
+    }* for only *$${
+      product?.price || "N/A"
+    }*!\n👉 ${url}\n✨ Shop now at EthioShop! ✨`;
     let shareUrl;
 
     switch (platform) {
       case "twitter":
         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-          text
+          styledText
         )}`;
         break;
       case "whatsapp":
         shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          text
+          styledText
         )}`;
         break;
       case "facebook":
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
           url
-        )}&quote=${encodeURIComponent(text)}`;
+        )}&quote=${encodeURIComponent(styledText)}`;
         break;
       case "telegram":
         shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
           url
-        )}&text=${encodeURIComponent(text)}`;
+        )}&text=${encodeURIComponent(styledText)}`;
         break;
       default:
         return;
@@ -321,10 +347,10 @@ function ProductDetail() {
   if (loading) {
     return (
       <ProductContainer>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
           <CircularProgress
             sx={{ color: "#f0c14b" }}
-            size={isMobile ? 30 : 40}
+            size={isMobile ? 40 : 60}
           />
         </Box>
       </ProductContainer>
@@ -334,7 +360,14 @@ function ProductDetail() {
   if (!product) {
     return (
       <ProductContainer>
-        <Typography sx={{ textAlign: "center", color: "#555" }}>
+        <Typography
+          sx={{
+            textAlign: "center",
+            color: "#555",
+            fontSize: "1.5rem",
+            py: 4,
+          }}
+        >
           {t("Product not found")}
         </Typography>
       </ProductContainer>
@@ -348,9 +381,10 @@ function ProductDetail() {
       {
         label: t("Reviews"),
         data: ratingStats.ratingDistribution,
-        backgroundColor: "#f0c14b",
+        backgroundColor: "rgba(240, 193, 75, 0.8)",
         borderColor: "#e0b03a",
-        borderWidth: 1,
+        borderWidth: 2,
+        hoverBackgroundColor: "#f0c14b",
       },
     ],
   };
@@ -360,15 +394,26 @@ function ProductDetail() {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      title: { display: true, text: t("Rating Distribution"), color: "#111" },
+      title: {
+        display: true,
+        text: t("Rating Distribution"),
+        color: "#111",
+        font: { size: 18, weight: "bold" },
+      },
+      tooltip: { backgroundColor: "#f0c14b", titleColor: "#111" },
     },
     scales: {
       y: {
         beginAtZero: true,
-        title: { display: true, text: t("Number of Reviews"), color: "#555" },
-        ticks: { color: "#555" },
+        title: {
+          display: true,
+          text: t("Number of Reviews"),
+          color: "#555",
+          font: { size: 14 },
+        },
+        ticks: { color: "#555", font: { size: 12 } },
       },
-      x: { ticks: { color: "#555" } },
+      x: { ticks: { color: "#555", font: { size: 12 } } },
     },
   };
 
@@ -378,9 +423,14 @@ function ProductDetail() {
         variant={isMobile ? "h5" : "h4"}
         sx={{
           color: "#111",
-          fontWeight: 700,
+          fontWeight: 800,
           textAlign: "center",
-          mb: isMobile ? 2 : 4,
+          mb: isMobile ? 3 : 5,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          background: "linear-gradient(90deg, #f0c14b, #111)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
         }}
       >
         {product.name}
@@ -389,7 +439,12 @@ function ProductDetail() {
       {error && (
         <Alert
           severity="error"
-          sx={{ mb: 2, borderRadius: 2, bgcolor: "#ffebee" }}
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "#fff1f1",
+            boxShadow: "0 2px 8px rgba(231, 76, 60, 0.1)",
+          }}
         >
           {error}
         </Alert>
@@ -397,36 +452,64 @@ function ProductDetail() {
       {success && (
         <Alert
           severity="success"
-          sx={{ mb: 2, borderRadius: 2, bgcolor: "#e0f7fa" }}
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "#e8f5e9",
+            boxShadow: "0 2px 8px rgba(76, 175, 80, 0.1)",
+          }}
         >
           {success}
         </Alert>
       )}
 
-      <Grid container spacing={isMobile ? 2 : 4}>
+      <Grid container spacing={isMobile ? 3 : 5}>
         <Grid item xs={12} md={6}>
           <CardMedia
             component="img"
             image={product.image || "https://picsum.photos/400?blur=2"}
             alt={product.name}
             sx={{
-              borderRadius: "12px",
+              borderRadius: "16px",
               width: "100%",
               height: "auto",
-              maxHeight: isMobile ? 300 : 400,
+              maxHeight: isMobile ? 320 : 450,
               objectFit: "cover",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "scale(1.02)" },
             }}
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography variant="h5" sx={{ color: "#f0c14b", mb: 2 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              color: "#f0c14b",
+              mb: 2,
+              fontWeight: 700,
+              letterSpacing: "0.5px",
+            }}
+          >
             ${product.price}
           </Typography>
-          <Typography sx={{ mb: 3, color: "#555" }}>
+          <Typography
+            sx={{
+              mb: 3,
+              color: "#666",
+              fontSize: "1.1rem",
+              lineHeight: 1.6,
+            }}
+          >
             {product.description}
           </Typography>
-          <Typography sx={{ mb: 2, color: "#555" }}>
+          <Typography
+            sx={{
+              mb: 3,
+              color: product.stock > 0 ? "#4caf50" : "#e74c3c",
+              fontWeight: 500,
+            }}
+          >
             {t("Stock")}:{" "}
             {product.stock > 0
               ? `${product.stock} ${t("available")}`
@@ -438,6 +521,7 @@ function ProductDetail() {
               gap: 2,
               mb: 4,
               flexDirection: isMobile ? "column" : "row",
+              alignItems: "center",
             }}
           >
             <ActionButton
@@ -452,7 +536,7 @@ function ProductDetail() {
               sx={{
                 color: wishlist.some((item) => item._id === product._id)
                   ? "#f0c14b"
-                  : "#555",
+                  : "#666",
               }}
             >
               {wishlist.some((item) => item._id === product._id) ? (
@@ -468,15 +552,15 @@ function ProductDetail() {
         </Grid>
 
         <Grid item xs={12}>
-          <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#e0e0e0" }} />
+          <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
           <Typography
-            variant="h6"
-            sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+            variant="h5"
+            sx={{ color: "#111", fontWeight: 700, mb: 3 }}
           >
             {t("Rating Summary")}
           </Typography>
-          <Box sx={{ mb: 4 }}>
-            <Typography sx={{ mb: 1, color: "#555" }}>
+          <Box sx={{ mb: 4, bgcolor: "#fff", p: 3, borderRadius: "12px" }}>
+            <Typography sx={{ mb: 1, color: "#555", fontSize: "1.1rem" }}>
               {ratingStats.averageRating} / 5 ({ratingStats.totalReviews}{" "}
               {t("reviews")})
             </Typography>
@@ -484,11 +568,12 @@ function ProductDetail() {
               value={parseFloat(ratingStats.averageRating)}
               readOnly
               precision={0.1}
+              sx={{ color: "#f0c14b" }}
             />
             <Box
               sx={{
-                maxWidth: isMobile ? 300 : 400,
-                mt: 2,
+                maxWidth: isMobile ? 300 : 450,
+                mt: 3,
                 height: isMobile ? 150 : 200,
               }}
             >
@@ -496,7 +581,7 @@ function ProductDetail() {
             </Box>
           </Box>
 
-          <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#e0e0e0" }} />
+          <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
           <Box
             sx={{
               display: "flex",
@@ -505,7 +590,7 @@ function ProductDetail() {
               mb: 3,
             }}
           >
-            <Typography variant="h6" sx={{ color: "#111", fontWeight: 600 }}>
+            <Typography variant="h5" sx={{ color: "#111", fontWeight: 700 }}>
               {t("Reviews")}
             </Typography>
             <FormControlLabel
@@ -515,23 +600,17 @@ function ProductDetail() {
                   onChange={(e) => setShowAllReviews(e.target.checked)}
                   sx={{
                     "& .MuiSwitch-switchBase.Mui-checked": { color: "#f0c14b" },
+                    "& .MuiSwitch-track": { backgroundColor: "#ddd" },
                   }}
                 />
               }
               label={t("Show All Reviews")}
-              sx={{ color: "#555" }}
+              sx={{ color: "#555", fontWeight: 500 }}
             />
           </Box>
 
           {user && (
-            <Card
-              sx={{
-                p: isMobile ? 2 : 3,
-                mb: 4,
-                borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-              }}
-            >
+            <ReviewCard sx={{ mb: 4 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2, color: "#111" }}>
                   {t("Leave a Review")}
@@ -539,7 +618,7 @@ function ProductDetail() {
                 <Rating
                   value={rating}
                   onChange={(event, newValue) => setRating(newValue)}
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, color: "#f0c14b" }}
                 />
                 <StyledTextField
                   label={t("Your Review")}
@@ -549,18 +628,18 @@ function ProductDetail() {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   variant="outlined"
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 3 }}
                 />
                 <ActionButton onClick={handleReviewSubmit}>
                   {t("Submit Review")}
                 </ActionButton>
               </CardContent>
-            </Card>
+            </ReviewCard>
           )}
 
           {product.reviews.filter((review) => showAllReviews || !review.pending)
             .length === 0 ? (
-            <Typography sx={{ color: "#555" }}>
+            <Typography sx={{ color: "#666", fontStyle: "italic" }}>
               {showAllReviews
                 ? t("No reviews yet.")
                 : t("No approved reviews yet.")}
@@ -576,6 +655,10 @@ function ProductDetail() {
                       py: 2,
                       borderBottom: "1px solid #eee",
                       flexDirection: isMobile ? "column" : "row",
+                      bgcolor: "#fff",
+                      borderRadius: "8px",
+                      mb: 2,
+                      boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
                     }}
                   >
                     <ListItemText
@@ -584,17 +667,32 @@ function ProductDetail() {
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 1,
+                            gap: 1.5,
                             mb: isMobile ? 1 : 0,
                           }}
                         >
-                          <Typography sx={{ fontWeight: 500, color: "#111" }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              color: "#111",
+                              fontSize: "1.1rem",
+                            }}
+                          >
                             {review.userId.name}
                           </Typography>
-                          <Rating value={review.rating} readOnly size="small" />
+                          <Rating
+                            value={review.rating}
+                            readOnly
+                            size="small"
+                            sx={{ color: "#f0c14b" }}
+                          />
                           {review.pending && (
                             <Typography
-                              sx={{ color: "#e74c3c", fontSize: "0.9rem" }}
+                              sx={{
+                                color: "#e74c3c",
+                                fontSize: "0.9rem",
+                                fontStyle: "italic",
+                              }}
                             >
                               ({t("Pending")})
                             </Typography>
@@ -602,7 +700,13 @@ function ProductDetail() {
                         </Box>
                       }
                       secondary={
-                        <Typography sx={{ color: "#555" }}>
+                        <Typography
+                          sx={{
+                            color: "#666",
+                            lineHeight: 1.5,
+                            fontSize: "0.95rem",
+                          }}
+                        >
                           {review.comment} -{" "}
                           {new Date(review.createdAt).toLocaleDateString()}
                         </Typography>
@@ -615,34 +719,37 @@ function ProductDetail() {
         </Grid>
 
         <Grid item xs={12}>
-          <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#e0e0e0" }} />
+          <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
           <Typography
-            variant="h6"
-            sx={{ color: "#111", fontWeight: 600, mb: 3 }}
+            variant="h5"
+            sx={{ color: "#111", fontWeight: 700, mb: 3 }}
           >
             {t("Recommended For You")}
           </Typography>
           {user && recommendations.length === 0 ? (
-            <Typography sx={{ color: "#555" }}>
+            <Typography sx={{ color: "#666", fontStyle: "italic" }}>
               {t("No recommendations available yet.")}
             </Typography>
           ) : (
-            <Grid container spacing={isMobile ? 2 : 3}>
+            <Grid container spacing={isMobile ? 2 : 4}>
               {recommendations.map((rec) => (
                 <Grid item xs={12} sm={6} md={4} key={rec._id}>
                   <ProductCard onClick={() => navigate(`/product/${rec._id}`)}>
                     <CardMedia
                       component="img"
-                      height={isMobile ? "150" : "200"}
+                      height={isMobile ? "160" : "220"}
                       image={rec.image || "https://picsum.photos/200?blur=2"}
                       alt={rec.name || t("Product")}
-                      sx={{ borderRadius: "12px 12px 0 0" }}
+                      sx={{ borderRadius: "16px 16px 0 0" }}
                     />
-                    <CardContent>
-                      <Typography variant="h6" sx={{ color: "#111" }}>
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{ color: "#111", fontWeight: 600 }}
+                      >
                         {rec.name || t("Unnamed Product")}
                       </Typography>
-                      <Typography sx={{ color: "#f0c14b" }}>
+                      <Typography sx={{ color: "#f0c14b", fontWeight: 500 }}>
                         ${rec.price || "N/A"}
                       </Typography>
                     </CardContent>
@@ -654,19 +761,19 @@ function ProductDetail() {
         </Grid>
 
         <Grid item xs={12}>
-          <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#e0e0e0" }} />
+          <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
           <Typography
-            variant="h6"
-            sx={{ color: "#111", fontWeight: 600, mb: 3 }}
+            variant="h5"
+            sx={{ color: "#111", fontWeight: 700, mb: 3 }}
           >
             {t("Related Products")}
           </Typography>
           {relatedProducts.length === 0 ? (
-            <Typography sx={{ color: "#555" }}>
+            <Typography sx={{ color: "#666", fontStyle: "italic" }}>
               {t("No related products available.")}
             </Typography>
           ) : (
-            <Grid container spacing={isMobile ? 2 : 3}>
+            <Grid container spacing={isMobile ? 2 : 4}>
               {relatedProducts.map((related) => (
                 <Grid item xs={12} sm={6} md={4} key={related._id}>
                   <ProductCard
@@ -674,18 +781,21 @@ function ProductDetail() {
                   >
                     <CardMedia
                       component="img"
-                      height={isMobile ? "150" : "200"}
+                      height={isMobile ? "160" : "220"}
                       image={
                         related.image || "https://picsum.photos/200?blur=2"
                       }
                       alt={related.name || t("Product")}
-                      sx={{ borderRadius: "12px 12px 0 0" }}
+                      sx={{ borderRadius: "16px 16px 0 0" }}
                     />
-                    <CardContent>
-                      <Typography variant="h6" sx={{ color: "#111" }}>
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{ color: "#111", fontWeight: 600 }}
+                      >
                         {related.name || t("Unnamed Product")}
                       </Typography>
-                      <Typography sx={{ color: "#f0c14b" }}>
+                      <Typography sx={{ color: "#f0c14b", fontWeight: 500 }}>
                         ${related.price || "N/A"}
                       </Typography>
                     </CardContent>
@@ -697,20 +807,35 @@ function ProductDetail() {
         </Grid>
       </Grid>
 
-      <Dialog open={openShare} onClose={() => setOpenShare(false)}>
-        <DialogTitle sx={{ bgcolor: "#f7f7f7", color: "#111" }}>
+      <Dialog
+        open={openShare}
+        onClose={() => setOpenShare(false)}
+        PaperProps={{ sx: { borderRadius: "16px", bgcolor: "#fff" } }}
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: "#f7f7f7",
+            color: "#111",
+            fontWeight: 700,
+            borderBottom: "1px solid #eee",
+          }}
+        >
           {t("Share This Product")}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ p: 3 }}>
           <ActionButton
             fullWidth
             variant="outlined"
             onClick={() => shareViaPlatform("twitter")}
             sx={{
-              mb: 1,
+              mb: 2,
               color: "#1DA1F2",
               borderColor: "#1DA1F2",
-              "&:hover": { bgcolor: "#e6f3fa" },
+              "&:hover": {
+                bgcolor: "#e6f3fa",
+                borderColor: "#1A91DA",
+                transform: "scale(1.03)",
+              },
             }}
           >
             {t("Share on Twitter")}
@@ -720,10 +845,14 @@ function ProductDetail() {
             variant="outlined"
             onClick={() => shareViaPlatform("whatsapp")}
             sx={{
-              mb: 1,
+              mb: 2,
               color: "#25D366",
               borderColor: "#25D366",
-              "&:hover": { bgcolor: "#e9f7ef" },
+              "&:hover": {
+                bgcolor: "#e9f7ef",
+                borderColor: "#20BA56",
+                transform: "scale(1.03)",
+              },
             }}
           >
             {t("Share on WhatsApp")}
@@ -733,10 +862,14 @@ function ProductDetail() {
             variant="outlined"
             onClick={() => shareViaPlatform("facebook")}
             sx={{
-              mb: 1,
+              mb: 2,
               color: "#4267B2",
               borderColor: "#4267B2",
-              "&:hover": { bgcolor: "#e8eef6" },
+              "&:hover": {
+                bgcolor: "#e8eef6",
+                borderColor: "#365899",
+                transform: "scale(1.03)",
+              },
             }}
           >
             {t("Share on Facebook")}
@@ -746,17 +879,27 @@ function ProductDetail() {
             variant="outlined"
             onClick={() => shareViaPlatform("telegram")}
             sx={{
-              mb: 1,
+              mb: 2,
               color: "#0088cc",
               borderColor: "#0088cc",
-              "&:hover": { bgcolor: "#e6f0fa" },
+              "&:hover": {
+                bgcolor: "#e6f0fa",
+                borderColor: "#006699",
+                transform: "scale(1.03)",
+              },
             }}
           >
             {t("Share on Telegram")}
           </ActionButton>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenShare(false)} sx={{ color: "#555" }}>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setOpenShare(false)}
+            sx={{
+              color: "#555",
+              "&:hover": { color: "#f0c14b" },
+            }}
+          >
             {t("Close")}
           </Button>
         </DialogActions>
