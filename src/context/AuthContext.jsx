@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import jwtDecode from "jwt-decode"; // Add this dependency
 
 export const AuthContext = createContext();
 
@@ -20,17 +21,21 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const userData = response.data;
+      const decodedToken = jwtDecode(token); // Decode JWT to get id
       setUser({
         token,
-        userId: userData._id, // Match backend _id
-        name: userData.name,
+        id: decodedToken.id || userData._id, // Use id from JWT or _id from response
+        name: userData.name || "User", // Fallback if name is missing
         email: userData.email,
-        role: userData.role,
+        role: userData.role || "user", // Default to "user" if missing
         referralCode: userData.referralCode,
       });
       localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.error(
+        "Failed to fetch user data:",
+        error.response?.data || error.message
+      );
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setUser(null);
@@ -41,14 +46,12 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (googleToken) {
-        // Google login
         localStorage.setItem("token", googleToken);
         response = await axios.get(
           "https://eshop-backend-e11f.onrender.com/api/users/profile",
           { headers: { Authorization: `Bearer ${googleToken}` } }
         );
       } else {
-        // Regular login
         response = await axios.post(
           "https://eshop-backend-e11f.onrender.com/api/users/login",
           { email, password }
@@ -56,18 +59,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", response.data.token);
       }
 
-      const userData = response.data;
+      const userData = response.data.user || response.data; // Handle nested user object
+      const token = googleToken || response.data.token;
+      const decodedToken = jwtDecode(token);
       setUser({
-        token: googleToken || response.data.token,
-        userId: userData._id || userData.id,
-        name: userData.name,
+        token,
+        id: decodedToken.id || userData._id,
+        name: userData.name || "User",
         email: userData.email,
-        role: userData.role,
+        role: userData.role || "user",
         referralCode: userData.referralCode,
       });
       localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -75,16 +80,16 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, name, googleToken = null) => {
     try {
       let userData;
+      let token;
       if (googleToken) {
-        // Google registration
         localStorage.setItem("token", googleToken);
         const response = await axios.get(
           "https://eshop-backend-e11f.onrender.com/api/users/profile",
           { headers: { Authorization: `Bearer ${googleToken}` } }
         );
         userData = response.data;
+        token = googleToken;
       } else {
-        // Regular registration
         await axios.post(
           "https://eshop-backend-e11f.onrender.com/api/users/register",
           { email, password, name }
@@ -93,21 +98,22 @@ export const AuthProvider = ({ children }) => {
           "https://eshop-backend-e11f.onrender.com/api/users/login",
           { email, password }
         );
-        localStorage.setItem("token", loginResponse.data.token);
-        userData = loginResponse.data.user;
+        userData = loginResponse.data.user || loginResponse.data;
+        token = loginResponse.data.token;
       }
 
+      const decodedToken = jwtDecode(token);
       setUser({
-        token: googleToken || loginResponse.data.token,
-        userId: userData._id || userData.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
+        token,
+        id: decodedToken.id || userData._id,
+        name: userData.name || name || "User",
+        email: userData.email || email,
+        role: userData.role || "user",
         referralCode: userData.referralCode,
       });
       localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
-      console.error("Register failed:", error);
+      console.error("Register failed:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -126,10 +132,19 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       const updatedUser = response.data;
-      setUser({ ...user, ...updatedUser });
+      setUser({
+        ...user,
+        name: updatedUser.name || user.name,
+        email: updatedUser.email || user.email,
+        role: updatedUser.role || user.role,
+        referralCode: updatedUser.referralCode || user.referralCode,
+      });
       localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (error) {
-      console.error("Update user failed:", error);
+      console.error(
+        "Update user failed:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   };
