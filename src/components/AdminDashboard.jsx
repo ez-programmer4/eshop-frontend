@@ -30,16 +30,22 @@ import {
   CircularProgress,
   useMediaQuery,
   keyframes,
+  TablePagination,
+  Collapse,
+  Chip,
+  ExpandLessIcon,
+  ExpandMoreIcon,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
-import { Line, Bar } from "react-chartjs-2";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  ArcElement,
   PointElement,
   LineElement,
   BarElement,
@@ -59,7 +65,8 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
 const socket = io("https://eshop-backend-e11f.onrender.com");
@@ -248,11 +255,19 @@ function AdminDashboard() {
     minStock: "",
     maxStock: "",
     search: "",
-    status: "", // For order status filter
-    dateFrom: "", // For date range start
-    dateTo: "", // For date range end
-    sortBy: "date", // Default sort by date
   });
+  const [orderFilters, setOrderFilters] = useState({
+    status: "",
+    search: "",
+    startDate: "",
+    endDate: "",
+  });
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [expandedOrder, setExpandedOrder] = useState(null);
+
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [editingBundle, setEditingBundle] = useState(null);
@@ -270,10 +285,6 @@ function AdminDashboard() {
   });
   const [editingDiscount, setEditingDiscount] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1); // Pagination page
-  const [itemsPerPage] = useState(10); // Orders per page
-  const [expandedOrder, setExpandedOrder] = useState(null); // For expandable rows
-  const [showGraph, setShowGraph] = useState(false); // Toggle graph visibility
 
   const categories = ["T-Shirts", "Jackets", "Pants", "Accessories"];
 
@@ -363,6 +374,78 @@ function AdminDashboard() {
         error.response?.data || error.message
       );
     }
+  };
+  const filterAndSortOrders = () => {
+    let filteredOrders = [...orders];
+
+    if (orderFilters.status) {
+      filteredOrders = filteredOrders.filter(
+        (o) => o.status === orderFilters.status
+      );
+    }
+    if (orderFilters.search) {
+      const searchLower = orderFilters.search.toLowerCase();
+      filteredOrders = filteredOrders.filter(
+        (o) =>
+          o._id.toLowerCase().includes(searchLower) ||
+          (o.userId?.email || "").toLowerCase().includes(searchLower)
+      );
+    }
+    if (orderFilters.startDate) {
+      filteredOrders = filteredOrders.filter(
+        (o) => new Date(o.createdAt) >= new Date(orderFilters.startDate)
+      );
+    }
+    if (orderFilters.endDate) {
+      filteredOrders = filteredOrders.filter(
+        (o) => new Date(o.createdAt) <= new Date(orderFilters.endDate)
+      );
+    }
+
+    filteredOrders.sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      if (sortField === "createdAt") {
+        return sortOrder === "asc"
+          ? new Date(aValue) - new Date(bValue)
+          : new Date(bValue) - new Date(aValue);
+      }
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    });
+
+    return filteredOrders;
+  };
+
+  // Paginated orders
+  const paginatedOrders = filterAndSortOrders().slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  // Event handlers
+  const handleOrderFilterChange = (e) => {
+    const { name, value } = e.target;
+    setOrderFilters({ ...orderFilters, [name]: value });
+    setPage(0);
+  };
+
+  const handleSort = (field) => {
+    const isAsc = sortField === field && sortOrder === "asc";
+    setSortOrder(isAsc ? "desc" : "asc");
+    setSortField(field);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const toggleOrderExpand = (orderId) => {
+    setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
   const fetchAnalytics = async () => {
@@ -687,34 +770,6 @@ function AdminDashboard() {
     }
     return true;
   };
-  const filteredOrders = orders
-    .filter((order) => {
-      const matchesSearch = filterData.search
-        ? order._id.includes(filterData.search) ||
-          (order.userId?.email || "")
-            .toLowerCase()
-            .includes(filterData.search.toLowerCase())
-        : true;
-      const matchesStatus = filterData.status
-        ? order.status === filterData.status
-        : true;
-      const matchesDate =
-        (!filterData.dateFrom ||
-          new Date(order.createdAt) >= new Date(filterData.dateFrom)) &&
-        (!filterData.dateTo ||
-          new Date(order.createdAt) <= new Date(filterData.dateTo));
-      return matchesSearch && matchesStatus && matchesDate;
-    })
-    .sort((a, b) => {
-      if (filterData.sortBy === "date") {
-        return new Date(b.createdAt) - new Date(a.createdAt); // Newest first
-      } else if (filterData.sortBy === "total") {
-        return b.total - a.total; // Highest total first
-      } else if (filterData.sortBy === "status") {
-        return a.status.localeCompare(b.status); // Alphabetical by status
-      }
-      return 0;
-    });
 
   const handleAddProduct = async () => {
     if (!validateForm()) return;
@@ -1259,7 +1314,6 @@ function AdminDashboard() {
               {success}
             </Alert>
           )}
-
           <StyledTabs
             value={tabValue}
             onChange={(e, newValue) => setTabValue(newValue)}
@@ -1281,7 +1335,6 @@ function AdminDashboard() {
             <Tab label={t("Support")} />
             <Tab label={t("Discounts")} />
           </StyledTabs>
-
           {tabValue === 0 && (
             <Box>
               <SectionCard>
@@ -1553,33 +1606,16 @@ function AdminDashboard() {
                   variant={isMobile ? "subtitle1" : "h6"}
                   sx={{ fontWeight: 600, mb: 2 }}
                 >
-                  {t("Order List")}
+                  {t("Order Filters")}
                 </Typography>
-
-                {/* Search and Filter Controls */}
-                <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 2 }}>
-                  <Grid item xs={12} sm={3}>
-                    <StyledTextField
-                      label={t("Search by Order ID or Email")}
-                      value={filterData.search}
-                      onChange={(e) =>
-                        setFilterData({ ...filterData, search: e.target.value })
-                      }
-                      fullWidth
-                      variant="outlined"
-                    />
-                  </Grid>
+                <Grid container spacing={isMobile ? 1 : 2}>
                   <Grid item xs={12} sm={3}>
                     <StyledFormControl fullWidth>
                       <InputLabel>{t("Status")}</InputLabel>
                       <Select
-                        value={filterData.status || ""}
-                        onChange={(e) =>
-                          setFilterData({
-                            ...filterData,
-                            status: e.target.value,
-                          })
-                        }
+                        name="status"
+                        value={orderFilters.status}
+                        onChange={handleOrderFilterChange}
                         label={t("Status")}
                       >
                         <MenuItem value="">{t("All")}</MenuItem>
@@ -1593,119 +1629,130 @@ function AdminDashboard() {
                   </Grid>
                   <Grid item xs={12} sm={3}>
                     <StyledTextField
-                      label={t("Date From")}
+                      label={t("Search (ID/Email)")}
+                      name="search"
+                      value={orderFilters.search}
+                      onChange={handleOrderFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <StyledTextField
+                      label={t("Start Date")}
+                      name="startDate"
                       type="date"
-                      value={filterData.dateFrom || ""}
-                      onChange={(e) =>
-                        setFilterData({
-                          ...filterData,
-                          dateFrom: e.target.value,
-                        })
-                      }
+                      value={orderFilters.startDate}
+                      onChange={handleOrderFilterChange}
                       fullWidth
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3}>
+                  <Grid item xs={6} sm={3}>
                     <StyledTextField
-                      label={t("Date To")}
+                      label={t("End Date")}
+                      name="endDate"
                       type="date"
-                      value={filterData.dateTo || ""}
-                      onChange={(e) =>
-                        setFilterData({ ...filterData, dateTo: e.target.value })
-                      }
+                      value={orderFilters.endDate}
+                      onChange={handleOrderFilterChange}
                       fullWidth
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
                 </Grid>
+              </SectionCard>
 
-                {/* Sorting and Graph Toggle */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
+              <SectionCard>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
                 >
-                  <StyledFormControl sx={{ minWidth: 120 }}>
-                    <InputLabel>{t("Sort By")}</InputLabel>
-                    <Select
-                      value={filterData.sortBy || "date"}
-                      onChange={(e) =>
-                        setFilterData({ ...filterData, sortBy: e.target.value })
-                      }
-                      label={t("Sort By")}
-                    >
-                      <MenuItem value="date">{t("Date")}</MenuItem>
-                      <MenuItem value="total">{t("Total Amount")}</MenuItem>
-                      <MenuItem value="status">{t("Status")}</MenuItem>
-                    </Select>
-                  </StyledFormControl>
-                  <ActionButton onClick={() => setShowGraph(!showGraph)}>
-                    {showGraph ? t("Hide Graph") : t("Show Graph")}
-                  </ActionButton>
-                </Box>
-
-                {/* Orders by Status Graph */}
-                {showGraph && (
-                  <Box sx={{ height: isMobile ? "200px" : "300px", mb: 2 }}>
-                    <Bar
-                      data={{
-                        labels: [
-                          "Pending",
-                          "Shipped",
-                          "Delivered",
-                          "Canceled",
-                          "Returned",
-                        ],
-                        datasets: [
-                          {
-                            label: t("Orders by Status"),
-                            data: [
-                              orders.filter((o) => o.status === "Pending")
-                                .length,
-                              orders.filter((o) => o.status === "Shipped")
-                                .length,
-                              orders.filter((o) => o.status === "Delivered")
-                                .length,
-                              orders.filter((o) => o.status === "Canceled")
-                                .length,
-                              orders.filter((o) => o.status === "Returned")
-                                .length,
-                            ],
-                            backgroundColor: "#f0c14b",
-                          },
-                        ],
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: { position: "top" },
-                          title: { display: true, text: t("Orders by Status") },
+                  {t("Order Status Distribution")}
+                </Typography>
+                <Box sx={{ height: isMobile ? "200px" : "300px" }}>
+                  <Pie
+                    data={{
+                      labels: [
+                        "Pending",
+                        "Shipped",
+                        "Delivered",
+                        "Canceled",
+                        "Returned",
+                      ],
+                      datasets: [
+                        {
+                          data: [
+                            orders.filter((o) => o.status === "Pending").length,
+                            orders.filter((o) => o.status === "Shipped").length,
+                            orders.filter((o) => o.status === "Delivered")
+                              .length,
+                            orders.filter((o) => o.status === "Canceled")
+                              .length,
+                            orders.filter((o) => o.status === "Returned")
+                              .length,
+                          ],
+                          backgroundColor: [
+                            "#f0c14b",
+                            "#3498db",
+                            "#2ecc71",
+                            "#e74c3c",
+                            "#9b59b6",
+                          ],
                         },
-                        scales: { y: { beginAtZero: true } },
-                      }}
-                    />
-                  </Box>
-                )}
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { position: "top" },
+                        title: {
+                          display: true,
+                          text: t("Orders by Status"),
+                          color: "#111",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </SectionCard>
 
-                {/* Order Table */}
+              <SectionCard>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {t("Order List")}
+                </Typography>
                 <Table sx={{ bgcolor: "#fff", borderRadius: 2 }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>
-                        {t("Order ID")}
+                      <TableCell />
+                      <TableCell
+                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => handleSort("_id")}
+                      >
+                        {t("Order ID")}{" "}
+                        {sortField === "_id" &&
+                          (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>
-                        {t("User Email")}
+                        {t("User")}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
-                        {t("Date")}
+                      <TableCell
+                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => handleSort("total")}
+                      >
+                        {t("Total")}{" "}
+                        {sortField === "total" &&
+                          (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
-                        {t("Total")}
+                      <TableCell
+                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => handleSort("createdAt")}
+                      >
+                        {t("Date")}{" "}
+                        {sortField === "createdAt" &&
+                          (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>
                         {t("Status")}
@@ -1716,114 +1763,144 @@ function AdminDashboard() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredOrders
-                      .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                      .map((order) => (
-                        <React.Fragment key={order._id}>
-                          <TableRow
-                            sx={{
-                              "&:hover": { bgcolor: "#f5f5f5" },
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              setExpandedOrder(
-                                expandedOrder === order._id ? null : order._id
-                              )
-                            }
-                          >
-                            <TableCell>{order._id}</TableCell>
-                            <TableCell>
-                              {order.userId?.email || "Unknown User"}
-                            </TableCell>
-                            <TableCell>
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>${order.total.toFixed(2)}</TableCell>
-                            <TableCell>{t(order.status)}</TableCell>
-                            <TableCell>
-                              <StyledIconButton
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                    {paginatedOrders.map((order) => (
+                      <React.Fragment key={order._id}>
+                        <TableRow
+                          sx={{
+                            "&:hover": { bgcolor: "#f5f5f5" },
+                            transition: "background-color 0.2s",
+                          }}
+                        >
+                          <TableCell>
+                            <IconButton
+                              onClick={() => toggleOrderExpand(order._id)}
+                            >
+                              {expandedOrder === order._id ? (
+                                <ExpandLessIcon />
+                              ) : (
+                                <ExpandMoreIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                          <TableCell>{order._id.slice(-6)}</TableCell>
+                          <TableCell>
+                            {order.userId?.email || "Unknown"}
+                          </TableCell>
+                          <TableCell>${order.total.toFixed(2)}</TableCell>
+                          <TableCell>
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={t(order.status)}
+                              color={
+                                order.status === "Delivered"
+                                  ? "success"
+                                  : order.status === "Canceled" ||
+                                    order.status === "Returned"
+                                  ? "error"
+                                  : "warning"
+                              }
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <StyledFormControl
+                              sx={{ minWidth: isMobile ? 100 : 120 }}
+                            >
+                              <InputLabel>{t("Status")}</InputLabel>
+                              <Select
+                                value={order.status}
+                                onChange={(e) =>
                                   handleUpdateOrderStatus(
                                     order._id,
-                                    order.status
-                                  );
+                                    e.target.value
+                                  )
+                                }
+                                label={t("Status")}
+                              >
+                                <MenuItem value="Pending">
+                                  {t("Pending")}
+                                </MenuItem>
+                                <MenuItem value="Shipped">
+                                  {t("Shipped")}
+                                </MenuItem>
+                                <MenuItem value="Delivered">
+                                  {t("Delivered")}
+                                </MenuItem>
+                                <MenuItem value="Canceled">
+                                  {t("Canceled")}
+                                </MenuItem>
+                                <MenuItem value="Returned">
+                                  {t("Returned")}
+                                </MenuItem>
+                              </Select>
+                            </StyledFormControl>
+                            <ActionButton
+                              component={Link}
+                              to={`/order/${order._id}`}
+                              sx={{ ml: 1, py: 0.5 }}
+                            >
+                              {t("Details")}
+                            </ActionButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell colSpan={7} sx={{ py: 0 }}>
+                            <Collapse
+                              in={expandedOrder === order._id}
+                              timeout="auto"
+                            >
+                              <Box
+                                sx={{
+                                  p: 2,
+                                  bgcolor: "#fafafa",
+                                  borderRadius: 1,
                                 }}
                               >
-                                <EditIcon />
-                              </StyledIconButton>
-                            </TableCell>
-                          </TableRow>
-                          {expandedOrder === order._id && (
-                            <TableRow>
-                              <TableCell colSpan={6}>
-                                <Box
-                                  sx={{
-                                    p: 2,
-                                    bgcolor: "#fafafa",
-                                    borderRadius: 1,
-                                  }}
-                                >
-                                  <Typography variant="subtitle2">
-                                    {t("Order Details")}
-                                  </Typography>
-                                  <List dense>
-                                    {order.items.map((item, index) => (
-                                      <ListItem key={index}>
-                                        <ListItemText
-                                          primary={`${
-                                            item.productId?.name ||
-                                            "Unknown Product"
-                                          } x${item.quantity}`}
-                                          secondary={`${t(
-                                            "Price"
-                                          )}: $${item.price.toFixed(2)}`}
-                                        />
-                                      </ListItem>
-                                    ))}
-                                  </List>
-                                  <ActionButton
-                                    component={Link}
-                                    to={`/order/${order._id}`}
-                                    sx={{ mt: 1 }}
-                                  >
-                                    {t("View Full Details")}
-                                  </ActionButton>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </React.Fragment>
-                      ))}
+                                <Typography variant="subtitle2">
+                                  {t("Items")}:
+                                </Typography>
+                                <List dense>
+                                  {order.items.map((item, idx) => (
+                                    <ListItem key={idx}>
+                                      <ListItemText
+                                        primary={`${
+                                          item.productId?.name || "Unknown"
+                                        } x${item.quantity}`}
+                                        secondary={
+                                          item.bundleId
+                                            ? `Bundle ID: ${item.bundleId}`
+                                            : null
+                                        }
+                                      />
+                                    </ListItem>
+                                  ))}
+                                </List>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
+                    ))}
                   </TableBody>
                 </Table>
-
-                {/* Pagination Controls */}
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                  <Button
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                    sx={{ mr: 1 }}
-                  >
-                    {t("Previous")}
-                  </Button>
-                  <Typography sx={{ mx: 2 }}>
-                    {t("Page")} {page} {t("of")}{" "}
-                    {Math.ceil(filteredOrders.length / itemsPerPage)}
-                  </Typography>
-                  <Button
-                    disabled={
-                      page === Math.ceil(filteredOrders.length / itemsPerPage)
-                    }
-                    onClick={() => setPage(page + 1)}
-                  >
-                    {t("Next")}
-                  </Button>
-                </Box>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={filterAndSortOrders().length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelRowsPerPage={t("Rows per page:")}
+                  labelDisplayedRows={({ from, to, count }) =>
+                    `${from}-${to} ${t("of")} ${count}`
+                  }
+                />
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 2 && (
             <Box>
               <SectionCard>
@@ -2005,7 +2082,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 3 && (
             <Box>
               <SectionCard>
@@ -2124,7 +2200,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 4 && (
             <Box>
               <SectionCard>
@@ -2179,7 +2254,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 5 && (
             <Box>
               <SectionCard>
@@ -2230,7 +2304,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 6 && (
             <Box>
               <SectionCard>
@@ -2316,7 +2389,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 7 && (
             <Box>
               <SectionCard>
@@ -2460,7 +2532,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 8 && (
             <Box>
               <SectionCard>
@@ -2508,7 +2579,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 9 && (
             <Box>
               <SectionCard>
@@ -2624,7 +2694,6 @@ function AdminDashboard() {
               </SectionCard>
             </Box>
           )}
-
           {tabValue === 10 && (
             <Box>
               <SectionCard>
