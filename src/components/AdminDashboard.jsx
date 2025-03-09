@@ -1603,14 +1603,21 @@ function AdminDashboard() {
             <Box>
               <SectionCard>
                 <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
+                  variant={isMobile ? "subtitle2" : "h6"} // Smaller typography on mobile
+                  sx={{ fontWeight: 600, mb: isMobile ? 1 : 2 }}
                 >
                   {t("Order Filters")}
                 </Typography>
-                <Grid container spacing={isMobile ? 1 : 2}>
+                <Grid
+                  container
+                  spacing={isMobile ? 1 : 2}
+                  direction={isMobile ? "column" : "row"}
+                >
                   <Grid item xs={12} sm={3}>
-                    <StyledFormControl fullWidth>
+                    <StyledFormControl
+                      fullWidth
+                      size={isMobile ? "small" : "medium"}
+                    >
                       <InputLabel>{t("Status")}</InputLabel>
                       <Select
                         name="status"
@@ -1634,9 +1641,10 @@ function AdminDashboard() {
                       value={orderFilters.search}
                       onChange={handleOrderFilterChange}
                       fullWidth
+                      size={isMobile ? "small" : "medium"}
                     />
                   </Grid>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={3}>
                     <StyledTextField
                       label={t("Start Date")}
                       name="startDate"
@@ -1644,10 +1652,11 @@ function AdminDashboard() {
                       value={orderFilters.startDate}
                       onChange={handleOrderFilterChange}
                       fullWidth
+                      size={isMobile ? "small" : "medium"}
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={12} sm={3}>
                     <StyledTextField
                       label={t("End Date")}
                       name="endDate"
@@ -1655,6 +1664,7 @@ function AdminDashboard() {
                       value={orderFilters.endDate}
                       onChange={handleOrderFilterChange}
                       fullWidth
+                      size={isMobile ? "small" : "medium"}
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
@@ -1663,12 +1673,14 @@ function AdminDashboard() {
 
               <SectionCard>
                 <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
+                  variant={isMobile ? "subtitle2" : "h6"}
+                  sx={{ fontWeight: 600, mb: isMobile ? 1 : 2 }}
                 >
                   {t("Order Status Distribution")}
                 </Typography>
-                <Box sx={{ height: isMobile ? "200px" : "300px" }}>
+                <Box
+                  sx={{ height: isMobile ? "180px" : "300px", width: "100%" }}
+                >
                   <Pie
                     data={{
                       labels: [
@@ -1704,11 +1716,15 @@ function AdminDashboard() {
                       responsive: true,
                       maintainAspectRatio: false,
                       plugins: {
-                        legend: { position: "top" },
+                        legend: {
+                          position: isMobile ? "bottom" : "top", // Move legend below on mobile
+                          labels: { font: { size: isMobile ? 10 : 12 } },
+                        },
                         title: {
                           display: true,
                           text: t("Orders by Status"),
                           color: "#111",
+                          font: { size: isMobile ? 14 : 16 },
                         },
                       },
                     }}
@@ -1718,28 +1734,55 @@ function AdminDashboard() {
 
               <SectionCard>
                 <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
+                  variant={isMobile ? "subtitle2" : "h6"}
+                  sx={{ fontWeight: 600, mb: isMobile ? 1 : 2 }}
                 >
                   {t("Order List")}
                 </Typography>
-                <Table sx={{ bgcolor: "#fff", borderRadius: 2 }}>
+                <Table
+                  sx={{
+                    bgcolor: "#fff",
+                    borderRadius: 2,
+                    tableLayout: "fixed",
+                  }}
+                >
                   <TableHead>
                     <TableRow>
-                      <TableCell />
                       <TableCell
-                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        sx={{ width: "40px", p: isMobile ? 0.5 : 1 }}
+                      />
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          width: isMobile ? "20%" : "auto",
+                        }}
                         onClick={() => handleSort("_id")}
                       >
                         {t("Order ID")}{" "}
                         {sortField === "_id" &&
                           (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          display: isMobile ? "none" : "table-cell", // Hide on mobile
+                        }}
+                      >
                         {t("User")}
                       </TableCell>
                       <TableCell
-                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        sx={{
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          width: isMobile ? "20%" : "auto",
+                        }}
                         onClick={() => handleSort("total")}
                       >
                         {t("Total")}{" "}
@@ -1747,17 +1790,37 @@ function AdminDashboard() {
                           (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
                       <TableCell
-                        sx={{ fontWeight: 600, cursor: "pointer" }}
+                        sx={{
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          width: isMobile ? "25%" : "auto",
+                        }}
                         onClick={() => handleSort("createdAt")}
                       >
                         {t("Date")}{" "}
                         {sortField === "createdAt" &&
                           (sortOrder === "asc" ? "↑" : "↓")}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          width: isMobile ? "20%" : "auto",
+                        }}
+                      >
                         {t("Status")}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          p: isMobile ? 0.5 : 1,
+                          width: isMobile ? "15%" : "auto",
+                        }}
+                      >
                         {t("Actions")}
                       </TableCell>
                     </TableRow>
@@ -1771,8 +1834,9 @@ function AdminDashboard() {
                             transition: "background-color 0.2s",
                           }}
                         >
-                          <TableCell>
+                          <TableCell sx={{ p: isMobile ? 0.5 : 1 }}>
                             <IconButton
+                              size={isMobile ? "small" : "medium"}
                               onClick={() => toggleOrderExpand(order._id)}
                             >
                               {expandedOrder === order._id ? (
@@ -1782,15 +1846,40 @@ function AdminDashboard() {
                               )}
                             </IconButton>
                           </TableCell>
-                          <TableCell>{order._id.slice(-6)}</TableCell>
-                          <TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              p: isMobile ? 0.5 : 1,
+                            }}
+                          >
+                            {order._id.slice(-6)}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              p: isMobile ? 0.5 : 1,
+                              display: isMobile ? "none" : "table-cell",
+                            }}
+                          >
                             {order.userId?.email || "Unknown"}
                           </TableCell>
-                          <TableCell>${order.total.toFixed(2)}</TableCell>
-                          <TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              p: isMobile ? 0.5 : 1,
+                            }}
+                          >
+                            ${order.total.toFixed(2)}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              p: isMobile ? 0.5 : 1,
+                            }}
+                          >
                             {new Date(order.createdAt).toLocaleDateString()}
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: isMobile ? 0.5 : 1 }}>
                             <Chip
                               label={t(order.status)}
                               color={
@@ -1804,9 +1893,10 @@ function AdminDashboard() {
                               size="small"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: isMobile ? 0.5 : 1 }}>
                             <StyledFormControl
-                              sx={{ minWidth: isMobile ? 100 : 120 }}
+                              sx={{ minWidth: isMobile ? 80 : 120 }}
+                              size={isMobile ? "small" : "medium"}
                             >
                               <InputLabel>{t("Status")}</InputLabel>
                               <Select
@@ -1839,7 +1929,11 @@ function AdminDashboard() {
                             <ActionButton
                               component={Link}
                               to={`/order/${order._id}`}
-                              sx={{ ml: 1, py: 0.5 }}
+                              sx={{
+                                ml: isMobile ? 0.5 : 1,
+                                py: isMobile ? 0.2 : 0.5,
+                                fontSize: isMobile ? "0.7rem" : "0.875rem",
+                              }}
                             >
                               {t("Details")}
                             </ActionButton>
@@ -1853,17 +1947,25 @@ function AdminDashboard() {
                             >
                               <Box
                                 sx={{
-                                  p: 2,
+                                  p: isMobile ? 1 : 2,
                                   bgcolor: "#fafafa",
                                   borderRadius: 1,
                                 }}
                               >
-                                <Typography variant="subtitle2">
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
+                                    fontSize: isMobile ? "0.75rem" : "0.875rem",
+                                  }}
+                                >
                                   {t("Items")}:
                                 </Typography>
                                 <List dense>
                                   {order.items.map((item, idx) => (
-                                    <ListItem key={idx}>
+                                    <ListItem
+                                      key={idx}
+                                      sx={{ p: isMobile ? 0.2 : 0.5 }}
+                                    >
                                       <ListItemText
                                         primary={`${
                                           item.productId?.name || "Unknown"
@@ -1873,6 +1975,16 @@ function AdminDashboard() {
                                             ? `Bundle ID: ${item.bundleId}`
                                             : null
                                         }
+                                        primaryTypographyProps={{
+                                          fontSize: isMobile
+                                            ? "0.7rem"
+                                            : "0.875rem",
+                                        }}
+                                        secondaryTypographyProps={{
+                                          fontSize: isMobile
+                                            ? "0.65rem"
+                                            : "0.75rem",
+                                        }}
                                       />
                                     </ListItem>
                                   ))}
@@ -1897,10 +2009,20 @@ function AdminDashboard() {
                   labelDisplayedRows={({ from, to, count }) =>
                     `${from}-${to} ${t("of")} ${count}`
                   }
+                  sx={{
+                    "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                      {
+                        fontSize: isMobile ? "0.7rem" : "0.875rem",
+                      },
+                    "& .MuiTablePagination-actions": {
+                      mx: isMobile ? 0.5 : 1,
+                    },
+                  }}
                 />
               </SectionCard>
             </Box>
           )}
+
           {tabValue === 2 && (
             <Box>
               <SectionCard>
