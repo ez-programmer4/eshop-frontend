@@ -200,13 +200,19 @@ function Products() {
 
     try {
       for (const productId of productIds) {
-        await addToCart(productId);
+        // Pass bundle metadata including discount
+        await addToCart(productId, {
+          bundleId: bundle._id,
+          name: bundle.name,
+          discount: bundle.discount || 0,
+          bundlePrice: bundle.price, // Total price for the bundle
+        });
       }
       setAddedBundles((prev) => ({ ...prev, [bundle._id]: true }));
       setTimeout(
         () => setAddedBundles((prev) => ({ ...prev, [bundle._id]: false })),
         2000
-      ); // Reset after 2s
+      );
     } catch (error) {
       console.error("Failed to add bundle to cart:", error);
     }

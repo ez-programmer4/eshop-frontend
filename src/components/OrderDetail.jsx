@@ -1,4 +1,3 @@
-// src/components/OrderDetail.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useTranslation } from "react-i18next";
@@ -33,76 +32,83 @@ const slideIn = keyframes`
 
 const pulse = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.08); }
   100% { transform: scale(1); }
+`;
+
+const glow = keyframes`
+  0% { box-shadow: 0 0 5px rgba(240, 193, 75, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(240, 193, 75, 0.7); }
+  100% { box-shadow: 0 0 5px rgba(240, 193, 75, 0.3); }
 `;
 
 // Styled components
 const OrderContainer = styled(Box)(({ theme }) => ({
-  maxWidth: 1000,
+  maxWidth: 1200,
   margin: "auto",
-  padding: theme.spacing(2),
-  backgroundColor: "#f7f7f7",
-  borderRadius: "12px",
+  padding: theme.spacing(4),
+  background: "linear-gradient(135deg, #f7f7f7 0%, #fff 100%)",
+  borderRadius: "16px",
   minHeight: "80vh",
-  animation: `${slideIn} 0.5s ease-out`,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1),
-  },
+  animation: `${slideIn} 0.6s ease-out`,
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const DetailCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderRadius: "12px",
+  padding: theme.spacing(4),
+  borderRadius: "16px",
   backgroundColor: "#fff",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  transition: "transform 0.3s, box-shadow 0.3s",
+  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.08)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
   "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+    transform: "translateY(-6px)",
+    boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)",
+    animation: `${glow} 1.5s infinite`,
   },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
+  background: "linear-gradient(45deg, #f0c14b 30%, #ffca28 90%)",
   color: "#111",
-  padding: theme.spacing(1, 2),
-  borderRadius: "8px",
-  fontWeight: 600,
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
+  fontWeight: 700,
+  textTransform: "uppercase",
+  letterSpacing: "0.5px",
   "&:hover": {
-    backgroundColor: "#e0b03a",
+    background: "linear-gradient(45deg, #e0b03a 30%, #ffb300 90%)",
     transform: "scale(1.05)",
-    transition: "background-color 0.2s, transform 0.2s",
+    boxShadow: "0 4px 12px rgba(240, 193, 75, 0.5)",
   },
+  "&:disabled": { background: "#e0e0e0", color: "#888" },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.5, 1),
-    fontSize: "0.75rem",
+    padding: theme.spacing(1, 2),
+    fontSize: "0.85rem",
   },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "8px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
-    "& fieldset": {
-      borderColor: "#ccc",
-    },
-    "&:hover fieldset": {
-      borderColor: "#999",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#f0c14b",
-    },
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)",
+    "& fieldset": { borderColor: "#ddd" },
+    "&:hover fieldset": { borderColor: "#f0c14b" },
+    "&.Mui-focused fieldset": { borderColor: "#f0c14b", borderWidth: 2 },
   },
-  "& .MuiInputLabel-root": {
-    color: "#555",
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#f0c14b",
-  },
+  "& .MuiInputLabel-root": { color: "#666", fontWeight: 500 },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#f0c14b" },
+}));
+
+const StatusItem = styled(ListItem)(({ theme }) => ({
+  py: 1.5,
+  borderRadius: "8px",
+  mb: 1,
+  bgcolor: "#f9fafb",
+  transition: "background-color 0.3s ease",
+  "&:hover": { bgcolor: "#f0f4f8" },
 }));
 
 function OrderDetail() {
@@ -246,10 +252,10 @@ function OrderDetail() {
   if (loading) {
     return (
       <OrderContainer>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
           <CircularProgress
             sx={{ color: "#f0c14b" }}
-            size={isMobile ? 30 : 40}
+            size={isMobile ? 40 : 60}
           />
         </Box>
       </OrderContainer>
@@ -259,7 +265,15 @@ function OrderDetail() {
   if (!order) {
     return (
       <OrderContainer>
-        <Typography sx={{ textAlign: "center", color: "#555" }}>
+        <Typography
+          sx={{
+            textAlign: "center",
+            color: "#666",
+            fontSize: "1.2rem",
+            fontStyle: "italic",
+            py: 4,
+          }}
+        >
           {t("Order not found")}
         </Typography>
       </OrderContainer>
@@ -272,9 +286,14 @@ function OrderDetail() {
         variant={isMobile ? "h5" : "h4"}
         sx={{
           color: "#111",
-          fontWeight: 700,
+          fontWeight: 800,
           textAlign: "center",
-          mb: isMobile ? 2 : 4,
+          mb: isMobile ? 3 : 5,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          background: "linear-gradient(90deg, #f0c14b, #111)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
         }}
       >
         {t("Order")} #{order._id}
@@ -283,7 +302,12 @@ function OrderDetail() {
       {error && !feedbackSuccess && !returnSuccess && (
         <Alert
           severity="error"
-          sx={{ mb: 2, borderRadius: 2, bgcolor: "#ffebee" }}
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "#fff1f1",
+            boxShadow: "0 2px 8px rgba(231, 76, 60, 0.1)",
+          }}
         >
           {error}
         </Alert>
@@ -291,7 +315,12 @@ function OrderDetail() {
       {feedbackSuccess && (
         <Alert
           severity="success"
-          sx={{ mb: 2, borderRadius: 2, bgcolor: "#e0f7fa" }}
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "#e8f5e9",
+            boxShadow: "0 2px 8px rgba(76, 175, 80, 0.1)",
+          }}
         >
           {feedbackSuccess}
         </Alert>
@@ -299,33 +328,47 @@ function OrderDetail() {
       {returnSuccess && (
         <Alert
           severity="success"
-          sx={{ mb: 2, borderRadius: 2, bgcolor: "#e0f7fa" }}
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: "#e8f5e9",
+            boxShadow: "0 2px 8px rgba(76, 175, 80, 0.1)",
+          }}
         >
           {returnSuccess}
         </Alert>
       )}
 
       <DetailCard elevation={3}>
-        <Grid container spacing={isMobile ? 2 : 4}>
+        <Grid container spacing={isMobile ? 3 : 5}>
           <Grid item xs={12} md={6}>
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Overview")}
             </Typography>
             <Box sx={{ pl: 2 }}>
-              <Typography sx={{ color: "#555", mb: 1 }}>
+              <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                 <strong>{t("User")}:</strong>{" "}
                 {order.userId?.name || t("Unknown")} (
                 {order.userId?.email || "N/A"})
               </Typography>
-              <Typography sx={{ color: "#555", mb: 1 }}>
-                <strong>{t("Status")}:</strong> {t(order.status || "N/A")}
+              <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
+                <strong>{t("Status")}:</strong>{" "}
+                <span
+                  style={{
+                    color: order.status === "Delivered" ? "#4caf50" : "#f0c14b",
+                  }}
+                >
+                  {t(order.status || "N/A")}
+                </span>
               </Typography>
-              <Typography sx={{ color: "#555" }}>
+              <Typography sx={{ color: "#666", fontSize: "1rem" }}>
                 <strong>{t("Total")}:</strong> $
-                {order.total?.toFixed(2) || "0.00"}
+                <span style={{ color: "#f0c14b", fontWeight: 600 }}>
+                  {order.total?.toFixed(2) || "0.00"}
+                </span>
               </Typography>
             </Box>
           </Grid>
@@ -333,32 +376,30 @@ function OrderDetail() {
           <Grid item xs={12} md={6}>
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Items")}
             </Typography>
             <List dense>
               {order.items && order.items.length > 0 ? (
                 order.items.map((item, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{ py: 1, borderBottom: "1px solid #eee" }}
-                  >
+                  <StatusItem key={index}>
                     <ListItemText
                       primary={item.productId?.name || t("Unknown Product")}
                       secondary={`x${item.quantity || 0} - $${
                         item.productId?.price || 0
                       } ${t("each")}`}
                       primaryTypographyProps={{
-                        fontWeight: 500,
+                        fontWeight: 600,
                         color: "#111",
+                        fontSize: "1.1rem",
                       }}
-                      secondaryTypographyProps={{ color: "#555" }}
+                      secondaryTypographyProps={{ color: "#666" }}
                     />
-                  </ListItem>
+                  </StatusItem>
                 ))
               ) : (
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                   {t("No items in this order.")}
                 </Typography>
               )}
@@ -368,27 +409,27 @@ function OrderDetail() {
           <Grid item xs={12} md={6}>
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Shipping Address")}
             </Typography>
             <Box sx={{ pl: 2 }}>
               {order.shippingAddress ? (
                 <>
-                  <Typography sx={{ color: "#555", mb: 1 }}>
+                  <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                     {order.shippingAddress.street || "N/A"}
                   </Typography>
-                  <Typography sx={{ color: "#555", mb: 1 }}>
+                  <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                     {order.shippingAddress.city || ""},{" "}
                     {order.shippingAddress.state || ""}{" "}
                     {order.shippingAddress.postalCode || ""}
                   </Typography>
-                  <Typography sx={{ color: "#555" }}>
+                  <Typography sx={{ color: "#666", fontSize: "1rem" }}>
                     {order.shippingAddress.country || "N/A"}
                   </Typography>
                 </>
               ) : (
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                   {t("No shipping address available.")}
                 </Typography>
               )}
@@ -398,27 +439,27 @@ function OrderDetail() {
           <Grid item xs={12} md={6}>
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Billing Address")}
             </Typography>
             <Box sx={{ pl: 2 }}>
               {order.billingAddress ? (
                 <>
-                  <Typography sx={{ color: "#555", mb: 1 }}>
+                  <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                     {order.billingAddress.street || "N/A"}
                   </Typography>
-                  <Typography sx={{ color: "#555", mb: 1 }}>
+                  <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                     {order.billingAddress.city || ""},{" "}
                     {order.billingAddress.state || ""}{" "}
                     {order.billingAddress.postalCode || ""}
                   </Typography>
-                  <Typography sx={{ color: "#555" }}>
+                  <Typography sx={{ color: "#666", fontSize: "1rem" }}>
                     {order.billingAddress.country || "N/A"}
                   </Typography>
                 </>
               ) : (
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                   {t("No billing address available.")}
                 </Typography>
               )}
@@ -426,26 +467,17 @@ function OrderDetail() {
           </Grid>
 
           <Grid item xs={12}>
-            <Divider sx={{ my: isMobile ? 2 : 3, bgcolor: "#e0e0e0" }} />
+            <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Status History")}
             </Typography>
             <List dense>
               {order.statusHistory && order.statusHistory.length > 0 ? (
                 order.statusHistory.map((entry, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      py: 1,
-                      borderRadius: 2,
-                      mb: 1,
-                      bgcolor: "#f9fafb",
-                      "&:hover": { bgcolor: "#f0f4f8" },
-                    }}
-                  >
+                  <StatusItem key={index}>
                     <ListItemText
                       primary={t(entry.status || "N/A")}
                       secondary={
@@ -454,15 +486,16 @@ function OrderDetail() {
                           : "N/A"
                       }
                       primaryTypographyProps={{
-                        fontWeight: 500,
+                        fontWeight: 600,
                         color: "#111",
+                        fontSize: "1.1rem",
                       }}
-                      secondaryTypographyProps={{ color: "#555" }}
+                      secondaryTypographyProps={{ color: "#666" }}
                     />
-                  </ListItem>
+                  </StatusItem>
                 ))
               ) : (
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                   {t("No status history available.")}
                 </Typography>
               )}
@@ -470,26 +503,17 @@ function OrderDetail() {
           </Grid>
 
           <Grid item xs={12}>
-            <Divider sx={{ my: isMobile ? 2 : 3, bgcolor: "#e0e0e0" }} />
+            <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Tracking Events")}
             </Typography>
             {order.trackingEvents && order.trackingEvents.length > 0 ? (
               <List dense>
                 {order.trackingEvents.map((event, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      py: 1,
-                      borderRadius: 2,
-                      mb: 1,
-                      bgcolor: "#f9fafb",
-                      "&:hover": { bgcolor: "#f0f4f8" },
-                    }}
-                  >
+                  <StatusItem key={index}>
                     <ListItemText
                       primary={t(event.status || "N/A")}
                       secondary={`${event.location || "N/A"} - ${
@@ -498,48 +522,54 @@ function OrderDetail() {
                           : "N/A"
                       }`}
                       primaryTypographyProps={{
-                        fontWeight: 500,
+                        fontWeight: 600,
                         color: "#111",
+                        fontSize: "1.1rem",
                       }}
-                      secondaryTypographyProps={{ color: "#555" }}
+                      secondaryTypographyProps={{ color: "#666" }}
                     />
-                  </ListItem>
+                  </StatusItem>
                 ))}
               </List>
             ) : (
-              <Typography sx={{ color: "#555" }}>
+              <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                 {t("No tracking updates yet.")}
               </Typography>
             )}
           </Grid>
 
           <Grid item xs={12}>
-            <Divider sx={{ my: isMobile ? 2 : 3, bgcolor: "#e0e0e0" }} />
+            <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Your Feedback")}
             </Typography>
             {feedback && feedback.rating ? (
               <Box>
-                <Typography sx={{ color: "#555", mb: 1 }}>
+                <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
                   {t("Your Rating")}:{" "}
-                  <Rating value={feedback.rating} readOnly size="small" />
+                  <Rating
+                    value={feedback.rating}
+                    readOnly
+                    size="small"
+                    sx={{ color: "#f0c14b" }}
+                  />
                 </Typography>
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontSize: "1rem" }}>
                   {t("Comment")}: {feedback.comment || t("No comment provided")}
                 </Typography>
               </Box>
             ) : (
               <Box>
-                <Typography sx={{ color: "#111", mb: 1 }}>
+                <Typography sx={{ color: "#111", mb: 1.5, fontSize: "1.1rem" }}>
                   {t("Rate your experience")}:
                 </Typography>
                 <Rating
                   value={rating}
                   onChange={(e, value) => setRating(value)}
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, color: "#f0c14b" }}
                 />
                 <StyledTextField
                   label={t("Your Feedback (optional)")}
@@ -549,7 +579,7 @@ function OrderDetail() {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   variant="outlined"
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 3 }}
                 />
                 <ActionButton onClick={handleFeedbackSubmit}>
                   {t("Submit Feedback")}
@@ -559,19 +589,29 @@ function OrderDetail() {
           </Grid>
 
           <Grid item xs={12}>
-            <Divider sx={{ my: isMobile ? 2 : 3, bgcolor: "#e0e0e0" }} />
+            <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "#e0e0e0" }} />
             <Typography
               variant="h6"
-              sx={{ color: "#111", fontWeight: 600, mb: 2 }}
+              sx={{ color: "#111", fontWeight: 700, mb: 2 }}
             >
               {t("Return Request")}
             </Typography>
             {returnRequest ? (
               <Box>
-                <Typography sx={{ color: "#555", mb: 1 }}>
-                  {t("Status")}: {t(returnRequest.status)}
+                <Typography sx={{ color: "#666", mb: 1.5, fontSize: "1rem" }}>
+                  {t("Status")}:{" "}
+                  <span
+                    style={{
+                      color:
+                        returnRequest.status === "Approved"
+                          ? "#4caf50"
+                          : "#f0c14b",
+                    }}
+                  >
+                    {t(returnRequest.status)}
+                  </span>
                 </Typography>
-                <Typography sx={{ color: "#555" }}>
+                <Typography sx={{ color: "#666", fontSize: "1rem" }}>
                   {t("Reason")}: {returnRequest.reason}
                 </Typography>
               </Box>
@@ -585,17 +625,24 @@ function OrderDetail() {
                   value={returnReason}
                   onChange={(e) => setReturnReason(e.target.value)}
                   variant="outlined"
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 3 }}
                 />
                 <ActionButton
                   onClick={handleReturnSubmit}
-                  sx={{ bgcolor: "#e74c3c", "&:hover": { bgcolor: "#c0392b" } }}
+                  sx={{
+                    background:
+                      "linear-gradient(45deg, #e74c3c 30%, #ff6655 90%)",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(45deg, #c0392b 30%, #e04f4f 90%)",
+                    },
+                  }}
                 >
                   {t("Submit Return Request")}
                 </ActionButton>
               </Box>
             ) : (
-              <Typography sx={{ color: "#555" }}>
+              <Typography sx={{ color: "#666", fontStyle: "italic" }}>
                 {t("Returns available only for delivered orders.")}
               </Typography>
             )}

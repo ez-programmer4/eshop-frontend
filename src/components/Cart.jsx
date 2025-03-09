@@ -1,7 +1,8 @@
+// src/components/Cart.jsx
 import React, { useState, useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18i18n";
 import {
   Typography,
   Box,
@@ -42,7 +43,7 @@ import { useNavigate } from "react-router-dom";
 
 const stripePromise = loadStripe(
   "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3dR430ok9900C8ATrI9w"
-); // Replace with your Stripe key
+);
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -67,7 +68,7 @@ const CartCard = styled(Card)(({ theme }) => ({
     transform: "translateY(-4px)",
     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
   },
-  marginBottom: theme.spacing(2), // Improved spacing on mobile
+  marginBottom: theme.spacing(2),
 }));
 
 const PaymentCard = styled(Card)(({ theme }) => ({
@@ -75,7 +76,7 @@ const PaymentCard = styled(Card)(({ theme }) => ({
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   backgroundColor: "#fff",
   border: "1px solid #eee",
-  padding: { xs: theme.spacing(1), sm: theme.spacing(2) }, // Enhanced mobile padding
+  padding: { xs: theme.spacing(1), sm: theme.spacing(2) },
 }));
 
 const CheckoutButton = styled(Button)(({ theme }) => ({
@@ -90,7 +91,7 @@ const CheckoutButton = styled(Button)(({ theme }) => ({
     backgroundColor: "#e0b03a",
     animation: `${bounce} 0.3s ease-out`,
   },
-  width: "100%", // Full width on mobile
+  width: "100%",
   marginTop: theme.spacing(1),
 }));
 
@@ -140,7 +141,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   "& input": {
     padding: { xs: "8px 12px", sm: "10px 14px" },
   },
-  marginBottom: theme.spacing(1), // Tighter spacing on mobile
+  marginBottom: theme.spacing(1),
 }));
 
 function Cart() {
@@ -182,7 +183,11 @@ function Cart() {
 
   useEffect(() => {
     setProducts(
-      cart.map((item) => ({ ...item.product, quantity: item.quantity }))
+      cart.map((item) => ({
+        ...item.product,
+        quantity: item.quantity,
+        bundle: item.bundle || null, // Include bundle metadata
+      }))
     );
   }, [cart]);
 
@@ -223,12 +228,25 @@ function Cart() {
     }
   };
 
+  const calculateItemPrice = (product) => {
+    const originalPrice = product.price || 0;
+    if (product.bundle && product.bundle.discount) {
+      // Apply bundle discount to individual product price
+      const discountMultiplier = 1 - product.bundle.discount / 100;
+      return (originalPrice * discountMultiplier).toFixed(2);
+    }
+    return originalPrice.toFixed(2);
+  };
+
   const calculateTotal = () => {
-    const subtotal = products.reduce(
-      (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
-      0
-    );
-    const discountAmount = subtotal * (discount / 100);
+    const subtotal = products.reduce((sum, p) => {
+      const price =
+        p.bundle && p.bundle.discount
+          ? p.price * (1 - p.bundle.discount / 100)
+          : p.price || 0;
+      return sum + price * (p.quantity || 1);
+    }, 0);
+    const discountAmount = subtotal * (discount / 100); // Additional discount code
     return (subtotal - discountAmount).toFixed(2);
   };
 
@@ -311,7 +329,7 @@ function Cart() {
     const newPnr = generatePNR();
     setPnrCode(newPnr);
     setIsPaymentStep(true);
-    setError(""); // Clear error on success
+    setError("");
   };
 
   const handleCopyPNR = () => {
@@ -327,6 +345,7 @@ function Cart() {
         items: cart.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          bundleId: item.bundle?.bundleId || null, // Include bundle ID
         })),
         total: calculateTotal(),
         status: "Pending",
@@ -345,7 +364,7 @@ function Cart() {
               ? paymentDetails.last4
               : undefined,
         },
-        logoUrl: "https://ethioshop-820b.onrender.com/logo.png", // Add logo URL
+        logoUrl: "https://ethioshop-820b.onrender.com/logo.png",
       };
 
       const response = await axios.post(
@@ -755,15 +774,31 @@ function Cart() {
                               fontSize: { xs: 14, sm: 16 },
                             }}
                           >
-                            {product.name || t("Unnamed Product")}
+                            {product.name || t("Unnamed Product")}{" "}
+                            {product.bundle ? (
+                              <span style={{ color: "#f0c14b" }}>
+                                ({t("Bundle")}: {product.bundle.name})
+                              </span>
+                            ) : null}
                           </Typography>
                         }
                         secondary={
                           <Typography
                             sx={{ color: "#555", fontSize: { xs: 12, sm: 14 } }}
                           >
-                            {t("$")}
-                            {product.price || "N/A"} x {product.quantity}
+                            {product.bundle && product.bundle.discount ? (
+                              <>
+                                <span
+                                  style={{ textDecoration: "line-through" }}
+                                >
+                                  ${product.price || "N/A"}
+                                </span>{" "}
+                                ${calculateItemPrice(product)} x{" "}
+                                {product.quantity}
+                              </>
+                            ) : (
+                              `$${product.price || "N/A"} x ${product.quantity}`
+                            )}
                           </Typography>
                         }
                         sx={{ mb: { xs: 1, sm: 0 } }}
@@ -806,6 +841,7 @@ function Cart() {
               </CardContent>
             </CartCard>
 
+            {/* Shipping Address and Billing Address sections remain unchanged */}
             <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
               <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Box
@@ -1104,6 +1140,37 @@ function Cart() {
                       .toFixed(2)}
                   </Typography>
                 </Box>
+                {products.some((p) => p.bundle && p.bundle.discount) && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography
+                      sx={{ color: "#555", fontSize: { xs: 14, sm: 16 } }}
+                    >
+                      {t("Bundle Discount")}:
+                    </Typography>
+                    <Typography
+                      sx={{ color: "#d32f2f", fontSize: { xs: 14, sm: 16 } }}
+                    >
+                      -$
+                      {products
+                        .reduce((sum, p) => {
+                          if (p.bundle && p.bundle.discount) {
+                            const original = (p.price || 0) * (p.quantity || 1);
+                            const discounted =
+                              original * (1 - p.bundle.discount / 100);
+                            return sum + (original - discounted);
+                          }
+                          return sum;
+                        }, 0)
+                        .toFixed(2)}
+                    </Typography>
+                  </Box>
+                )}
                 {discount > 0 && (
                   <Box
                     sx={{
@@ -1115,17 +1182,20 @@ function Cart() {
                     <Typography
                       sx={{ color: "#555", fontSize: { xs: 14, sm: 16 } }}
                     >
-                      {t("Discount")} ({discount}%):
+                      {t("Discount Code")} ({discount}%):
                     </Typography>
                     <Typography
                       sx={{ color: "#d32f2f", fontSize: { xs: 14, sm: 16 } }}
                     >
                       -$
                       {(
-                        products.reduce(
-                          (sum, p) => sum + (p.price || 0) * (p.quantity || 1),
-                          0
-                        ) *
+                        products.reduce((sum, p) => {
+                          const price =
+                            p.bundle && p.bundle.discount
+                              ? p.price * (1 - p.bundle.discount / 100)
+                              : p.price || 0;
+                          return sum + price * (p.quantity || 1);
+                        }, 0) *
                         (discount / 100)
                       ).toFixed(2)}
                     </Typography>

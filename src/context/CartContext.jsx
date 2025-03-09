@@ -1,82 +1,69 @@
+// src/context/CartContext.jsx
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(
-    JSON.parse(localStorage.getItem("cart")) || []
-  );
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCart(storedCart);
+  }, []);
 
-  const fetchProduct = async (id) => {
-    console.log("fetchProduct called with ID:", id);
-    if (!id || id === "undefined") {
-      console.error("fetchProduct received invalid ID:", id);
-      return null;
-    }
-    try {
-      const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/products/${id}` // Correct URL
-      );
-      return response.data;
-    } catch (error) {
-      if (error.response?.status === 404) {
-        console.error(`Product ${id} not found`);
-        return null;
-      }
-      throw error;
-    }
+  const updateCartStorage = (newCart) => {
+    localStorage.setItem("cart", JSON.stringify(newCart));
+    setCart(newCart);
   };
 
-  const addToCart = async (productId) => {
-    console.log("addToCart called with productId:", productId);
+  const addToCart = async (productId, bundle = null) => {
     try {
-      const product = await fetchProduct(productId);
-      if (!product) {
-        console.warn(`Product ${productId} not found, skipping add to cart`);
-        alert("This product is no longer available.");
-        return;
-      }
+      const response = await axios.get(
+        `https://eshop-backend-e11f.onrender.com/api/products/${productId}`
+      );
+      const product = response.data;
 
       setCart((prevCart) => {
-        const updatedCart = [...prevCart];
-        const existingItem = updatedCart.find(
-          (item) => item.productId === product._id
+        const existingItem = prevCart.find(
+          (item) => item.productId === productId
         );
+        let newCart;
         if (existingItem) {
-          existingItem.quantity += 1;
+          newCart = prevCart.map((item) =>
+            item.productId === productId
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
         } else {
-          updatedCart.push({ productId: product._id, product, quantity: 1 });
+          newCart = [
+            ...prevCart,
+            {
+              productId,
+              product,
+              quantity: 1,
+              bundle: bundle || null, // Add bundle metadata
+            },
+          ];
         }
-        return updatedCart;
+        updateCartStorage(newCart);
+        return newCart;
       });
     } catch (error) {
-      console.error(
-        "Failed to add to cart:",
-        error.response?.data || error.message
-      );
-      alert("Failed to add item to cart. Please try again.");
+      console.error("Failed to add to cart:", error);
     }
   };
 
   const removeFromCart = (productId) => {
-    const updatedCart = cart.filter((item) => item.productId !== productId);
-    setCart(updatedCart);
+    const newCart = cart.filter((item) => item.productId !== productId);
+    updateCartStorage(newCart);
   };
 
   const updateQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-    const updatedCart = cart.map((item) =>
+    const newCart = cart.map((item) =>
       item.productId === productId ? { ...item, quantity } : item
     );
-    setCart(updatedCart);
+    updateCartStorage(newCart);
   };
 
   return (
