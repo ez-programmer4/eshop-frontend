@@ -270,6 +270,10 @@ function AdminDashboard() {
   });
   const [editingDiscount, setEditingDiscount] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1); // Pagination page
+  const [itemsPerPage] = useState(10); // Orders per page
+  const [expandedOrder, setExpandedOrder] = useState(null); // For expandable rows
+  const [showGraph, setShowGraph] = useState(false); // Toggle graph visibility
 
   const categories = ["T-Shirts", "Jackets", "Pants", "Accessories"];
 
