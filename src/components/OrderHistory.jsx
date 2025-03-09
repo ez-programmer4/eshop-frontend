@@ -135,9 +135,8 @@ function OrderHistory() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    console.log("Current user object:", user); // Debug line
+    console.log("Current user object:", user);
     if (!user || !user.id) {
-      // Changed from userId to id
       navigate("/login");
       return;
     }
@@ -146,7 +145,6 @@ function OrderHistory() {
 
   const fetchOrders = async () => {
     if (!user.id) {
-      // Changed from userId to id
       setError(t("User ID not found. Please log in again."));
       setLoading(false);
       return;
@@ -154,7 +152,7 @@ function OrderHistory() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/orders/${user.id}`, // Changed from userId to id
+        `https://eshop-backend-e11f.onrender.com/api/orders/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
           timeout: 10000,
