@@ -248,6 +248,10 @@ function AdminDashboard() {
     minStock: "",
     maxStock: "",
     search: "",
+    status: "", // For order status filter
+    dateFrom: "", // For date range start
+    dateTo: "", // For date range end
+    sortBy: "date", // Default sort by date
   });
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
@@ -679,6 +683,34 @@ function AdminDashboard() {
     }
     return true;
   };
+  const filteredOrders = orders
+    .filter((order) => {
+      const matchesSearch = filterData.search
+        ? order._id.includes(filterData.search) ||
+          (order.userId?.email || "")
+            .toLowerCase()
+            .includes(filterData.search.toLowerCase())
+        : true;
+      const matchesStatus = filterData.status
+        ? order.status === filterData.status
+        : true;
+      const matchesDate =
+        (!filterData.dateFrom ||
+          new Date(order.createdAt) >= new Date(filterData.dateFrom)) &&
+        (!filterData.dateTo ||
+          new Date(order.createdAt) <= new Date(filterData.dateTo));
+      return matchesSearch && matchesStatus && matchesDate;
+    })
+    .sort((a, b) => {
+      if (filterData.sortBy === "date") {
+        return new Date(b.createdAt) - new Date(a.createdAt); // Newest first
+      } else if (filterData.sortBy === "total") {
+        return b.total - a.total; // Highest total first
+      } else if (filterData.sortBy === "status") {
+        return a.status.localeCompare(b.status); // Alphabetical by status
+      }
+      return 0;
+    });
 
   const handleAddProduct = async () => {
     if (!validateForm()) return;
@@ -1519,79 +1551,271 @@ function AdminDashboard() {
                 >
                   {t("Order List")}
                 </Typography>
-                <List>
-                  {orders.map((order) => (
-                    <ListItem
-                      key={order._id}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1,
-                        bgcolor: "#fff",
-                        borderRadius: 2,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                        flexDirection: isMobile ? "column" : "row",
-                        alignItems: isMobile ? "flex-start" : "center",
-                      }}
-                    >
-                      <ListItemText
-                        primary={`${t("Order")} #${order._id}`}
-                        secondary={`${t("User")}: ${
-                          order.userId?.email || "Unknown User"
-                        } - ${t("Total")}: $${order.total} - ${t(
-                          "Items"
-                        )}: ${order.items
-                          .map(
-                            (i) =>
-                              `${i.productId?.name || "Unknown Product"} x${
-                                i.quantity
-                              }`
-                          )
-                          .join(", ")}`}
-                        sx={{ mb: isMobile ? 1 : 0 }}
-                      />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 1,
-                          alignItems: "center",
-                          flexWrap: isMobile ? "wrap" : "nowrap",
-                        }}
+
+                {/* Search and Filter Controls */}
+                <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 2 }}>
+                  <Grid item xs={12} sm={3}>
+                    <StyledTextField
+                      label={t("Search by Order ID or Email")}
+                      value={filterData.search}
+                      onChange={(e) =>
+                        setFilterData({ ...filterData, search: e.target.value })
+                      }
+                      fullWidth
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <StyledFormControl fullWidth>
+                      <InputLabel>{t("Status")}</InputLabel>
+                      <Select
+                        value={filterData.status || ""}
+                        onChange={(e) =>
+                          setFilterData({
+                            ...filterData,
+                            status: e.target.value,
+                          })
+                        }
+                        label={t("Status")}
                       >
-                        <StyledFormControl
-                          sx={{ minWidth: isMobile ? 100 : 120 }}
-                        >
-                          <InputLabel>{t("Status")}</InputLabel>
-                          <Select
-                            value={order.status}
-                            onChange={(e) =>
-                              handleUpdateOrderStatus(order._id, e.target.value)
+                        <MenuItem value="">{t("All")}</MenuItem>
+                        <MenuItem value="Pending">{t("Pending")}</MenuItem>
+                        <MenuItem value="Shipped">{t("Shipped")}</MenuItem>
+                        <MenuItem value="Delivered">{t("Delivered")}</MenuItem>
+                        <MenuItem value="Canceled">{t("Canceled")}</MenuItem>
+                        <MenuItem value="Returned">{t("Returned")}</MenuItem>
+                      </Select>
+                    </StyledFormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <StyledTextField
+                      label={t("Date From")}
+                      type="date"
+                      value={filterData.dateFrom || ""}
+                      onChange={(e) =>
+                        setFilterData({
+                          ...filterData,
+                          dateFrom: e.target.value,
+                        })
+                      }
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <StyledTextField
+                      label={t("Date To")}
+                      type="date"
+                      value={filterData.dateTo || ""}
+                      onChange={(e) =>
+                        setFilterData({ ...filterData, dateTo: e.target.value })
+                      }
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                </Grid>
+
+                {/* Sorting and Graph Toggle */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
+                  <StyledFormControl sx={{ minWidth: 120 }}>
+                    <InputLabel>{t("Sort By")}</InputLabel>
+                    <Select
+                      value={filterData.sortBy || "date"}
+                      onChange={(e) =>
+                        setFilterData({ ...filterData, sortBy: e.target.value })
+                      }
+                      label={t("Sort By")}
+                    >
+                      <MenuItem value="date">{t("Date")}</MenuItem>
+                      <MenuItem value="total">{t("Total Amount")}</MenuItem>
+                      <MenuItem value="status">{t("Status")}</MenuItem>
+                    </Select>
+                  </StyledFormControl>
+                  <ActionButton onClick={() => setShowGraph(!showGraph)}>
+                    {showGraph ? t("Hide Graph") : t("Show Graph")}
+                  </ActionButton>
+                </Box>
+
+                {/* Orders by Status Graph */}
+                {showGraph && (
+                  <Box sx={{ height: isMobile ? "200px" : "300px", mb: 2 }}>
+                    <Bar
+                      data={{
+                        labels: [
+                          "Pending",
+                          "Shipped",
+                          "Delivered",
+                          "Canceled",
+                          "Returned",
+                        ],
+                        datasets: [
+                          {
+                            label: t("Orders by Status"),
+                            data: [
+                              orders.filter((o) => o.status === "Pending")
+                                .length,
+                              orders.filter((o) => o.status === "Shipped")
+                                .length,
+                              orders.filter((o) => o.status === "Delivered")
+                                .length,
+                              orders.filter((o) => o.status === "Canceled")
+                                .length,
+                              orders.filter((o) => o.status === "Returned")
+                                .length,
+                            ],
+                            backgroundColor: "#f0c14b",
+                          },
+                        ],
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: { position: "top" },
+                          title: { display: true, text: t("Orders by Status") },
+                        },
+                        scales: { y: { beginAtZero: true } },
+                      }}
+                    />
+                  </Box>
+                )}
+
+                {/* Order Table */}
+                <Table sx={{ bgcolor: "#fff", borderRadius: 2 }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("Order ID")}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("User Email")}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("Date")}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("Total")}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("Status")}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {t("Actions")}
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredOrders
+                      .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                      .map((order) => (
+                        <React.Fragment key={order._id}>
+                          <TableRow
+                            sx={{
+                              "&:hover": { bgcolor: "#f5f5f5" },
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              setExpandedOrder(
+                                expandedOrder === order._id ? null : order._id
+                              )
                             }
-                            label={t("Status")}
                           >
-                            <MenuItem value="Pending">{t("Pending")}</MenuItem>
-                            <MenuItem value="Shipped">{t("Shipped")}</MenuItem>
-                            <MenuItem value="Delivered">
-                              {t("Delivered")}
-                            </MenuItem>
-                            <MenuItem value="Canceled">
-                              {t("Canceled")}
-                            </MenuItem>
-                            <MenuItem value="Returned">
-                              {t("Returned")}
-                            </MenuItem>
-                          </Select>
-                        </StyledFormControl>
-                        <ActionButton
-                          component={Link}
-                          to={`/order/${order._id}`}
-                        >
-                          {t("View Details")}
-                        </ActionButton>
-                      </Box>
-                    </ListItem>
-                  ))}
-                </List>
+                            <TableCell>{order._id}</TableCell>
+                            <TableCell>
+                              {order.userId?.email || "Unknown User"}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(order.createdAt).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>${order.total.toFixed(2)}</TableCell>
+                            <TableCell>{t(order.status)}</TableCell>
+                            <TableCell>
+                              <StyledIconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUpdateOrderStatus(
+                                    order._id,
+                                    order.status
+                                  );
+                                }}
+                              >
+                                <EditIcon />
+                              </StyledIconButton>
+                            </TableCell>
+                          </TableRow>
+                          {expandedOrder === order._id && (
+                            <TableRow>
+                              <TableCell colSpan={6}>
+                                <Box
+                                  sx={{
+                                    p: 2,
+                                    bgcolor: "#fafafa",
+                                    borderRadius: 1,
+                                  }}
+                                >
+                                  <Typography variant="subtitle2">
+                                    {t("Order Details")}
+                                  </Typography>
+                                  <List dense>
+                                    {order.items.map((item, index) => (
+                                      <ListItem key={index}>
+                                        <ListItemText
+                                          primary={`${
+                                            item.productId?.name ||
+                                            "Unknown Product"
+                                          } x${item.quantity}`}
+                                          secondary={`${t(
+                                            "Price"
+                                          )}: $${item.price.toFixed(2)}`}
+                                        />
+                                      </ListItem>
+                                    ))}
+                                  </List>
+                                  <ActionButton
+                                    component={Link}
+                                    to={`/order/${order._id}`}
+                                    sx={{ mt: 1 }}
+                                  >
+                                    {t("View Full Details")}
+                                  </ActionButton>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      ))}
+                  </TableBody>
+                </Table>
+
+                {/* Pagination Controls */}
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                  <Button
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                    sx={{ mr: 1 }}
+                  >
+                    {t("Previous")}
+                  </Button>
+                  <Typography sx={{ mx: 2 }}>
+                    {t("Page")} {page} {t("of")}{" "}
+                    {Math.ceil(filteredOrders.length / itemsPerPage)}
+                  </Typography>
+                  <Button
+                    disabled={
+                      page === Math.ceil(filteredOrders.length / itemsPerPage)
+                    }
+                    onClick={() => setPage(page + 1)}
+                  >
+                    {t("Next")}
+                  </Button>
+                </Box>
               </SectionCard>
             </Box>
           )}
