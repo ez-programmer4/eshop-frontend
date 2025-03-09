@@ -2,7 +2,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { useTranslation } from "react-i18i18n";
+import { useTranslation } from "react-i18next";
 import {
   Typography,
   Box,
