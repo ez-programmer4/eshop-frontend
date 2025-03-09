@@ -135,15 +135,18 @@ function OrderHistory() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!user) {
+    console.log("Current user object:", user); // Debug line
+    if (!user || !user.id) {
+      // Changed from userId to id
       navigate("/login");
       return;
     }
     fetchOrders();
   }, [user, navigate]);
 
-  const fetchOrders = async (retries = 2) => {
-    if (!user.userId) {
+  const fetchOrders = async () => {
+    if (!user.id) {
+      // Changed from userId to id
       setError(t("User ID not found. Please log in again."));
       setLoading(false);
       return;
@@ -151,7 +154,7 @@ function OrderHistory() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://eshop-backend-e11f.onrender.com/api/orders/${user.userId}`,
+        `https://eshop-backend-e11f.onrender.com/api/orders/${user.id}`, // Changed from userId to id
         {
           headers: { Authorization: `Bearer ${user.token}` },
           timeout: 10000,
@@ -161,18 +164,17 @@ function OrderHistory() {
       setFilteredOrders(response.data);
       setError("");
     } catch (error) {
-      if (error.code === "ERR_NETWORK" && retries > 0) {
-        console.log(`Retrying... (${retries} attempts left)`);
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2s
-        return fetchOrders(retries - 1);
+      if (error.code === "ERR_NETWORK") {
+        setError(
+          t("Network error. Please check your connection or try again later.")
+        );
+      } else {
+        setError(
+          t("Failed to fetch orders") +
+            ": " +
+            (error.response?.data.message || error.message)
+        );
       }
-      setError(
-        error.code === "ERR_NETWORK"
-          ? t("Network error. Please check your connection or try again later.")
-          : t("Failed to fetch orders") +
-              ": " +
-              (error.response?.data.message || error.message)
-      );
     } finally {
       setLoading(false);
     }

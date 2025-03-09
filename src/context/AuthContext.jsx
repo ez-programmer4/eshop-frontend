@@ -21,16 +21,22 @@ export const AuthProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const userData = response.data;
-      const decodedToken = jwtDecode(token); // Use named export
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken); // Debug line
+      const userId =
+        decodedToken.id || decodedToken._id || decodedToken.sub || userData._id;
+      if (!userId) {
+        throw new Error("No user ID found in token or user data");
+      }
       setUser({
         token,
-        id: decodedToken.id || userData._id,
+        id: userId,
         name: userData.name || "User",
         email: userData.email,
         role: userData.role || "user",
         referralCode: userData.referralCode,
       });
-      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify({ ...userData, id: userId }));
     } catch (error) {
       console.error(
         "Failed to fetch user data:",
@@ -39,6 +45,94 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setUser(null);
+    }
+  };
+
+  const login = async (email, password, googleToken = null) => {
+    try {
+      let response;
+      if (googleToken) {
+        localStorage.setItem("token", googleToken);
+        response = await axios.get(
+          "https://eshop-backend-e11f.onrender.com/api/users/profile",
+          { headers: { Authorization: `Bearer ${googleToken}` } }
+        );
+      } else {
+        response = await axios.post(
+          "https://eshop-backend-e11f.onrender.com/api/users/login",
+          { email, password }
+        );
+        localStorage.setItem("token", response.data.token);
+      }
+
+      const userData = response.data.user || response.data;
+      const token = googleToken || response.data.token;
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken); // Debug line
+      const userId =
+        decodedToken.id || decodedToken._id || decodedToken.sub || userData._id;
+      if (!userId) {
+        throw new Error("No user ID found in token or user data");
+      }
+      setUser({
+        token,
+        id: userId,
+        name: userData.name || "User",
+        email: userData.email,
+        role: userData.role || "user",
+        referralCode: userData.referralCode,
+      });
+      localStorage.setItem("user", JSON.stringify({ ...userData, id: userId }));
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  const register = async (email, password, name, googleToken = null) => {
+    try {
+      let userData;
+      let token;
+      if (googleToken) {
+        localStorage.setItem("token", googleToken);
+        const response = await axios.get(
+          "https://eshop-backend-e11f.onrender.com/api/users/profile",
+          { headers: { Authorization: `Bearer ${googleToken}` } }
+        );
+        userData = response.data;
+        token = googleToken;
+      } else {
+        await axios.post(
+          "https://eshop-backend-e11f.onrender.com/api/users/register",
+          { email, password, name }
+        );
+        const loginResponse = await axios.post(
+          "https://eshop-backend-e11f.onrender.com/api/users/login",
+          { email, password }
+        );
+        userData = loginResponse.data.user || loginResponse.data;
+        token = loginResponse.data.token;
+      }
+
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken); // Debug line
+      const userId =
+        decodedToken.id || decodedToken._id || decodedToken.sub || userData._id;
+      if (!userId) {
+        throw new Error("No user ID found in token or user data");
+      }
+      setUser({
+        token,
+        id: userId,
+        name: userData.name || name || "User",
+        email: userData.email || email,
+        role: userData.role || "user",
+        referralCode: userData.referralCode,
+      });
+      localStorage.setItem("user", JSON.stringify({ ...userData, id: userId }));
+    } catch (error) {
+      console.error("Register failed:", error.response?.data || error.message);
+      throw error;
     }
   };
 
