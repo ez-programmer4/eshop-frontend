@@ -29,9 +29,9 @@ const pulse = keyframes`
   100% { transform: scale(1); }
 `;
 
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 // Custom styled components
@@ -135,13 +135,18 @@ const SuccessMessage = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   backgroundColor: "#e6ffe6",
   color: "#2e7d32",
-  padding: theme.spacing(1.5),
-  borderRadius: "10px",
-  marginBottom: theme.spacing(2),
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-  animation: `${fadeIn} 0.5s ease-in`,
-  position: "relative",
-  zIndex: 1,
+  padding: theme.spacing(2),
+  borderRadius: "12px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  animation: `${slideUp} 0.4s ease-out`,
+  transition: "all 0.3s ease",
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "90%",
+  maxWidth: 400,
+  zIndex: 2,
 }));
 
 function Login() {
@@ -166,7 +171,7 @@ function Login() {
     if (token) {
       login(null, null, token);
       setSuccess(true);
-      setTimeout(() => navigate("/", { replace: true }), 1500);
+      setTimeout(() => navigate("/", { replace: true }), 800); // Reduced delay
     }
   }, [location, login, navigate]);
 
@@ -204,7 +209,7 @@ function Login() {
     try {
       await login(email, password);
       setSuccess(true);
-      setTimeout(() => navigate("/"), 1500); // Delay for success animation
+      setTimeout(() => navigate("/"), 800); // Reduced delay
     } catch (err) {
       setError(err.response?.data.message || t("Login failed"));
       console.error("Login error:", err);
@@ -243,13 +248,13 @@ function Login() {
         },
       }}
     >
-      <AuthCard>
+      <AuthCard sx={{ position: "relative" }}>
         <Typography
           variant={isMobile ? "h5" : "h4"}
           sx={{
             color: "#1a202c",
             fontWeight: 800,
-            mb: success ? 2 : 3,
+            mb: success ? 0 : 3,
             textAlign: "center",
             textTransform: "uppercase",
             letterSpacing: "1.5px",
@@ -258,6 +263,8 @@ function Login() {
             background: "linear-gradient(to right, #1976d2, #f0c14b)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            transition: "opacity 0.3s ease",
+            opacity: success ? 0 : 1, // Fade out on success
           }}
         >
           {t("Log In")}
@@ -266,15 +273,20 @@ function Login() {
         {success && (
           <Fade in={success}>
             <SuccessMessage>
-              <CheckCircleIcon sx={{ mr: 1, color: "#2e7d32" }} />
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              <CheckCircleIcon
+                sx={{ mr: 1, color: "#2e7d32", fontSize: "1.5rem" }}
+              />
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", sm: "1rem" } }}
+              >
                 {t("Login successful! Redirecting...")}
               </Typography>
             </SuccessMessage>
           </Fade>
         )}
 
-        {error && !success && (
+        {!success && error && (
           <Typography
             color="error"
             sx={{
@@ -294,87 +306,93 @@ function Login() {
           </Typography>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <StyledTextField
-            label={t("Email")}
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={!!emailError}
-            helperText={emailError}
-            disabled={loading}
-          />
-          <StyledTextField
-            label={t("Password")}
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={!!passwordError}
-            helperText={passwordError}
-            disabled={loading}
-          />
-          <AuthButton
-            type="submit"
-            fullWidth
-            sx={{ mt: 3 }}
-            disabled={loading}
-            startIcon={
-              loading && <CircularProgress size={20} color="inherit" />
-            }
-          >
-            {loading ? t("Logging in...") : t("Login")}
-          </AuthButton>
-        </form>
+        {!success && (
+          <Fade in={!success}>
+            <Box sx={{ position: "relative", zIndex: 1 }}>
+              <form onSubmit={handleSubmit}>
+                <StyledTextField
+                  label={t("Email")}
+                  fullWidth
+                  margin="normal"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={!!emailError}
+                  helperText={emailError}
+                  disabled={loading}
+                />
+                <StyledTextField
+                  label={t("Password")}
+                  type="password"
+                  fullWidth
+                  margin="normal"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  disabled={loading}
+                />
+                <AuthButton
+                  type="submit"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  disabled={loading}
+                  startIcon={
+                    loading && <CircularProgress size={20} color="inherit" />
+                  }
+                >
+                  {loading ? t("Logging in...") : t("Login")}
+                </AuthButton>
+              </form>
 
-        <Divider
-          sx={{
-            my: 3,
-            color: "#777",
-            "&::before, &::after": { borderColor: "#e0e0e0" },
-            fontSize: { xs: "0.85rem", sm: "0.9rem" },
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          {t("or")}
-        </Divider>
+              <Divider
+                sx={{
+                  my: 3,
+                  color: "#777",
+                  "&::before, &::after": { borderColor: "#e0e0e0" },
+                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                {t("or")}
+              </Divider>
 
-        <GoogleButton
-          fullWidth
-          startIcon={<GoogleIcon />}
-          onClick={handleGoogleLogin}
-          disabled={loading}
-        >
-          {t("Log in with Google")}
-        </GoogleButton>
+              <GoogleButton
+                fullWidth
+                startIcon={<GoogleIcon />}
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              >
+                {t("Log in with Google")}
+              </GoogleButton>
 
-        <Typography
-          sx={{
-            mt: 3,
-            textAlign: "center",
-            fontSize: { xs: "0.85rem", sm: "0.9rem" },
-            color: "#666",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          {t("Don't have an account?")}{" "}
-          <Button
-            color="primary"
-            onClick={() => navigate("/register")}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#f0c14b", transform: "scale(1.05)" },
-              transition: "all 0.3s ease",
-            }}
-          >
-            {t("Sign up")}
-          </Button>
-        </Typography>
+              <Typography
+                sx={{
+                  mt: 3,
+                  textAlign: "center",
+                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                  color: "#666",
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                {t("Don't have an account?")}{" "}
+                <Button
+                  color="primary"
+                  onClick={() => navigate("/register")}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    "&:hover": { color: "#f0c14b", transform: "scale(1.05)" },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {t("Sign up")}
+                </Button>
+              </Typography>
+            </Box>
+          </Fade>
+        )}
       </AuthCard>
     </Box>
   );
