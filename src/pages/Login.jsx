@@ -9,10 +9,13 @@ import {
   Divider,
   useMediaQuery,
   keyframes,
+  CircularProgress,
+  Fade,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
 import { useNavigate, useLocation } from "react-router-dom";
 import GoogleIcon from "@mui/icons-material/Google";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -26,84 +29,117 @@ const pulse = keyframes`
   100% { transform: scale(1); }
 `;
 
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
 // Custom styled components
 const AuthCard = styled(Box)(({ theme }) => ({
-  maxWidth: 450,
+  maxWidth: 480,
   width: "100%",
   margin: "auto",
   padding: theme.spacing(4),
-  background: "linear-gradient(to bottom right, #ffffff, #f9fafb)",
-  borderRadius: "16px",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-  border: "1px solid #eee",
+  background: "linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)",
+  borderRadius: "20px",
+  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
+  border: "1px solid rgba(240, 193, 75, 0.2)",
   animation: `${slideIn} 0.6s ease-out`,
   position: "relative",
   overflow: "hidden",
   "&:before": {
     content: '""',
     position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
+    top: "-50%",
+    left: "-50%",
+    width: "200%",
+    height: "200%",
     background:
-      "radial-gradient(circle at bottom left, rgba(240, 193, 75, 0.15), transparent 70%)",
+      "radial-gradient(circle, rgba(240, 193, 75, 0.2), transparent 70%)",
+    transform: "rotate(30deg)",
     zIndex: 0,
   },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-    borderRadius: "12px",
+    padding: theme.spacing(3),
+    borderRadius: "16px",
   },
 }));
 
 const AuthButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
+  background: "linear-gradient(to right, #f0c14b, #e0b03a)",
   color: "#111",
-  padding: theme.spacing(1.5, 3),
-  borderRadius: "10px",
+  padding: theme.spacing(1.5, 4),
+  borderRadius: "12px",
   fontWeight: 700,
   fontSize: { xs: "0.9rem", sm: "1rem" },
   textTransform: "uppercase",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 4px 12px rgba(240, 193, 75, 0.4)",
+  transition: "all 0.3s ease",
   "&:hover": {
-    backgroundColor: "#e0b03a",
+    background: "linear-gradient(to right, #e0b03a, #d0a029)",
+    boxShadow: "0 6px 18px rgba(240, 193, 75, 0.6)",
     animation: `${pulse} 0.5s infinite`,
+  },
+  "&:disabled": {
+    background: "#ccc",
+    boxShadow: "none",
   },
   position: "relative",
   zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 3) },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#fff",
-  color: "#555",
-  border: "1px solid #ddd",
-  padding: theme.spacing(1.5, 3),
-  borderRadius: "10px",
+  color: "#444",
+  border: "1px solid #e0e0e0",
+  padding: theme.spacing(1.5, 4),
+  borderRadius: "12px",
   fontWeight: 600,
   fontSize: { xs: "0.9rem", sm: "1rem" },
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-  "&:hover": { backgroundColor: "#f5f5f5", transform: "scale(1.05)" },
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    backgroundColor: "#f9f9f9",
+    transform: "scale(1.03)",
+    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
+  },
   position: "relative",
   zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 3) },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "10px",
+    borderRadius: "12px",
     backgroundColor: "#fff",
-    "& fieldset": { borderColor: "#ddd" },
+    "& fieldset": { borderColor: "#e0e0e0" },
     "&:hover fieldset": { borderColor: "#f0c14b" },
     "&.Mui-focused fieldset": { borderColor: "#1976d2" },
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+    transition: "all 0.3s ease",
   },
   "& .MuiInputLabel-root": {
-    color: "#666",
+    color: "#777",
     fontSize: { xs: "0.9rem", sm: "1rem" },
   },
   "& .MuiInputLabel-root.Mui-focused": { color: "#1976d2" },
-  "& input": { padding: { xs: "12px", sm: "14px" } },
+  "& input": { padding: { xs: "14px", sm: "16px" } },
+  position: "relative",
+  zIndex: 1,
+}));
+
+const SuccessMessage = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "#e6ffe6",
+  color: "#2e7d32",
+  padding: theme.spacing(1.5),
+  borderRadius: "10px",
+  marginBottom: theme.spacing(2),
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+  animation: `${fadeIn} 0.5s ease-in`,
   position: "relative",
   zIndex: 1,
 }));
@@ -120,14 +156,17 @@ function Login() {
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   // Handle Google OAuth redirect
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     if (token) {
-      login(null, null, token); // Pass Google token to AuthContext
-      navigate("/", { replace: true }); // Replace history to avoid back navigation
+      login(null, null, token);
+      setSuccess(true);
+      setTimeout(() => navigate("/", { replace: true }), 1500);
     }
   }, [location, login, navigate]);
 
@@ -160,16 +199,22 @@ function Login() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setLoading(true);
+    setError("");
     try {
       await login(email, password);
-      navigate("/");
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 1500); // Delay for success animation
     } catch (err) {
       setError(err.response?.data.message || t("Login failed"));
       console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
+    setLoading(true);
     window.location.href =
       "https://eshop-backend-e11f.onrender.com/api/auth/google";
   };
@@ -181,27 +226,55 @@ function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "radial-gradient(circle, #f7f7f7 0%, #e8ecef 100%)",
+        background: "linear-gradient(to bottom, #f7fafc, #e2e8f0)",
         p: { xs: 2, sm: 4 },
+        position: "relative",
+        "&:before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background:
+            "url('https://www.transparenttextures.com/patterns/subtle-stripes.png')",
+          opacity: 0.05,
+          zIndex: 0,
+        },
       }}
     >
       <AuthCard>
         <Typography
           variant={isMobile ? "h5" : "h4"}
           sx={{
-            color: "#111",
+            color: "#1a202c",
             fontWeight: 800,
-            mb: 3,
+            mb: success ? 2 : 3,
             textAlign: "center",
             textTransform: "uppercase",
-            letterSpacing: "1px",
+            letterSpacing: "1.5px",
             position: "relative",
             zIndex: 1,
+            background: "linear-gradient(to right, #1976d2, #f0c14b)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           {t("Log In")}
         </Typography>
-        {error && (
+
+        {success && (
+          <Fade in={success}>
+            <SuccessMessage>
+              <CheckCircleIcon sx={{ mr: 1, color: "#2e7d32" }} />
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {t("Login successful! Redirecting...")}
+              </Typography>
+            </SuccessMessage>
+          </Fade>
+        )}
+
+        {error && !success && (
           <Typography
             color="error"
             sx={{
@@ -209,10 +282,10 @@ function Login() {
               textAlign: "center",
               fontSize: { xs: "0.85rem", sm: "0.9rem" },
               bgcolor: "#ffebee",
-              p: 1,
-              borderRadius: "8px",
+              p: 1.5,
+              borderRadius: "10px",
               fontWeight: 500,
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
               position: "relative",
               zIndex: 1,
             }}
@@ -220,6 +293,7 @@ function Login() {
             {error}
           </Typography>
         )}
+
         <form onSubmit={handleSubmit}>
           <StyledTextField
             label={t("Email")}
@@ -229,6 +303,7 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             error={!!emailError}
             helperText={emailError}
+            disabled={loading}
           />
           <StyledTextField
             label={t("Password")}
@@ -239,16 +314,26 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             error={!!passwordError}
             helperText={passwordError}
+            disabled={loading}
           />
-          <AuthButton type="submit" fullWidth sx={{ mt: 3 }}>
-            {t("Login")}
+          <AuthButton
+            type="submit"
+            fullWidth
+            sx={{ mt: 3 }}
+            disabled={loading}
+            startIcon={
+              loading && <CircularProgress size={20} color="inherit" />
+            }
+          >
+            {loading ? t("Logging in...") : t("Login")}
           </AuthButton>
         </form>
+
         <Divider
           sx={{
             my: 3,
-            color: "#666",
-            "&::before, &::after": { borderColor: "#ddd" },
+            color: "#777",
+            "&::before, &::after": { borderColor: "#e0e0e0" },
             fontSize: { xs: "0.85rem", sm: "0.9rem" },
             position: "relative",
             zIndex: 1,
@@ -256,13 +341,16 @@ function Login() {
         >
           {t("or")}
         </Divider>
+
         <GoogleButton
           fullWidth
           startIcon={<GoogleIcon />}
           onClick={handleGoogleLogin}
+          disabled={loading}
         >
           {t("Log in with Google")}
         </GoogleButton>
+
         <Typography
           sx={{
             mt: 3,
@@ -280,7 +368,8 @@ function Login() {
             sx={{
               textTransform: "none",
               fontWeight: 600,
-              "&:hover": { color: "#f0c14b" },
+              "&:hover": { color: "#f0c14b", transform: "scale(1.05)" },
+              transition: "all 0.3s ease",
             }}
           >
             {t("Sign up")}
