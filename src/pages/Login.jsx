@@ -34,6 +34,12 @@ const slideUp = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const iconPop = keyframes`
+  0% { transform: scale(0) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(15deg); }
+  100% { transform: scale(1) rotate(0deg); }
+`;
+
 // Custom styled components
 const AuthCard = styled(Box)(({ theme }) => ({
   maxWidth: 480,
@@ -133,11 +139,13 @@ const SuccessMessage = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  backgroundColor: "#e6ffe6",
+  background: "linear-gradient(to right, #e6ffe6, #ccffcc)",
   color: "#2e7d32",
-  padding: theme.spacing(2),
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(2.5),
+  borderRadius: "14px",
+  boxShadow:
+    "0 6px 18px rgba(46, 125, 50, 0.25), 0 0 10px rgba(46, 125, 50, 0.15)",
+  border: "1px solid rgba(46, 125, 50, 0.3)",
   animation: `${slideUp} 0.4s ease-out`,
   transition: "all 0.3s ease",
   position: "absolute",
@@ -145,8 +153,17 @@ const SuccessMessage = styled(Box)(({ theme }) => ({
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "90%",
-  maxWidth: 400,
+  maxWidth: 420,
   zIndex: 2,
+  "&:hover": {
+    boxShadow:
+      "0 8px 24px rgba(46, 125, 50, 0.35), 0 0 15px rgba(46, 125, 50, 0.2)",
+  },
+}));
+
+const AnimatedIcon = styled(CheckCircleIcon)(({ theme }) => ({
+  animation: `${iconPop} 0.5s ease-out`,
+  marginRight: theme.spacing(1.5),
 }));
 
 function Login() {
@@ -171,7 +188,7 @@ function Login() {
     if (token) {
       login(null, null, token);
       setSuccess(true);
-      setTimeout(() => navigate("/", { replace: true }), 800); // Reduced delay
+      setTimeout(() => navigate("/", { replace: true }), 1000); // Increased delay
     }
   }, [location, login, navigate]);
 
@@ -209,7 +226,7 @@ function Login() {
     try {
       await login(email, password);
       setSuccess(true);
-      setTimeout(() => navigate("/"), 800); // Reduced delay
+      setTimeout(() => navigate("/"), 1000); // Increased delay
     } catch (err) {
       setError(err.response?.data.message || t("Login failed"));
       console.error("Login error:", err);
@@ -264,7 +281,7 @@ function Login() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             transition: "opacity 0.3s ease",
-            opacity: success ? 0 : 1, // Fade out on success
+            opacity: success ? 0 : 1,
           }}
         >
           {t("Log In")}
@@ -273,12 +290,10 @@ function Login() {
         {success && (
           <Fade in={success}>
             <SuccessMessage>
-              <CheckCircleIcon
-                sx={{ mr: 1, color: "#2e7d32", fontSize: "1.5rem" }}
-              />
+              <AnimatedIcon sx={{ fontSize: "2rem", color: "#2e7d32" }} />
               <Typography
                 variant="body1"
-                sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                sx={{ fontWeight: 600, fontSize: { xs: "1rem", sm: "1.1rem" } }}
               >
                 {t("Login successful! Redirecting...")}
               </Typography>
