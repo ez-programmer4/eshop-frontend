@@ -37,6 +37,12 @@ const pulse = keyframes`
   100% { transform: scale(1); }
 `;
 
+const ribbonPulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+`;
+
 // Custom styled components
 const ProductsContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1400,
@@ -63,6 +69,56 @@ const ProductCard = styled(Card)(({ theme }) => ({
   cursor: "pointer",
 }));
 
+const GiftBoxCard = styled(Card)(({ theme }) => ({
+  position: "relative",
+  borderRadius: "16px",
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
+  background: "linear-gradient(135deg, #ff6f61 0%, #ffccbc 100%)", // Gift box gradient
+  overflow: "hidden",
+  transition: "transform 0.3s",
+  "&:hover": {
+    transform: "scale(1.03)",
+  },
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: "-10%",
+    left: "50%",
+    width: "120%",
+    height: "120%",
+    background: "rgba(255, 255, 255, 0.1)",
+    transform: "translateX(-50%) rotate(45deg)",
+    animation: `${ribbonPulse} 2s infinite`,
+  },
+  [theme.breakpoints.down("sm")]: {
+    borderRadius: "12px",
+  },
+}));
+
+const Ribbon = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: "10px",
+  left: "-40px",
+  width: "150px",
+  height: "30px",
+  backgroundColor: "#ffd700", // Gold ribbon
+  transform: "rotate(-45deg)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#111",
+  fontWeight: 600,
+  fontSize: "0.9rem",
+  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+  zIndex: 1,
+  [theme.breakpoints.down("sm")]: {
+    width: "120px",
+    height: "25px",
+    fontSize: "0.75rem",
+    left: "-30px",
+  },
+}));
+
 const ActionButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#f0c14b",
   color: "#111",
@@ -81,16 +137,17 @@ const ActionButton = styled(Button)(({ theme }) => ({
 }));
 
 const BundleButton = styled(Button)(({ theme, added }) => ({
-  backgroundColor: added ? "#4caf50" : "#ff5722", // Green if added, orange otherwise
-  color: "#fff",
+  backgroundColor: added ? "#4caf50" : "#ffffff",
+  color: added ? "#fff" : "#ff6f61",
   padding: theme.spacing(1.5, 3),
   borderRadius: "10px",
   fontWeight: 700,
   fontSize: { xs: "0.85rem", sm: "1rem" },
   textTransform: "uppercase",
   boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+  border: `2px solid ${added ? "#4caf50" : "#ff6f61"}`,
   "&:hover": {
-    backgroundColor: added ? "#388e3c" : "#e64a19",
+    backgroundColor: added ? "#388e3c" : "#ffebee",
     animation: `${pulse} 0.5s infinite`,
   },
   [theme.breakpoints.down("sm")]: {
@@ -121,7 +178,7 @@ function Products() {
   const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [addedBundles, setAddedBundles] = useState({}); // Track added bundles
+  const [addedBundles, setAddedBundles] = useState({});
 
   useEffect(() => {
     fetchProducts();
@@ -200,12 +257,11 @@ function Products() {
 
     try {
       for (const productId of productIds) {
-        // Pass bundle metadata including discount
         await addToCart(productId, {
           bundleId: bundle._id,
           name: bundle.name,
           discount: bundle.discount || 0,
-          bundlePrice: bundle.price, // Total price for the bundle
+          bundlePrice: bundle.price,
         });
       }
       setAddedBundles((prev) => ({ ...prev, [bundle._id]: true }));
@@ -260,21 +316,28 @@ function Products() {
         <Grid container spacing={isMobile ? 1 : 3}>
           {bundles.map((bundle) => (
             <Grid item xs={12} sm={6} md={4} key={bundle._id}>
-              <ProductCard>
-                <CardContent>
+              <GiftBoxCard>
+                <Ribbon>{t("Gift Bundle")}</Ribbon>
+                <CardContent
+                  sx={{ position: "relative", zIndex: 2, color: "#fff" }}
+                >
                   <Typography
                     variant="h6"
-                    sx={{ fontWeight: 500, color: "#111", mb: 1 }}
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      textShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
+                    }}
                   >
                     {bundle.name || t("Unnamed Bundle")}
                   </Typography>
                   <Typography
-                    sx={{ color: "#555", fontSize: { xs: 12, sm: 14 }, mb: 1 }}
+                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.9 }}
                   >
                     {bundle.description || t("No description")}
                   </Typography>
                   <Typography
-                    sx={{ color: "#555", fontSize: { xs: 12, sm: 14 }, mb: 1 }}
+                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.9 }}
                   >
                     {t("Products")}:{" "}
                     {(bundle.products || [])
@@ -283,19 +346,15 @@ function Products() {
                   </Typography>
                   <Typography
                     sx={{
-                      color: "#e74c3c",
                       fontSize: { xs: 12, sm: 14 },
                       mb: 1,
+                      fontWeight: 600,
                     }}
                   >
                     {t("Save")}: {bundle.discount || 0}%
                   </Typography>
                   <Typography
-                    sx={{
-                      color: "#111",
-                      fontWeight: 600,
-                      fontSize: { xs: 14, sm: 16 },
-                    }}
+                    sx={{ fontWeight: 700, fontSize: { xs: 16, sm: 18 } }}
                   >
                     ${bundle.price || "N/A"}
                   </Typography>
@@ -313,7 +372,7 @@ function Products() {
                       : `${t("Add Bundle")} - ${bundle.discount}%`}
                   </BundleButton>
                 </Box>
-              </ProductCard>
+              </GiftBoxCard>
             </Grid>
           ))}
         </Grid>
