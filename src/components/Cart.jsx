@@ -40,9 +40,13 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// Initialize Stripe with error handling
 const stripePromise = loadStripe(
   "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3dR430ok9900C8ATrI9w"
-);
+).catch((err) => {
+  console.error("Failed to load Stripe.js:", err);
+  return null; // Fallback to null if Stripe fails
+});
 
 // Animation keyframes
 const slideIn = keyframes`
@@ -56,57 +60,72 @@ const bounce = keyframes`
   100% { transform: scale(1); }
 `;
 
-// Custom styled components (unchanged styles omitted for brevity)
+// Styled components with enhanced design
 const CartCard = styled(Card)(({ theme }) => ({
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  backgroundColor: "#fff",
+  borderRadius: "16px",
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
+  background: "linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%)",
   animation: `${slideIn} 0.5s ease-out`,
   "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+    transform: "translateY(-6px)",
+    boxShadow: "0 12px 30px rgba(0, 0, 0, 0.18)",
   },
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(3),
+  transition: "all 0.3s ease",
 }));
 
 const CheckoutButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
+  background: "linear-gradient(to right, #f0c14b, #e0b03a)",
   color: "#111",
-  padding: { xs: "10px 20px", sm: "12px 24px" },
-  borderRadius: "8px",
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "10px",
   fontWeight: 700,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
+  fontSize: "1rem",
   textTransform: "uppercase",
   "&:hover": {
-    backgroundColor: "#e0b03a",
+    background: "linear-gradient(to right, #e0b03a, #d0a029)",
     animation: `${bounce} 0.3s ease-out`,
   },
   width: "100%",
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(2),
 }));
 
 const RemoveButton = styled(Button)(({ theme }) => ({
   color: "#d32f2f",
   borderColor: "#d32f2f",
-  fontSize: { xs: "0.7rem", sm: "0.875rem" },
-  borderRadius: "6px",
-  padding: { xs: "4px 8px", sm: "6px 12px" },
-  "&:hover": { backgroundColor: "#ffebee", borderColor: "#c62828" },
+  fontSize: "0.875rem",
+  borderRadius: "8px",
+  padding: theme.spacing(0.75, 1.5),
+  "&:hover": {
+    backgroundColor: "#ffebee",
+    borderColor: "#c62828",
+    transform: "scale(1.05)",
+  },
+  transition: "all 0.2s ease",
 }));
 
 const ActionButton = styled(IconButton)(({ theme }) => ({
   color: "#1976d2",
-  padding: { xs: 0.5, sm: 1.5 },
-  "&:hover": { backgroundColor: "#e3f2fd", transform: "scale(1.1)" },
+  padding: theme.spacing(1),
+  "&:hover": {
+    backgroundColor: "#e3f2fd",
+    transform: "scale(1.1)",
+  },
+  transition: "all 0.2s ease",
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "8px",
+    borderRadius: "10px",
     backgroundColor: "#fff",
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)",
     "& fieldset": { borderColor: "#ccc" },
     "&:hover fieldset": { borderColor: "#999" },
     "&.Mui-focused fieldset": { borderColor: "#1976d2" },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#555",
+    fontWeight: 500,
   },
 }));
 
@@ -131,8 +150,8 @@ function Cart() {
   const [pnrCode, setPnrCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [shippingAddressOpen, setShippingAddressOpen] = useState(true); // Added back
-  const [billingAddressOpen, setBillingAddressOpen] = useState(false); // Added back
+  const [shippingAddressOpen, setShippingAddressOpen] = useState(true);
+  const [billingAddressOpen, setBillingAddressOpen] = useState(false);
   const [shippingAddress, setShippingAddress] = useState({
     street: "",
     city: "",
@@ -150,26 +169,30 @@ function Cart() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Group cart items into bundles and singles
+  // Group cart items, treating bundles as indivisible
   useEffect(() => {
     const bundles = {};
     const singles = [];
 
     cart.forEach((item) => {
       if (item.bundle && item.bundle.bundleId) {
-        if (!bundles[item.bundle.bundleId]) {
-          bundles[item.bundle.bundleId] = {
-            bundleId: item.bundle.bundleId,
+        const bundleId = item.bundle.bundleId;
+        if (!bundles[bundleId]) {
+          bundles[bundleId] = {
+            bundleId,
             name: item.bundle.name,
             discount: item.bundle.discount || 0,
             price: item.bundle.bundlePrice || 0,
+            quantity: 0, // Single quantity for the bundle
             items: [],
-            quantity: item.quantity,
           };
         }
-        bundles[item.bundle.bundleId].items.push({
+        bundles[bundleId].quantity = Math.max(
+          bundles[bundleId].quantity,
+          item.quantity
+        );
+        bundles[bundleId].items.push({
           ...item.product,
-          quantity: item.quantity,
           cartItemId: item._id || item.productId,
         });
       } else {
@@ -193,41 +216,37 @@ function Cart() {
     bundleItems.forEach((item) => removeFromCart(item.cartItemId));
   };
 
-  const handleIncreaseQuantity = (cartItemId, isBundle = false) => {
-    const item = cart.find(
-      (i) => i._id === cartItemId || i.productId === cartItemId
-    );
-    if (!item) return;
+  const handleIncreaseQuantity = (id, isBundle = false) => {
     if (isBundle) {
-      const bundleId = item.bundle.bundleId;
-      const bundleItems = groupedItems.bundles[bundleId].items;
-      bundleItems.forEach((bundleItem) =>
-        updateQuantity(bundleItem.cartItemId, item.quantity + 1)
+      const bundle = groupedItems.bundles[id];
+      const bundleItems = bundle.items;
+      bundleItems.forEach((item) =>
+        updateQuantity(item.cartItemId, bundle.quantity + 1)
       );
     } else {
-      updateQuantity(cartItemId, item.quantity + 1);
+      const item = cart.find((i) => i._id === id || i.productId === id);
+      if (item) updateQuantity(id, item.quantity + 1);
     }
   };
 
-  const handleDecreaseQuantity = (cartItemId, isBundle = false) => {
-    const item = cart.find(
-      (i) => i._id === cartItemId || i.productId === cartItemId
-    );
-    if (!item) return;
+  const handleDecreaseQuantity = (id, isBundle = false) => {
     if (isBundle) {
-      const bundleId = item.bundle.bundleId;
-      const bundleItems = groupedItems.bundles[bundleId].items;
-      if (item.quantity > 1) {
-        bundleItems.forEach((bundleItem) =>
-          updateQuantity(bundleItem.cartItemId, item.quantity - 1)
+      const bundle = groupedItems.bundles[id];
+      const bundleItems = bundle.items;
+      if (bundle.quantity > 1) {
+        bundleItems.forEach((item) =>
+          updateQuantity(item.cartItemId, bundle.quantity - 1)
         );
       } else {
-        handleRemoveBundle(bundleId);
+        handleRemoveBundle(id);
       }
-    } else if (item.quantity > 1) {
-      updateQuantity(cartItemId, item.quantity - 1);
     } else {
-      removeFromCart(cartItemId);
+      const item = cart.find((i) => i._id === id || i.productId === id);
+      if (item && item.quantity > 1) {
+        updateQuantity(id, item.quantity - 1);
+      } else {
+        removeFromCart(id);
+      }
     }
   };
 
@@ -246,13 +265,11 @@ function Cart() {
       setError("");
     } catch (err) {
       setDiscount(0);
-      setError(t("API unavailable. Discount codes not supported yet."));
+      setError(err.response?.data.message || t("Discount validation failed"));
     }
   };
 
-  const calculateBundlePrice = (bundle) => {
-    return (bundle.price || 0).toFixed(2);
-  };
+  const calculateBundlePrice = (bundle) => (bundle.price || 0).toFixed(2);
 
   const calculateTotal = () => {
     const bundleTotal = Object.values(groupedItems.bundles).reduce(
@@ -270,32 +287,29 @@ function Cart() {
 
   const generatePNR = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+    return Array(6)
+      .fill()
+      .map(() => chars[Math.floor(Math.random() * chars.length)])
+      .join("");
   };
 
   const validatePhoneNumber = (value) => {
     if (paymentMethod === "telebirr") return /^09\d{8}$/.test(value);
     if (paymentMethod === "mpesa") return /^07\d{8}$/.test(value);
-    return false;
+    return true; // Allow empty for initial state
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "");
-    if (value.length <= 10) {
-      setPhoneNumber(value);
-      if (value && !validatePhoneNumber(value)) {
-        setPhoneError(
-          paymentMethod === "telebirr"
-            ? t("Phone number must start with '09' and be 10 digits")
-            : t("Phone number must start with '07' and be 10 digits")
-        );
-      } else {
-        setPhoneError("");
-      }
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setPhoneNumber(value);
+    if (value && !validatePhoneNumber(value)) {
+      setPhoneError(
+        paymentMethod === "telebirr"
+          ? t("Phone must start with '09' and be 10 digits")
+          : t("Phone must start with '07' and be 10 digits")
+      );
+    } else {
+      setPhoneError("");
     }
   };
 
@@ -319,32 +333,26 @@ function Cart() {
     }
 
     const shippingErrors = validateAddress(shippingAddress, "Shipping");
-    let billingErrors = {};
-    if (!billingSameAsShipping)
-      billingErrors = validateAddress(billingAddress, "Billing");
-
+    const billingErrors = billingSameAsShipping
+      ? {}
+      : validateAddress(billingAddress, "Billing");
     const allErrors = { ...shippingErrors, ...billingErrors };
     setValidationErrors(allErrors);
 
     if (Object.keys(allErrors).length > 0) {
-      setError(
-        t("Please fill in the following required fields: ") +
-          Object.values(allErrors).join(", ")
-      );
+      setError(t("Please fill in: ") + Object.values(allErrors).join(", "));
       return;
     }
 
     if (billingSameAsShipping) setBillingAddress({ ...shippingAddress });
-
-    const newPnr = generatePNR();
-    setPnrCode(newPnr);
+    setPnrCode(generatePNR());
     setIsPaymentStep(true);
     setError("");
   };
 
   const handleCopyPNR = () => {
     navigator.clipboard.writeText(pnrCode);
-    alert(t("PNR copied to clipboard: ") + pnrCode);
+    alert(t("PNR copied: ") + pnrCode);
   };
 
   const createOrder = async (paymentDetails) => {
@@ -371,13 +379,11 @@ function Cart() {
         paymentMethod: {
           type:
             paymentDetails.method === "stripe" ? "card" : paymentDetails.method,
-          phone:
-            paymentDetails.method === "telebirr" ||
-            paymentDetails.method === "mpesa"
-              ? phoneNumber
-              : undefined,
+          phone: ["telebirr", "mpesa"].includes(paymentDetails.method)
+            ? phoneNumber
+            : undefined,
           last4:
-            paymentDetails.method === "stripe" && paymentDetails.last4
+            paymentDetails.method === "stripe"
               ? paymentDetails.last4
               : undefined,
         },
@@ -394,49 +400,54 @@ function Cart() {
       navigate("/order-confirmation", { state: { order: response.data } });
     } catch (err) {
       setError(
-        t("Failed to create order: ") +
-          (err.response?.data.message || err.message)
+        t("Order creation failed: ") +
+          (err.response?.data.message || "Server error")
       );
     }
   };
 
   const handlePayment = async () => {
     if (
-      (paymentMethod === "telebirr" || paymentMethod === "mpesa") &&
+      ["telebirr", "mpesa"].includes(paymentMethod) &&
       !validatePhoneNumber(phoneNumber)
     ) {
-      setError(
-        paymentMethod === "telebirr"
-          ? t("Phone number must start with '09' and be 10 digits")
-          : t("Phone number must start with '07' and be 10 digits")
-      );
+      setError(t("Invalid phone number"));
       return;
     }
-
     try {
       const total = calculateTotal();
       switch (paymentMethod) {
         case "telebirr":
-          await axios.post(
+          const telebirrRes = await axios.post(
             "https://eshop-backend-e11f.onrender.com/api/telebirr/pay",
-            { amount: total, phone: phoneNumber, pnr: pnrCode }
+            {
+              amount: total,
+              phone: phoneNumber,
+              pnr: pnrCode,
+            }
           );
+          if (telebirrRes.data.message) setError(telebirrRes.data.message); // Handle stub response
           await createOrder({ method: "telebirr" });
           break;
         case "mpesa":
-          await axios.post(
+          const mpesaRes = await axios.post(
             "https://eshop-backend-e11f.onrender.com/api/mpesa/pay",
-            { amount: total, phone: phoneNumber, pnr: pnrCode }
+            {
+              amount: total,
+              phone: phoneNumber,
+              pnr: pnrCode,
+            }
           );
+          if (mpesaRes.data.message) setError(mpesaRes.data.message); // Handle stub response
           await createOrder({ method: "mpesa" });
           break;
         case "stripe":
-          break; // Handled in PaymentForm
+          break;
         default:
-          setError(t("Please select a payment method"));
+          setError(t("Select a payment method"));
       }
     } catch (err) {
-      setError(t("Payment failed: API unavailable. Please try again later."));
+      setError(err.response?.data.message || t("Payment failed"));
     }
   };
 
@@ -447,7 +458,7 @@ function Cart() {
     const handleSubmit = async (event) => {
       event.preventDefault();
       if (!paymentMethod) {
-        setError(t("Please select a payment method"));
+        setError(t("Select a payment method"));
         return;
       }
 
@@ -455,7 +466,7 @@ function Cart() {
         paymentMethod === "stripe" &&
         (!stripe || !elements || !clientSecret)
       ) {
-        setError(t("Stripe not loaded or payment not initiated"));
+        setError(t("Stripe unavailable"));
         return;
       }
 
@@ -488,11 +499,12 @@ function Cart() {
         sx={{
           maxWidth: { xs: "100%", sm: 600 },
           mx: "auto",
-          p: { xs: 2, sm: 3 },
+          p: 3,
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
         }}
       >
         <Typography
-          variant={isMobile ? "h6" : "h5"}
+          variant="h5"
           sx={{ color: "#111", fontWeight: 600, mb: 2, textAlign: "center" }}
         >
           {t("Complete Payment")}
@@ -515,42 +527,23 @@ function Cart() {
           sx={{
             mb: 2,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
+            alignItems: "center",
             gap: 1,
-            bgcolor: "#f5f5f5",
+            bgcolor: "#f0f0f0",
             p: 1,
             borderRadius: 2,
           }}
         >
-          <Typography
-            sx={{
-              color: "#555",
-              fontSize: { xs: 12, sm: 14 },
-              fontWeight: 500,
-            }}
-          >
-            {t("Your PNR Code")}: <strong>{pnrCode}</strong>
+          <Typography sx={{ fontSize: "1rem", fontWeight: 500 }}>
+            {t("PNR Code")}: <strong>{pnrCode}</strong>
           </Typography>
-          <ActionButton
-            onClick={handleCopyPNR}
-            size="small"
-            sx={{ bgcolor: "#e3f2fd", p: 0.5 }}
-          >
-            <ContentCopyIcon fontSize="small" />
+          <ActionButton onClick={handleCopyPNR}>
+            <ContentCopyIcon />
           </ActionButton>
         </Box>
-        <Typography
-          sx={{
-            mb: 2,
-            color: "#555",
-            textAlign: "center",
-            fontSize: { xs: 14, sm: 16 },
-            fontWeight: 500,
-          }}
-        >
-          {t("Total to Pay")}:{" "}
-          <strong style={{ color: "#111" }}>${calculateTotal()}</strong>
+        <Typography sx={{ mb: 2, textAlign: "center", fontWeight: 500 }}>
+          {t("Total")}: <strong>${calculateTotal()}</strong>
         </Typography>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>{t("Payment Method")}</InputLabel>
@@ -568,21 +561,15 @@ function Cart() {
                     { amount: totalInCents },
                     { headers: { Authorization: `Bearer ${user.token}` } }
                   )
-                  .then((response) =>
-                    setClientSecret(response.data.clientSecret)
-                  )
-                  .catch(() =>
-                    setError(t("Stripe unavailable. Try another method."))
-                  );
+                  .then((res) => setClientSecret(res.data.clientSecret))
+                  .catch(() => setError(t("Stripe unavailable")));
               }
             }}
             label={t("Payment Method")}
           >
             <MenuItem value="telebirr">{t("Telebirr")}</MenuItem>
             <MenuItem value="mpesa">{t("M-Pesa")}</MenuItem>
-            <MenuItem value="stripe">
-              {t("Stripe (Credit/Debit Card)")}
-            </MenuItem>
+            <MenuItem value="stripe">{t("Stripe (Card)")}</MenuItem>
           </Select>
         </FormControl>
         {(paymentMethod === "telebirr" || paymentMethod === "mpesa") && (
@@ -592,6 +579,7 @@ function Cart() {
             onChange={handlePhoneChange}
             fullWidth
             required
+            autoFocus
             inputProps={{ maxLength: 10, inputMode: "numeric" }}
             placeholder={
               paymentMethod === "telebirr" ? "09XXXXXXXX" : "07XXXXXXXX"
@@ -605,29 +593,18 @@ function Cart() {
           <Box
             sx={{
               mb: 2,
-              bgcolor: "#fff",
               p: 2,
+              bgcolor: "#fff",
               borderRadius: 2,
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
             <CardElement
-              options={{
-                style: {
-                  base: { fontSize: isMobile ? "14px" : "16px", color: "#111" },
-                },
-              }}
+              options={{ style: { base: { fontSize: "16px", color: "#111" } } }}
             />
           </Box>
         )}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 2,
-            flexWrap: "wrap",
-          }}
-        >
+        <Box sx={{ display: "flex", gap: 2 }}>
           <Button
             variant="contained"
             onClick={handleSubmit}
@@ -637,11 +614,9 @@ function Cart() {
               phoneError
             }
             sx={{
-              px: { xs: 3, sm: 4 },
-              py: 1,
+              flex: 1,
               bgcolor: "#1976d2",
               "&:hover": { bgcolor: "#1565c0" },
-              flex: 1,
             }}
           >
             {t("Pay Now")}
@@ -650,12 +625,9 @@ function Cart() {
             variant="outlined"
             onClick={() => setIsPaymentStep(false)}
             sx={{
-              px: { xs: 3, sm: 4 },
-              py: 1,
-              borderColor: "#ccc",
-              color: "#555",
-              "&:hover": { borderColor: "#999" },
               flex: 1,
+              borderColor: "#ccc",
+              "&:hover": { borderColor: "#999" },
             }}
           >
             {t("Cancel")}
@@ -670,122 +642,73 @@ function Cart() {
       sx={{
         maxWidth: 1200,
         mx: "auto",
-        mt: { xs: 2, sm: 4 },
-        p: { xs: 1, sm: 2, md: 4 },
-        bgcolor: "#f7f7f7",
-        borderRadius: { xs: 2, sm: 3 },
-        minHeight: "80vh",
+        mt: 4,
+        p: 3,
+        bgcolor: "#f5f5f5",
+        borderRadius: 3,
       }}
     >
       <Typography
-        variant={isMobile ? "h5" : "h4"}
-        sx={{
-          color: "#111",
-          fontWeight: 700,
-          mb: { xs: 2, sm: 4 },
-          textAlign: "center",
-          textTransform: "uppercase",
-        }}
+        variant="h4"
+        sx={{ color: "#111", fontWeight: 700, mb: 4, textAlign: "center" }}
       >
         {t("Your Cart")}
       </Typography>
       {cart.length === 0 ? (
-        <Typography
-          sx={{
-            color: "#555",
-            textAlign: "center",
-            py: 4,
-            fontSize: { xs: 14, sm: 16 },
-          }}
-        >
-          {t("Your cart is empty")}
+        <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
+          {t("Cart is empty")}
         </Typography>
       ) : !isPaymentStep ? (
-        <Grid container spacing={isMobile ? 1 : 3}>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <CartCard>
-              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
-                <List sx={{ bgcolor: "#fff", borderRadius: "8px" }}>
-                  {/* Bundles */}
+              <CardContent sx={{ p: 2 }}>
+                <List>
                   {Object.values(groupedItems.bundles).map((bundle) => (
                     <ListItem
                       key={bundle.bundleId}
-                      sx={{
-                        flexDirection: { xs: "column", sm: "row" },
-                        py: { xs: 1, sm: 2 },
-                        borderBottom: "1px solid #eee",
-                      }}
+                      sx={{ py: 2, borderBottom: "1px solid #eee" }}
                     >
                       <ListItemText
                         primary={
                           <Typography
-                            sx={{
-                              fontWeight: 500,
-                              color: "#111",
-                              fontSize: { xs: 14, sm: 16 },
-                            }}
+                            sx={{ fontWeight: 600, fontSize: "1.1rem" }}
                           >
                             {bundle.name} ({t("Bundle")})
                           </Typography>
                         }
                         secondary={
                           <Box>
-                            <Typography
-                              sx={{
-                                color: "#555",
-                                fontSize: { xs: 12, sm: 14 },
-                              }}
-                            >
+                            <Typography sx={{ color: "#666" }}>
                               {bundle.items.map((item) => item.name).join(", ")}
                             </Typography>
-                            <Typography
-                              sx={{
-                                color: "#555",
-                                fontSize: { xs: 12, sm: 14 },
-                              }}
-                            >
+                            <Typography sx={{ color: "#666" }}>
                               ${calculateBundlePrice(bundle)} x{" "}
                               {bundle.quantity} ({t("Save")}: {bundle.discount}
                               %)
                             </Typography>
                           </Box>
                         }
-                        sx={{ mb: { xs: 1, sm: 0 } }}
                       />
                       <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 0.5,
-                          flexWrap: "wrap",
-                        }}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <ActionButton
                           onClick={() =>
-                            handleDecreaseQuantity(
-                              bundle.items[0].cartItemId,
-                              true
-                            )
+                            handleDecreaseQuantity(bundle.bundleId, true)
                           }
                         >
-                          <RemoveIcon
-                            fontSize={isMobile ? "small" : "medium"}
-                          />
+                          <RemoveIcon />
                         </ActionButton>
-                        <Typography
-                          sx={{ fontWeight: 500, fontSize: { xs: 14, sm: 16 } }}
-                        >
+                        <Typography sx={{ fontWeight: 500 }}>
                           {bundle.quantity}
                         </Typography>
                         <ActionButton
                           onClick={() =>
-                            handleIncreaseQuantity(
-                              bundle.items[0].cartItemId,
-                              true
-                            )
+                            handleIncreaseQuantity(bundle.bundleId, true)
                           }
                         >
-                          <AddIcon fontSize={isMobile ? "small" : "medium"} />
+                          <AddIcon />
                         </ActionButton>
                         <RemoveButton
                           variant="outlined"
@@ -796,57 +719,36 @@ function Cart() {
                       </Box>
                     </ListItem>
                   ))}
-                  {/* Single Items */}
                   {groupedItems.singles.map((item) => (
                     <ListItem
                       key={item.cartItemId}
-                      sx={{
-                        flexDirection: { xs: "column", sm: "row" },
-                        py: { xs: 1, sm: 2 },
-                        borderBottom: "1px solid #eee",
-                      }}
+                      sx={{ py: 2, borderBottom: "1px solid #eee" }}
                     >
                       <ListItemText
                         primary={
                           <Typography
-                            sx={{
-                              fontWeight: 500,
-                              color: "#111",
-                              fontSize: { xs: 14, sm: 16 },
-                            }}
+                            sx={{ fontWeight: 600, fontSize: "1.1rem" }}
                           >
                             {item.name}
                           </Typography>
                         }
                         secondary={
-                          <Typography
-                            sx={{ color: "#555", fontSize: { xs: 12, sm: 14 } }}
-                          >
+                          <Typography sx={{ color: "#666" }}>
                             ${item.price || "N/A"} x {item.quantity}
                           </Typography>
                         }
-                        sx={{ mb: { xs: 1, sm: 0 } }}
                       />
                       <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 0.5,
-                          flexWrap: "wrap",
-                        }}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <ActionButton
                           onClick={() =>
                             handleDecreaseQuantity(item.cartItemId)
                           }
                         >
-                          <RemoveIcon
-                            fontSize={isMobile ? "small" : "medium"}
-                          />
+                          <RemoveIcon />
                         </ActionButton>
-                        <Typography
-                          sx={{ fontWeight: 500, fontSize: { xs: 14, sm: 16 } }}
-                        >
+                        <Typography sx={{ fontWeight: 500 }}>
                           {item.quantity}
                         </Typography>
                         <ActionButton
@@ -854,7 +756,7 @@ function Cart() {
                             handleIncreaseQuantity(item.cartItemId)
                           }
                         >
-                          <AddIcon fontSize={isMobile ? "small" : "medium"} />
+                          <AddIcon />
                         </ActionButton>
                         <RemoveButton
                           variant="outlined"
@@ -868,27 +770,17 @@ function Cart() {
                 </List>
               </CardContent>
             </CartCard>
-
-            {/* Shipping Address */}
-            <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
-              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+            <CartCard sx={{ mt: 3 }}>
+              <CardContent sx={{ p: 2 }}>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    cursor: "pointer",
                   }}
                   onClick={() => setShippingAddressOpen(!shippingAddressOpen)}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "#111",
-                      fontWeight: 600,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {t("Shipping Address")}
                   </Typography>
                   <ActionButton
@@ -902,112 +794,49 @@ function Cart() {
                   </ActionButton>
                 </Box>
                 <Collapse in={shippingAddressOpen}>
-                  <Grid container spacing={isMobile ? 1 : 2} sx={{ mt: 1 }}>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("Street")}
-                        value={shippingAddress.street}
-                        onChange={(e) =>
-                          setShippingAddress({
-                            ...shippingAddress,
-                            street: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                        error={!!validationErrors.street}
-                        helperText={validationErrors.street}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("City")}
-                        value={shippingAddress.city}
-                        onChange={(e) =>
-                          setShippingAddress({
-                            ...shippingAddress,
-                            city: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                        error={!!validationErrors.city}
-                        helperText={validationErrors.city}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("State/Region")}
-                        value={shippingAddress.state}
-                        onChange={(e) =>
-                          setShippingAddress({
-                            ...shippingAddress,
-                            state: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                        error={!!validationErrors.state}
-                        helperText={validationErrors.state}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <StyledTextField
-                        label={t("Postal Code")}
-                        value={shippingAddress.postalCode}
-                        onChange={(e) =>
-                          setShippingAddress({
-                            ...shippingAddress,
-                            postalCode: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                        error={!!validationErrors.postalCode}
-                        helperText={validationErrors.postalCode}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <StyledTextField
-                        label={t("Country")}
-                        value={shippingAddress.country}
-                        onChange={(e) =>
-                          setShippingAddress({
-                            ...shippingAddress,
-                            country: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        required
-                        error={!!validationErrors.country}
-                        helperText={validationErrors.country}
-                      />
-                    </Grid>
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
+                    {["street", "city", "state", "postalCode", "country"].map(
+                      (field) => (
+                        <Grid
+                          item
+                          xs={12}
+                          sm={field === "country" ? 12 : 6}
+                          key={field}
+                        >
+                          <StyledTextField
+                            label={t(
+                              field.charAt(0).toUpperCase() + field.slice(1)
+                            )}
+                            value={shippingAddress[field]}
+                            onChange={(e) =>
+                              setShippingAddress({
+                                ...shippingAddress,
+                                [field]: e.target.value,
+                              })
+                            }
+                            fullWidth
+                            required
+                            error={!!validationErrors[field]}
+                            helperText={validationErrors[field]}
+                          />
+                        </Grid>
+                      )
+                    )}
                   </Grid>
                 </Collapse>
               </CardContent>
             </CartCard>
-
-            {/* Billing Address */}
-            <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
-              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+            <CartCard sx={{ mt: 3 }}>
+              <CardContent sx={{ p: 2 }}>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    cursor: "pointer",
                   }}
                   onClick={() => setBillingAddressOpen(!billingAddressOpen)}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "#111",
-                      fontWeight: 600,
-                      fontSize: { xs: "1rem", sm: "1.25rem" },
-                    }}
-                  >
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {t("Billing Address")}
                   </Typography>
                   <ActionButton
@@ -1021,7 +850,7 @@ function Cart() {
                   </ActionButton>
                 </Box>
                 <Collapse in={billingAddressOpen}>
-                  <Box sx={{ mt: 1 }}>
+                  <Box sx={{ mt: 2 }}>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -1029,97 +858,43 @@ function Cart() {
                           onChange={(e) =>
                             setBillingSameAsShipping(e.target.checked)
                           }
-                          sx={{
-                            color: "#1976d2",
-                            "&.Mui-checked": { color: "#1976d2" },
-                          }}
                         />
                       }
-                      label={t("Same as shipping address")}
-                      sx={{ mb: 1, fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                      label={t("Same as shipping")}
                     />
                     {!billingSameAsShipping && (
-                      <Grid container spacing={isMobile ? 1 : 2}>
-                        <Grid item xs={12} sm={6}>
-                          <StyledTextField
-                            label={t("Street")}
-                            value={billingAddress.street}
-                            onChange={(e) =>
-                              setBillingAddress({
-                                ...billingAddress,
-                                street: e.target.value,
-                              })
-                            }
-                            fullWidth
-                            required
-                            error={!!validationErrors.street}
-                            helperText={validationErrors.street}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <StyledTextField
-                            label={t("City")}
-                            value={billingAddress.city}
-                            onChange={(e) =>
-                              setBillingAddress({
-                                ...billingAddress,
-                                city: e.target.value,
-                              })
-                            }
-                            fullWidth
-                            required
-                            error={!!validationErrors.city}
-                            helperText={validationErrors.city}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <StyledTextField
-                            label={t("State/Region")}
-                            value={billingAddress.state}
-                            onChange={(e) =>
-                              setBillingAddress({
-                                ...billingAddress,
-                                state: e.target.value,
-                              })
-                            }
-                            fullWidth
-                            required
-                            error={!!validationErrors.state}
-                            helperText={validationErrors.state}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <StyledTextField
-                            label={t("Postal Code")}
-                            value={billingAddress.postalCode}
-                            onChange={(e) =>
-                              setBillingAddress({
-                                ...billingAddress,
-                                postalCode: e.target.value,
-                              })
-                            }
-                            fullWidth
-                            required
-                            error={!!validationErrors.postalCode}
-                            helperText={validationErrors.postalCode}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <StyledTextField
-                            label={t("Country")}
-                            value={billingAddress.country}
-                            onChange={(e) =>
-                              setBillingAddress({
-                                ...billingAddress,
-                                country: e.target.value,
-                              })
-                            }
-                            fullWidth
-                            required
-                            error={!!validationErrors.country}
-                            helperText={validationErrors.country}
-                          />
-                        </Grid>
+                      <Grid container spacing={2} sx={{ mt: 1 }}>
+                        {[
+                          "street",
+                          "city",
+                          "state",
+                          "postalCode",
+                          "country",
+                        ].map((field) => (
+                          <Grid
+                            item
+                            xs={12}
+                            sm={field === "country" ? 12 : 6}
+                            key={field}
+                          >
+                            <StyledTextField
+                              label={t(
+                                field.charAt(0).toUpperCase() + field.slice(1)
+                              )}
+                              value={billingAddress[field]}
+                              onChange={(e) =>
+                                setBillingAddress({
+                                  ...billingAddress,
+                                  [field]: e.target.value,
+                                })
+                              }
+                              fullWidth
+                              required
+                              error={!!validationErrors[field]}
+                              helperText={validationErrors[field]}
+                            />
+                          </Grid>
+                        ))}
                       </Grid>
                     )}
                   </Box>
@@ -1127,21 +902,12 @@ function Cart() {
               </CardContent>
             </CartCard>
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <CartCard
-              sx={{ position: { xs: "static", md: "sticky" }, top: 20 }}
-            >
-              <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+            <CartCard sx={{ position: "sticky", top: 20 }}>
+              <CardContent sx={{ p: 2 }}>
                 <Typography
                   variant="h6"
-                  sx={{
-                    color: "#111",
-                    fontWeight: 600,
-                    mb: 2,
-                    textAlign: "center",
-                    fontSize: { xs: "1rem", sm: "1.25rem" },
-                  }}
+                  sx={{ fontWeight: 600, mb: 2, textAlign: "center" }}
                 >
                   {t("Order Summary")}
                 </Typography>
@@ -1152,14 +918,8 @@ function Cart() {
                     mb: 1,
                   }}
                 >
-                  <Typography
-                    sx={{ color: "#555", fontSize: { xs: 14, sm: 16 } }}
-                  >
-                    {t("Subtotal")}:
-                  </Typography>
-                  <Typography
-                    sx={{ color: "#111", fontSize: { xs: 14, sm: 16 } }}
-                  >
+                  <Typography>{t("Subtotal")}:</Typography>
+                  <Typography>
                     $
                     {(
                       Object.values(groupedItems.bundles).reduce(
@@ -1181,14 +941,10 @@ function Cart() {
                       mb: 1,
                     }}
                   >
-                    <Typography
-                      sx={{ color: "#555", fontSize: { xs: 14, sm: 16 } }}
-                    >
-                      {t("Discount Code")} ({discount}%):
+                    <Typography>
+                      {t("Discount")} ({discount}%):
                     </Typography>
-                    <Typography
-                      sx={{ color: "#d32f2f", fontSize: { xs: 14, sm: 16 } }}
-                    >
+                    <Typography sx={{ color: "#d32f2f" }}>
                       -$
                       {(
                         (Object.values(groupedItems.bundles).reduce(
@@ -1212,39 +968,20 @@ function Cart() {
                     mb: 2,
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: "#111",
-                      fontSize: { xs: 16, sm: 18 },
-                    }}
-                  >
+                  <Typography sx={{ fontWeight: 600 }}>
                     {t("Total")}:
                   </Typography>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: "#111",
-                      fontSize: { xs: 16, sm: 18 },
-                    }}
-                  >
+                  <Typography sx={{ fontWeight: 600 }}>
                     ${calculateTotal()}
                   </Typography>
                 </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 1,
-                    mb: 2,
-                    flexDirection: { xs: "column", sm: "row" },
-                  }}
-                >
+                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
                   <StyledTextField
                     label={t("Discount Code")}
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)}
                     size="small"
-                    sx={{ flexGrow: 1 }}
+                    fullWidth
                   />
                   <Button
                     variant="contained"
@@ -1252,8 +989,6 @@ function Cart() {
                     sx={{
                       bgcolor: "#1976d2",
                       "&:hover": { bgcolor: "#1565c0" },
-                      px: { xs: 2, sm: 3 },
-                      py: 1,
                     }}
                   >
                     {t("Apply")}
@@ -1265,7 +1000,6 @@ function Cart() {
                     sx={{
                       mb: 2,
                       textAlign: "center",
-                      fontSize: { xs: 12, sm: 14 },
                       bgcolor: "#ffebee",
                       p: 1,
                       borderRadius: 2,
