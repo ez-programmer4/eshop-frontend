@@ -696,13 +696,15 @@ function Cart() {
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        <ActionButton
-                          onClick={() =>
-                            handleDecreaseQuantity(bundle.bundleId, true)
-                          }
-                        >
-                          <RemoveIcon />
-                        </ActionButton>
+                        {bundle.quantity > 1 && (
+                          <ActionButton
+                            onClick={() =>
+                              handleDecreaseQuantity(bundle.bundleId, true)
+                            }
+                          >
+                            <RemoveIcon />
+                          </ActionButton>
+                        )}
                         <Typography sx={{ fontWeight: 500 }}>
                           {bundle.quantity}
                         </Typography>
