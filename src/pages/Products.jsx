@@ -38,9 +38,14 @@ const pulse = keyframes`
 `;
 
 const ribbonPulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1) rotate(-45deg); }
+  50% { transform: scale(1.03) rotate(-45deg); }
+  100% { transform: scale(1) rotate(-45deg); }
+`;
+
+const shine = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 `;
 
 // Custom styled components
@@ -48,10 +53,11 @@ const ProductsContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1400,
   margin: "auto",
   padding: theme.spacing(2),
-  backgroundColor: "#f7f7f7",
-  borderRadius: "12px",
+  background: "linear-gradient(180deg, #fdf6e9 0%, #f5e8d3 100%)", // Soft cream/beige gradient
+  borderRadius: "16px",
   minHeight: "80vh",
   animation: `${slideIn} 0.5s ease-out`,
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1),
   },
@@ -71,51 +77,82 @@ const ProductCard = styled(Card)(({ theme }) => ({
 
 const GiftBoxCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  borderRadius: "16px",
-  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
-  background: "linear-gradient(135deg, #ff6f61 0%, #ffccbc 100%)", // Gift box gradient
+  borderRadius: "20px",
+  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+  background: "linear-gradient(145deg, #ff5e62 0%, #ff9966 100%)", // Vibrant gift gradient
   overflow: "hidden",
-  transition: "transform 0.3s",
+  transition: "transform 0.4s ease, box-shadow 0.4s ease",
   "&:hover": {
-    transform: "scale(1.03)",
+    transform: "scale(1.04) rotate(1deg)",
+    boxShadow: "0 12px 35px rgba(0, 0, 0, 0.2)",
   },
   "&:before": {
     content: '""',
     position: "absolute",
-    top: "-10%",
-    left: "50%",
-    width: "120%",
-    height: "120%",
-    background: "rgba(255, 255, 255, 0.1)",
-    transform: "translateX(-50%) rotate(45deg)",
-    animation: `${ribbonPulse} 2s infinite`,
+    top: 0,
+    left: "-100%",
+    width: "300%",
+    height: "100%",
+    background:
+      "linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+    animation: `${shine} 3s infinite`,
   },
   [theme.breakpoints.down("sm")]: {
-    borderRadius: "12px",
+    borderRadius: "16px",
   },
 }));
 
 const Ribbon = styled(Box)(({ theme }) => ({
   position: "absolute",
-  top: "10px",
-  left: "-40px",
-  width: "150px",
-  height: "30px",
-  backgroundColor: "#ffd700", // Gold ribbon
+  top: "15px",
+  left: "-50px",
+  width: "180px",
+  height: "40px",
+  background: "linear-gradient(90deg, #ffd700, #ffec80)", // Gold gradient ribbon
   transform: "rotate(-45deg)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: "#111",
-  fontWeight: 600,
-  fontSize: "0.9rem",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-  zIndex: 1,
+  color: "#333",
+  fontWeight: 700,
+  fontSize: "1rem",
+  boxShadow: "0 3px 8px rgba(0, 0, 0, 0.2)",
+  animation: `${ribbonPulse} 2s infinite`,
+  zIndex: 2,
+  textTransform: "uppercase",
+  letterSpacing: "1px",
   [theme.breakpoints.down("sm")]: {
-    width: "120px",
-    height: "25px",
-    fontSize: "0.75rem",
-    left: "-30px",
+    width: "140px",
+    height: "30px",
+    fontSize: "0.85rem",
+    left: "-40px",
+  },
+}));
+
+const Bow = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  bottom: "10px",
+  right: "10px",
+  width: "40px",
+  height: "40px",
+  background: "radial-gradient(circle, #ff4040 20%, #ff8080 70%)", // Bow-like effect
+  borderRadius: "50%",
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+  zIndex: 1,
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "20px",
+    height: "20px",
+    background: "#fff",
+    borderRadius: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: "30px",
+    height: "30px",
   },
 }));
 
@@ -138,23 +175,23 @@ const ActionButton = styled(Button)(({ theme }) => ({
 
 const BundleButton = styled(Button)(({ theme, added }) => ({
   backgroundColor: added ? "#4caf50" : "#ffffff",
-  color: added ? "#fff" : "#ff6f61",
+  color: added ? "#fff" : "#ff5e62",
   padding: theme.spacing(1.5, 3),
-  borderRadius: "10px",
+  borderRadius: "12px",
   fontWeight: 700,
   fontSize: { xs: "0.85rem", sm: "1rem" },
   textTransform: "uppercase",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
-  border: `2px solid ${added ? "#4caf50" : "#ff6f61"}`,
+  boxShadow: "0 3px 10px rgba(0, 0, 0, 0.15)",
+  border: `3px solid ${added ? "#4caf50" : "#ff5e62"}`,
   "&:hover": {
-    backgroundColor: added ? "#388e3c" : "#ffebee",
+    backgroundColor: added ? "#388e3c" : "#fff0f0",
     animation: `${pulse} 0.5s infinite`,
   },
+  transition: "background-color 0.3s, transform 0.3s",
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1, 2),
     fontSize: "0.8rem",
   },
-  transition: "background-color 0.3s",
 }));
 
 const FavoriteButton = styled(IconButton)(({ theme, active }) => ({
@@ -280,10 +317,11 @@ function Products() {
       <Typography
         variant={isMobile ? "h6" : "h4"}
         sx={{
-          color: "#111",
+          color: "#333",
           fontWeight: 700,
           textAlign: "center",
           mb: isMobile ? 2 : 4,
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
         }}
       >
         {t("Bundles")}
@@ -297,14 +335,14 @@ function Products() {
           }}
         >
           <CircularProgress
-            sx={{ color: "#f0c14b" }}
+            sx={{ color: "#ff9966" }}
             size={isMobile ? 30 : 40}
           />
         </Box>
       ) : bundles.length === 0 ? (
         <Typography
           sx={{
-            color: "#555",
+            color: "#666",
             textAlign: "center",
             py: isMobile ? 2 : 4,
             fontSize: { xs: 12, sm: 16 },
@@ -318,26 +356,28 @@ function Products() {
             <Grid item xs={12} sm={6} md={4} key={bundle._id}>
               <GiftBoxCard>
                 <Ribbon>{t("Gift Bundle")}</Ribbon>
+                <Bow />
                 <CardContent
                   sx={{ position: "relative", zIndex: 2, color: "#fff" }}
                 >
                   <Typography
                     variant="h6"
                     sx={{
-                      fontWeight: 600,
-                      mb: 1,
-                      textShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
+                      fontWeight: 700,
+                      mb: 1.5,
+                      textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                      letterSpacing: "0.5px",
                     }}
                   >
                     {bundle.name || t("Unnamed Bundle")}
                   </Typography>
                   <Typography
-                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.9 }}
+                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.95 }}
                   >
                     {bundle.description || t("No description")}
                   </Typography>
                   <Typography
-                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.9 }}
+                    sx={{ fontSize: { xs: 12, sm: 14 }, mb: 1, opacity: 0.95 }}
                   >
                     {t("Products")}:{" "}
                     {(bundle.products || [])
@@ -346,15 +386,20 @@ function Products() {
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: { xs: 12, sm: 14 },
+                      fontSize: { xs: 14, sm: 16 },
                       mb: 1,
                       fontWeight: 600,
+                      color: "#ffd700",
                     }}
                   >
                     {t("Save")}: {bundle.discount || 0}%
                   </Typography>
                   <Typography
-                    sx={{ fontWeight: 700, fontSize: { xs: 16, sm: 18 } }}
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: { xs: 18, sm: 20 },
+                      textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                    }}
                   >
                     ${bundle.price || "N/A"}
                   </Typography>
@@ -379,14 +424,15 @@ function Products() {
       )}
 
       {/* Products Section */}
-      <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#eee" }} />
+      <Divider sx={{ my: isMobile ? 2 : 4, bgcolor: "#ddd" }} />
       <Typography
         variant={isMobile ? "h6" : "h4"}
         sx={{
-          color: "#111",
+          color: "#333",
           fontWeight: 700,
           textAlign: "center",
           mb: isMobile ? 2 : 4,
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
         }}
       >
         {t("Products")}
@@ -400,14 +446,14 @@ function Products() {
           }}
         >
           <CircularProgress
-            sx={{ color: "#f0c14b" }}
+            sx={{ color: "#ff9966" }}
             size={isMobile ? 30 : 40}
           />
         </Box>
       ) : products.length === 0 ? (
         <Typography
           sx={{
-            color: "#555",
+            color: "#666",
             textAlign: "center",
             py: isMobile ? 2 : 4,
             fontSize: { xs: 12, sm: 16 },
@@ -432,7 +478,7 @@ function Products() {
                     variant="h6"
                     sx={{
                       fontWeight: 500,
-                      color: "#111",
+                      color: "#333",
                       fontSize: { xs: 14, sm: 16 },
                       mb: 1,
                     }}
@@ -441,7 +487,7 @@ function Products() {
                   </Typography>
                   <Typography
                     sx={{
-                      color: "#111",
+                      color: "#333",
                       fontWeight: 600,
                       fontSize: { xs: 14, sm: 16 },
                       mb: 1,
@@ -450,7 +496,7 @@ function Products() {
                     ${product.price || "N/A"}
                   </Typography>
                   <Typography
-                    sx={{ color: "#555", fontSize: { xs: 12, sm: 14 } }}
+                    sx={{ color: "#666", fontSize: { xs: 12, sm: 14 } }}
                   >
                     {t(product.category || "Uncategorized")}
                   </Typography>
