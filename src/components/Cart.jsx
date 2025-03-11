@@ -174,28 +174,31 @@ function Cart() {
     const bundles = {};
     const singles = [];
 
+    const processedBundleIds = new Set(); // Track processed bundles
+
     cart.forEach((item) => {
-      if (item.bundle && item.bundle.bundleId) {
+      if (
+        item.bundle &&
+        item.bundle.bundleId &&
+        !processedBundleIds.has(item.bundle.bundleId)
+      ) {
         const bundleId = item.bundle.bundleId;
-        if (!bundles[bundleId]) {
-          bundles[bundleId] = {
-            bundleId,
-            name: item.bundle.name,
-            discount: item.bundle.discount || 0,
-            price: item.bundle.bundlePrice || 0,
-            quantity: 0, // Single quantity for the bundle
-            items: [],
-          };
-        }
-        bundles[bundleId].quantity = Math.max(
-          bundles[bundleId].quantity,
-          item.quantity
-        );
-        bundles[bundleId].items.push({
-          ...item.product,
-          cartItemId: item._id || item.productId,
-        });
-      } else {
+        const bundleItems = cart.filter((i) => i.bundle?.bundleId === bundleId);
+        const totalQuantity = Math.min(...bundleItems.map((i) => i.quantity)); // Use min quantity across items
+
+        bundles[bundleId] = {
+          bundleId,
+          name: item.bundle.name,
+          discount: item.bundle.discount || 0,
+          price: item.bundle.bundlePrice || 0,
+          quantity: totalQuantity, // Single quantity for the bundle
+          items: bundleItems.map((bi) => ({
+            ...bi.product,
+            cartItemId: bi._id || bi.productId,
+          })),
+        };
+        processedBundleIds.add(bundleId);
+      } else if (!item.bundle) {
         singles.push({
           ...item.product,
           quantity: item.quantity,
@@ -206,7 +209,6 @@ function Cart() {
 
     setGroupedItems({ bundles, singles });
   }, [cart]);
-
   const handleRemoveSingle = (cartItemId) => {
     removeFromCart(cartItemId);
   };
@@ -219,8 +221,8 @@ function Cart() {
   const handleIncreaseQuantity = (id, isBundle = false) => {
     if (isBundle) {
       const bundle = groupedItems.bundles[id];
-      const bundleItems = bundle.items;
-      bundleItems.forEach((item) =>
+      // Increase all items in the bundle simultaneously
+      bundle.items.forEach((item) =>
         updateQuantity(item.cartItemId, bundle.quantity + 1)
       );
     } else {
@@ -232,12 +234,13 @@ function Cart() {
   const handleDecreaseQuantity = (id, isBundle = false) => {
     if (isBundle) {
       const bundle = groupedItems.bundles[id];
-      const bundleItems = bundle.items;
       if (bundle.quantity > 1) {
-        bundleItems.forEach((item) =>
+        // Decrease all items in the bundle simultaneously
+        bundle.items.forEach((item) =>
           updateQuantity(item.cartItemId, bundle.quantity - 1)
         );
       } else {
+        // Remove the entire bundle when quantity reaches 0
         handleRemoveBundle(id);
       }
     } else {
@@ -719,6 +722,7 @@ function Cart() {
                       </Box>
                     </ListItem>
                   ))}
+                  {/* Singles rendering remains unchanged */}
                   {groupedItems.singles.map((item) => (
                     <ListItem
                       key={item.cartItemId}
