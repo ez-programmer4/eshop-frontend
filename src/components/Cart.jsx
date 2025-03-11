@@ -40,15 +40,13 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// Initialize Stripe with error handling
 const stripePromise = loadStripe(
-  "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3dR430ok9900C8ATrI9w"
+  "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3Ah3dR430ok9900C8ATrI9w"
 ).catch((err) => {
   console.error("Failed to load Stripe.js:", err);
-  return null; // Fallback to null if Stripe fails
+  return null;
 });
 
-// Animation keyframes
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -60,7 +58,6 @@ const bounce = keyframes`
   100% { transform: scale(1); }
 `;
 
-// Styled components with enhanced design
 const CartCard = styled(Card)(({ theme }) => ({
   borderRadius: "16px",
   boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
@@ -107,10 +104,7 @@ const RemoveButton = styled(Button)(({ theme }) => ({
 const ActionButton = styled(IconButton)(({ theme }) => ({
   color: "#1976d2",
   padding: theme.spacing(1),
-  "&:hover": {
-    backgroundColor: "#e3f2fd",
-    transform: "scale(1.1)",
-  },
+  "&:hover": { backgroundColor: "#e3f2fd", transform: "scale(1.1)" },
   transition: "all 0.2s ease",
 }));
 
@@ -123,10 +117,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     "&:hover fieldset": { borderColor: "#999" },
     "&.Mui-focused fieldset": { borderColor: "#1976d2" },
   },
-  "& .MuiInputLabel-root": {
-    color: "#555",
-    fontWeight: 500,
-  },
+  "& .MuiInputLabel-root": { color: "#555", fontWeight: 500 },
 }));
 
 function Cart() {
@@ -169,11 +160,9 @@ function Cart() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Group cart items, treating bundles as indivisible
   useEffect(() => {
     const bundles = {};
     const singles = [];
-
     const processedBundleIds = new Set();
 
     cart.forEach((item) => {
@@ -184,13 +173,12 @@ function Cart() {
       ) {
         const bundleId = item.bundle.bundleId;
         const bundleItems = cart.filter((i) => i.bundle?.bundleId === bundleId);
-
         bundles[bundleId] = {
           bundleId,
           name: item.bundle.name,
           discount: item.bundle.discount || 0,
           price: item.bundle.bundlePrice || 0,
-          quantity: 1, // Fixed quantity of 1 for bundles
+          quantity: 1,
           items: bundleItems.map((bi) => ({
             ...bi.product,
             cartItemId: bi._id || bi.productId,
@@ -208,9 +196,6 @@ function Cart() {
 
     setGroupedItems({ bundles, singles });
   }, [cart]);
-  const handleRemoveSingle = (cartItemId) => {
-    removeFromCart(cartItemId);
-  };
 
   const handleRemoveBundle = (bundleId) => {
     const bundleItems = groupedItems.bundles[bundleId].items;
@@ -258,7 +243,7 @@ function Cart() {
 
   const calculateTotal = () => {
     const bundleTotal = Object.values(groupedItems.bundles).reduce(
-      (sum, bundle) => sum + (bundle.price || 0), // Quantity is always 1
+      (sum, bundle) => sum + (bundle.price || 0),
       0
     );
     const singleTotal = groupedItems.singles.reduce(
@@ -269,6 +254,7 @@ function Cart() {
     const discountAmount = subtotal * (discount / 100);
     return (subtotal - discountAmount).toFixed(2);
   };
+
   const generatePNR = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return Array(6)
@@ -280,7 +266,7 @@ function Cart() {
   const validatePhoneNumber = (value) => {
     if (paymentMethod === "telebirr") return /^09\d{8}$/.test(value);
     if (paymentMethod === "mpesa") return /^07\d{8}$/.test(value);
-    return true; // Allow empty for initial state
+    return true;
   };
 
   const handlePhoneChange = (e) => {
@@ -315,7 +301,6 @@ function Cart() {
       navigate("/login");
       return;
     }
-
     const shippingErrors = validateAddress(shippingAddress, "Shipping");
     const billingErrors = billingSameAsShipping
       ? {}
@@ -347,7 +332,7 @@ function Cart() {
         items: [
           ...Object.values(groupedItems.bundles).map((bundle) => ({
             bundleId: bundle.bundleId,
-            quantity: bundle.quantity,
+            quantity: 1, // Fixed at 1 for bundles
             price: bundle.price,
           })),
           ...groupedItems.singles.map((item) => ({
@@ -410,7 +395,7 @@ function Cart() {
               pnr: pnrCode,
             }
           );
-          if (telebirrRes.data.message) setError(telebirrRes.data.message); // Handle stub response
+          if (telebirrRes.data.message) setError(telebirrRes.data.message);
           await createOrder({ method: "telebirr" });
           break;
         case "mpesa":
@@ -422,7 +407,7 @@ function Cart() {
               pnr: pnrCode,
             }
           );
-          if (mpesaRes.data.message) setError(mpesaRes.data.message); // Handle stub response
+          if (mpesaRes.data.message) setError(mpesaRes.data.message);
           await createOrder({ method: "mpesa" });
           break;
         case "stripe":
@@ -445,7 +430,6 @@ function Cart() {
         setError(t("Select a payment method"));
         return;
       }
-
       if (
         paymentMethod === "stripe" &&
         (!stripe || !elements || !clientSecret)
@@ -889,7 +873,7 @@ function Cart() {
                     $
                     {(
                       Object.values(groupedItems.bundles).reduce(
-                        (sum, b) => sum + b.price * b.quantity,
+                        (sum, b) => sum + b.price,
                         0
                       ) +
                       groupedItems.singles.reduce(
@@ -914,7 +898,7 @@ function Cart() {
                       -$
                       {(
                         (Object.values(groupedItems.bundles).reduce(
-                          (sum, b) => sum + b.price * b.quantity,
+                          (sum, b) => sum + b.price,
                           0
                         ) +
                           groupedItems.singles.reduce(
