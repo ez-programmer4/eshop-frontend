@@ -174,7 +174,7 @@ function Cart() {
     const bundles = {};
     const singles = [];
 
-    const processedBundleIds = new Set(); // Track processed bundles
+    const processedBundleIds = new Set();
 
     cart.forEach((item) => {
       if (
@@ -184,14 +184,13 @@ function Cart() {
       ) {
         const bundleId = item.bundle.bundleId;
         const bundleItems = cart.filter((i) => i.bundle?.bundleId === bundleId);
-        const totalQuantity = Math.min(...bundleItems.map((i) => i.quantity)); // Use min quantity across items
 
         bundles[bundleId] = {
           bundleId,
           name: item.bundle.name,
           discount: item.bundle.discount || 0,
           price: item.bundle.bundlePrice || 0,
-          quantity: totalQuantity, // Single quantity for the bundle
+          quantity: 1, // Fixed quantity of 1 for bundles
           items: bundleItems.map((bi) => ({
             ...bi.product,
             cartItemId: bi._id || bi.productId,
@@ -218,38 +217,21 @@ function Cart() {
     bundleItems.forEach((item) => removeFromCart(item.cartItemId));
   };
 
-  const handleIncreaseQuantity = (id, isBundle = false) => {
-    if (isBundle) {
-      const bundle = groupedItems.bundles[id];
-      // Increase all items in the bundle simultaneously
-      bundle.items.forEach((item) =>
-        updateQuantity(item.cartItemId, bundle.quantity + 1)
-      );
-    } else {
-      const item = cart.find((i) => i._id === id || i.productId === id);
-      if (item) updateQuantity(id, item.quantity + 1);
-    }
+  const handleRemoveSingle = (cartItemId) => {
+    removeFromCart(cartItemId);
   };
 
-  const handleDecreaseQuantity = (id, isBundle = false) => {
-    if (isBundle) {
-      const bundle = groupedItems.bundles[id];
-      if (bundle.quantity > 1) {
-        // Decrease all items in the bundle simultaneously
-        bundle.items.forEach((item) =>
-          updateQuantity(item.cartItemId, bundle.quantity - 1)
-        );
-      } else {
-        // Remove the entire bundle when quantity reaches 0
-        handleRemoveBundle(id);
-      }
-    } else {
-      const item = cart.find((i) => i._id === id || i.productId === id);
-      if (item && item.quantity > 1) {
-        updateQuantity(id, item.quantity - 1);
-      } else {
-        removeFromCart(id);
-      }
+  const handleIncreaseQuantity = (id) => {
+    const item = cart.find((i) => i._id === id || i.productId === id);
+    if (item) updateQuantity(id, item.quantity + 1);
+  };
+
+  const handleDecreaseQuantity = (id) => {
+    const item = cart.find((i) => i._id === id || i.productId === id);
+    if (item && item.quantity > 1) {
+      updateQuantity(id, item.quantity - 1);
+    } else if (item) {
+      removeFromCart(id);
     }
   };
 
@@ -276,7 +258,7 @@ function Cart() {
 
   const calculateTotal = () => {
     const bundleTotal = Object.values(groupedItems.bundles).reduce(
-      (sum, bundle) => sum + (bundle.price || 0) * bundle.quantity,
+      (sum, bundle) => sum + (bundle.price || 0), // Quantity is always 1
       0
     );
     const singleTotal = groupedItems.singles.reduce(
@@ -287,7 +269,6 @@ function Cart() {
     const discountAmount = subtotal * (discount / 100);
     return (subtotal - discountAmount).toFixed(2);
   };
-
   const generatePNR = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return Array(6)
@@ -686,9 +667,8 @@ function Cart() {
                               {bundle.items.map((item) => item.name).join(", ")}
                             </Typography>
                             <Typography sx={{ color: "#666" }}>
-                              ${calculateBundlePrice(bundle)} x{" "}
-                              {bundle.quantity} ({t("Save")}: {bundle.discount}
-                              %)
+                              ${calculateBundlePrice(bundle)} ({t("Save")}:{" "}
+                              {bundle.discount}%)
                             </Typography>
                           </Box>
                         }
@@ -696,25 +676,6 @@ function Cart() {
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        {bundle.quantity > 1 && (
-                          <ActionButton
-                            onClick={() =>
-                              handleDecreaseQuantity(bundle.bundleId, true)
-                            }
-                          >
-                            <RemoveIcon />
-                          </ActionButton>
-                        )}
-                        <Typography sx={{ fontWeight: 500 }}>
-                          {bundle.quantity}
-                        </Typography>
-                        <ActionButton
-                          onClick={() =>
-                            handleIncreaseQuantity(bundle.bundleId, true)
-                          }
-                        >
-                          <AddIcon />
-                        </ActionButton>
                         <RemoveButton
                           variant="outlined"
                           onClick={() => handleRemoveBundle(bundle.bundleId)}
@@ -724,7 +685,6 @@ function Cart() {
                       </Box>
                     </ListItem>
                   ))}
-                  {/* Singles rendering remains unchanged */}
                   {groupedItems.singles.map((item) => (
                     <ListItem
                       key={item.cartItemId}
