@@ -59,7 +59,7 @@ const bounce = keyframes`
 // Custom styled components (unchanged styles omitted for brevity)
 const CartCard = styled(Card)(({ theme }) => ({
   borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba QualificationError(0, 0, 0, 0.1)",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   backgroundColor: "#fff",
   animation: `${slideIn} 0.5s ease-out`,
   "&:hover": {
@@ -131,6 +131,8 @@ function Cart() {
   const [pnrCode, setPnrCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [shippingAddressOpen, setShippingAddressOpen] = useState(true); // Added back
+  const [billingAddressOpen, setBillingAddressOpen] = useState(false); // Added back
   const [shippingAddress, setShippingAddress] = useState({
     street: "",
     city: "",
@@ -168,7 +170,7 @@ function Cart() {
         bundles[item.bundle.bundleId].items.push({
           ...item.product,
           quantity: item.quantity,
-          cartItemId: item._id || item.productId, // Unique ID for cart item
+          cartItemId: item._id || item.productId,
         });
       } else {
         singles.push({
@@ -249,7 +251,7 @@ function Cart() {
   };
 
   const calculateBundlePrice = (bundle) => {
-    return (bundle.price || 0).toFixed(2); // Use bundlePrice directly
+    return (bundle.price || 0).toFixed(2);
   };
 
   const calculateTotal = () => {
@@ -867,7 +869,7 @@ function Cart() {
               </CardContent>
             </CartCard>
 
-            {/* Shipping and Billing Address sections remain unchanged */}
+            {/* Shipping Address */}
             <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
               <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Box
@@ -986,6 +988,7 @@ function Cart() {
               </CardContent>
             </CartCard>
 
+            {/* Billing Address */}
             <CartCard sx={{ mt: isMobile ? 1 : 3 }}>
               <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
                 <Box
