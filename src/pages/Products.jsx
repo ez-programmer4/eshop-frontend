@@ -277,30 +277,30 @@ function Products() {
     }
   };
 
+  // Products.jsx (partial update)
   const handleAddBundleToCart = async (bundle) => {
     if (!user) {
       navigate("/login");
       return;
     }
-
     const productIds = (bundle.products || [])
       .map((product) => product._id || product.productId)
       .filter(Boolean);
-
     if (productIds.length === 0) {
       console.error("No valid product IDs found in bundle:", bundle);
       return;
     }
-
     try {
-      for (const productId of productIds) {
-        await addToCart(productId, {
-          bundleId: bundle._id,
-          name: bundle.name,
-          discount: bundle.discount || 0,
-          bundlePrice: bundle.price,
-        });
-      }
+      await Promise.all(
+        productIds.map((productId) =>
+          addToCart(productId, {
+            bundleId: bundle._id,
+            name: bundle.name,
+            discount: bundle.discount || 0,
+            bundlePrice: bundle.price,
+          })
+        )
+      );
       setAddedBundles((prev) => ({ ...prev, [bundle._id]: true }));
       setTimeout(
         () => setAddedBundles((prev) => ({ ...prev, [bundle._id]: false })),
@@ -310,7 +310,6 @@ function Products() {
       console.error("Failed to add bundle to cart:", error);
     }
   };
-
   return (
     <ProductsContainer>
       {/* Bundles Section */}

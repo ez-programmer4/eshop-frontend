@@ -125,6 +125,12 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
 
+  // Calculate total cart items (bundles + singles)
+  const totalCartItems = cart.reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0
+  );
+
   // Log user and language for debugging
   useEffect(() => {
     console.log("Navbar user:", user);
@@ -245,7 +251,7 @@ function Navbar() {
         }}
       >
         <ListItemIcon sx={{ color: "#111" }}>
-          <Badge badgeContent={cart.length} color="error">
+          <Badge badgeContent={totalCartItems} color="error">
             <ShoppingCartIcon />
           </Badge>
         </ListItemIcon>
@@ -376,7 +382,7 @@ function Navbar() {
             title={t("Cart")}
             animate={cartAnimate}
           >
-            <Badge badgeContent={cart.length} color="error">
+            <Badge badgeContent={totalCartItems} color="error">
               <ShoppingCartIcon />
             </Badge>
           </CartIconButton>

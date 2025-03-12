@@ -197,9 +197,21 @@ function Cart() {
     setGroupedItems({ bundles, singles });
   }, [cart]);
 
-  const handleRemoveBundle = (bundleId) => {
+  const handleRemoveBundle = async (bundleId) => {
     const bundleItems = groupedItems.bundles[bundleId].items;
-    bundleItems.forEach((item) => removeFromCart(item.cartItemId));
+    try {
+      await Promise.all(
+        bundleItems.map((item) => removeFromCart(item.cartItemId))
+      );
+      // Ensure state reflects removal
+      setGroupedItems((prev) => {
+        const newBundles = { ...prev.bundles };
+        delete newBundles[bundleId];
+        return { ...prev, bundles: newBundles };
+      });
+    } catch (error) {
+      console.error("Failed to remove bundle:", error);
+    }
   };
 
   const handleRemoveSingle = (cartItemId) => {
