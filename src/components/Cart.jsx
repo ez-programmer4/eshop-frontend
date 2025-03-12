@@ -376,6 +376,15 @@ function Cart() {
   };
 
   const handlePayment = async () => {
+    console.log("User object:", user);
+    console.log("Token:", user?.token);
+    const headers = { Authorization: `Bearer ${user?.token}` };
+    console.log("Headers being sent:", headers);
+    if (!user?.token) {
+      navigate("/login");
+      setError(t("Please log in to proceed with payment"));
+      return;
+    }
     if (
       ["telebirr", "mpesa"].includes(paymentMethod) &&
       !validatePhoneNumber(phoneNumber)
@@ -389,11 +398,8 @@ function Cart() {
         case "telebirr":
           const telebirrRes = await axios.post(
             "https://eshop-backend-e11f.onrender.com/api/telebirr/pay",
-            {
-              amount: total,
-              phone: phoneNumber,
-              pnr: pnrCode,
-            }
+            { amount: total, phone: phoneNumber, pnr: pnrCode },
+            { headers }
           );
           if (telebirrRes.data.message) setError(telebirrRes.data.message);
           await createOrder({ method: "telebirr" });
@@ -401,11 +407,8 @@ function Cart() {
         case "mpesa":
           const mpesaRes = await axios.post(
             "https://eshop-backend-e11f.onrender.com/api/mpesa/pay",
-            {
-              amount: total,
-              phone: phoneNumber,
-              pnr: pnrCode,
-            }
+            { amount: total, phone: phoneNumber, pnr: pnrCode },
+            { headers }
           );
           if (mpesaRes.data.message) setError(mpesaRes.data.message);
           await createOrder({ method: "mpesa" });
@@ -416,10 +419,10 @@ function Cart() {
           setError(t("Select a payment method"));
       }
     } catch (err) {
+      console.error("Payment error:", err.response?.data || err.message);
       setError(err.response?.data.message || t("Payment failed"));
     }
   };
-
   const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
