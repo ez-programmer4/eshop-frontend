@@ -13,9 +13,12 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://eshop-backend-e11f.onrender.com/api/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/cart",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCart(response.data.items || []);
     } catch (error) {
       console.error("Failed to fetch cart:", error);
@@ -38,7 +41,9 @@ export const CartProvider = ({ children }) => {
         const existingItemIndex = prevCart.findIndex(
           (item) =>
             item.productId === productId &&
-            (bundleData ? item.bundle?.bundleId === bundleData.bundleId : !item.bundle)
+            (bundleData
+              ? item.bundle?.bundleId === bundleData.bundleId
+              : !item.bundle)
         );
         if (existingItemIndex > -1) {
           const updatedCart = [...prevCart];
@@ -55,9 +60,12 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (cartItemId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`https://eshop-backend-e11f.onrender.com/api/cart/remove/${cartItemId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/cart/remove/${cartItemId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCart((prevCart) => prevCart.filter((item) => item._id !== cartItemId));
     } catch (error) {
       console.error("Failed to remove from cart:", error);
@@ -70,10 +78,12 @@ export const CartProvider = ({ children }) => {
       await axios.put(
         `https://eshop-backend-e11f.onrender.com/api/cart/update/${cartItemId}`,
         { quantity },
-        { headers: { Authorization: `Bearer ${token}` },
+        { headers: { Authorization: `Bearer ${token}` } } // Fixed syntax here
       );
       setCart((prevCart) =>
-        prevCart.map((item) => (item._id === cartItemId ? { ...item, quantity } : item))
+        prevCart.map((item) =>
+          item._id === cartItemId ? { ...item, quantity } : item
+        )
       );
     } catch (error) {
       console.error("Failed to update quantity:", error);
@@ -81,7 +91,9 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, setCart }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, removeFromCart, updateQuantity, setCart }}
+    >
       {children}
     </CartContext.Provider>
   );
