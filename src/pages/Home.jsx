@@ -29,7 +29,7 @@ import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
 // Animation keyframes
 const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
@@ -38,108 +38,103 @@ const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
-const bounce = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-`;
-
 const pulse = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(255, 111, 97, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(255, 111, 97, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 111, 97, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 107, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0); }
 `;
 
-// Custom styled components
+const shine = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+// Styled Components
 const HomeContainer = styled(Box)(({ theme }) => ({
-  maxWidth: 1600,
+  maxWidth: 1440,
   margin: "0 auto",
   padding: theme.spacing(4),
-  background: "linear-gradient(180deg, #f9f9f9 0%, #dfe4ea 100%)",
+  background: "linear-gradient(180deg, #fef8f5 0%, #ebedf0 100%)",
   minHeight: "100vh",
-  animation: `${fadeIn} 1s ease-out`,
+  animation: `${fadeIn} 0.8s ease-out`,
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const StickyHeader = styled(Box)(({ theme }) => ({
   position: "sticky",
   top: 0,
-  zIndex: 1000,
-  background: "rgba(255, 255, 255, 0.97)",
-  backdropFilter: "blur(12px)",
-  padding: theme.spacing(2),
-  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
-  borderRadius: "0 0 20px 20px",
+  zIndex: 1100,
+  background: "rgba(255, 255, 255, 0.95)",
+  backdropFilter: "blur(10px)",
+  padding: theme.spacing(1.5, 2),
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
+  borderRadius: "0 0 16px 16px",
   display: "flex",
-  justifyContent: "space-between",
   alignItems: "center",
+  justifyContent: "space-between",
 }));
 
 const PromoBanner = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(90deg, #ff6f61 0%, #ffab40 100%)",
+  background: "linear-gradient(90deg, #ff6b81 0%, #ffcc70 100%)",
   color: "#fff",
   padding: theme.spacing(2),
   textAlign: "center",
-  borderRadius: "12px",
+  borderRadius: "14px",
   marginBottom: theme.spacing(4),
+  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
   animation: `${pulse} 2s infinite`,
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1.5),
-    fontSize: "0.9rem",
+    padding: theme.spacing(1),
+    fontSize: "0.85rem",
   },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ff6f61 0%, #ffab40 100%)",
-  borderRadius: "24px",
-  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.25)",
-  padding: theme.spacing(8),
+  background: "linear-gradient(135deg, #ff6b81 0%, #ffcc70 100%)",
+  borderRadius: "28px",
+  padding: theme.spacing(6),
   marginBottom: theme.spacing(4),
   textAlign: "center",
   position: "relative",
   overflow: "hidden",
+  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
   "&:before": {
     content: '""',
     position: "absolute",
-    top: "-50%",
-    left: "-50%",
-    width: "200%",
-    height: "200%",
+    top: 0,
+    left: "-100%",
+    width: "300%",
+    height: "100%",
     background:
-      "radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%)",
-    animation: `${fadeIn} 3s infinite`,
+      "linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+    animation: `${shine} 3s infinite`,
   },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(4),
-  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(4) },
 }));
 
 const FilterBar = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: theme.spacing(2),
-  padding: theme.spacing(2.5),
+  gap: theme.spacing(1.5),
+  padding: theme.spacing(2),
   backgroundColor: "#fff",
-  borderRadius: "16px",
-  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.12)",
+  borderRadius: "14px",
+  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
   flexWrap: "wrap",
   justifyContent: "space-between",
   [theme.breakpoints.down("sm")]: {
-    flexDirection: "column",
-    padding: theme.spacing(2),
+    padding: theme.spacing(1.5),
+    gap: theme.spacing(1),
   },
 }));
 
 const FilterButton = styled(IconButton)(({ theme }) => ({
-  backgroundColor: "#ffab40",
+  backgroundColor: "#ffcc70",
   color: "#fff",
-  borderRadius: "14px",
-  padding: theme.spacing(1.5),
-  "&:hover": {
-    backgroundColor: "#ff6f61",
-    transform: "rotate(15deg)",
-    transition: "all 0.3s ease",
-  },
+  borderRadius: "12px",
+  padding: theme.spacing(1),
+  "&:hover": { backgroundColor: "#ff6b81", transform: "scale(1.1)" },
+  transition: "all 0.3s ease",
 }));
 
 const SliderContainer = styled(Box)(({ theme }) => ({
@@ -147,128 +142,90 @@ const SliderContainer = styled(Box)(({ theme }) => ({
   overflow: "hidden",
   marginBottom: theme.spacing(4),
   backgroundColor: "#fff",
-  borderRadius: "24px",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
-  padding: theme.spacing(3),
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  borderRadius: "20px",
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+  padding: theme.spacing(2.5),
 }));
 
 const SlideTrack = styled(Box)(({ offset }) => ({
   display: "flex",
-  transition: "transform 0.7s ease-in-out",
+  transition: "transform 0.6s ease",
   transform: `translateX(-${offset * 100}%)`,
 }));
 
 const SlideCard = styled(Box)(({ theme }) => ({
   flex: "0 0 33.33%",
-  padding: theme.spacing(2.5),
+  padding: theme.spacing(2),
   textAlign: "center",
   backgroundColor: "#fff",
-  borderRadius: "16px",
-  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1)",
-  transition: "all 0.4s ease",
+  borderRadius: "14px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
   "&:hover": {
-    transform: "translateY(-10px)",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+    transform: "translateY(-8px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
   },
+  transition: "all 0.3s ease",
   [theme.breakpoints.down("sm")]: { flex: "0 0 100%" },
 }));
 
 const CategoryHighlight = styled(Box)(({ theme }) => ({
   backgroundColor: "#fff",
-  borderRadius: "20px",
-  padding: theme.spacing(3),
-  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px",
+  padding: theme.spacing(2.5),
+  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
   textAlign: "center",
-  transition: "transform 0.3s ease",
   "&:hover": {
-    transform: "scale(1.05)",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+    transform: "scale(1.03)",
+    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
   },
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  transition: "all 0.3s ease",
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ffab40 0%, #ff6f61 100%)",
+  background: "linear-gradient(135deg, #ffcc70 0%, #ff6b81 100%)",
   color: "#fff",
-  padding: theme.spacing(1.5, 4),
-  borderRadius: "14px",
+  padding: theme.spacing(1.2, 3),
+  borderRadius: "12px",
   fontWeight: 700,
-  fontSize: "1.1rem",
+  fontSize: "1rem",
   textTransform: "uppercase",
-  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.2)",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
   "&:hover": {
-    background: "linear-gradient(135deg, #ff6f61 0%, #ffab40 100%)",
-    transform: "translateY(-3px)",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.25)",
+    background: "linear-gradient(135deg, #ff6b81 0%, #ffcc70 100%)",
+    transform: "translateY(-2px)",
+    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.2)",
   },
+  transition: "all 0.3s ease",
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 3),
-    fontSize: "0.95rem",
+    padding: theme.spacing(1, 2),
+    fontSize: "0.9rem",
   },
 }));
 
-const TestimonialSection = styled(Box)(({ theme }) => ({
+const Section = styled(Box)(({ theme }) => ({
   backgroundColor: "#fff",
   borderRadius: "20px",
   padding: theme.spacing(4),
   marginTop: theme.spacing(4),
-  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(3),
-  },
-}));
-
-const AboutSection = styled(Box)(({ theme }) => ({
-  backgroundColor: "#fff",
-  borderRadius: "20px",
-  boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(4),
-  marginTop: theme.spacing(4),
-  animation: `${slideIn} 1s ease-out`,
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2.5) },
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #1e272e 0%, #2f3640 100%)",
+  background: "linear-gradient(135deg, #2d3436 0%, #636e72 100%)",
   color: "#fff",
-  padding: theme.spacing(6),
+  padding: theme.spacing(5),
   marginTop: theme.spacing(4),
-  textAlign: "center",
-  borderRadius: "24px 24px 0 0",
-  boxShadow: "0 -8px 24px rgba(0, 0, 0, 0.2)",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(4),
-  },
-}));
-
-const FooterLink = styled(Link)(({ theme }) => ({
-  color: "#dfe6e9",
-  textDecoration: "none",
-  fontSize: "1rem",
-  margin: theme.spacing(0, 2),
-  "&:hover": {
-    color: "#ffab40",
-    textDecoration: "underline",
-    transition: "all 0.3s ease",
-  },
+  borderRadius: "20px 20px 0 0",
+  boxShadow: "0 -6px 20px rgba(0, 0, 0, 0.15)",
 }));
 
 const SocialIcon = styled(IconButton)(({ theme }) => ({
   color: "#fff",
-  background: "rgba(255, 255, 255, 0.2)",
-  padding: theme.spacing(1.5),
-  "&:hover": {
-    background: "#ffab40",
-    transform: "scale(1.2)",
-    transition: "all 0.3s ease",
-  },
+  background: "rgba(255, 255, 255, 0.15)",
+  padding: theme.spacing(1.2),
+  "&:hover": { background: "#ffcc70", transform: "scale(1.15)" },
+  transition: "all 0.3s ease",
 }));
 
 function Home() {
@@ -301,7 +258,6 @@ function Home() {
           "https://eshop-backend-e11f.onrender.com/api/products",
           { params }
         );
-
         setProducts(response.data.products || response.data);
         setTotalPages(response.data.totalPages || 1);
         setError("");
@@ -352,19 +308,14 @@ function Home() {
     { name: "Yonas M.", text: t("Love the variety of styles.") },
   ];
 
-  const handleSlideNext = () => {
+  const handleSlideNext = () =>
     setSlideIndex((prev) =>
       Math.min(
         prev + 1,
         Math.ceil(featuredProducts.length / sliderVisibleItems) - 1
       )
     );
-  };
-
-  const handleSlidePrev = () => {
-    setSlideIndex((prev) => Math.max(prev - 1, 0));
-  };
-
+  const handleSlidePrev = () => setSlideIndex((prev) => Math.max(prev - 1, 0));
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
     setNewsletterEmail("");
@@ -379,14 +330,14 @@ function Home() {
           variant="h5"
           sx={{
             fontWeight: 800,
-            background: "linear-gradient(90deg, #ff6f61 0%, #ffab40 100%)",
+            background: "linear-gradient(90deg, #ff6b81 0%, #ffcc70 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
         >
           EthioShop
         </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 1.5 }}>
           <ActionButton component={Link} to="/categories">
             {t("Categories")}
           </ActionButton>
@@ -396,7 +347,7 @@ function Home() {
         </Box>
       </StickyHeader>
 
-      {/* Promotional Banner */}
+      {/* Promo Banner */}
       <PromoBanner>
         <Typography variant="h6">
           {t("Get 20% OFF your first order! Use code: ETHIO20")}
@@ -411,7 +362,7 @@ function Home() {
             fontWeight: 900,
             color: "#fff",
             mb: 2,
-            textShadow: "0 4px 12px rgba(0,0,0,0.4)",
+            textShadow: "0 3px 10px rgba(0,0,0,0.3)",
           }}
         >
           {t("Welcome to EthioShop")}
@@ -419,19 +370,15 @@ function Home() {
         <Typography
           sx={{
             color: "#fff",
-            fontSize: { xs: "1rem", sm: "1.3rem" },
-            mb: 4,
-            maxWidth: 700,
+            fontSize: { xs: "1rem", sm: "1.2rem" },
+            mb: 3,
+            maxWidth: 600,
             mx: "auto",
           }}
         >
           {t("Discover premium fashion with unbeatable style and quality.")}
         </Typography>
-        <ActionButton
-          component={Link}
-          to="/categories"
-          sx={{ animation: `${bounce} 2s infinite` }}
-        >
+        <ActionButton component={Link} to="/categories">
           {t("Shop Now")}
         </ActionButton>
       </HeroSection>
@@ -439,11 +386,11 @@ function Home() {
       {/* Category Highlights */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2f3640" }}
+        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
       >
         {t("Top Categories")}
       </Typography>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: 4 }}>
         {categoryHighlights.map((cat) => (
           <Grid item xs={12} sm={4} key={cat.name}>
             <CategoryHighlight>
@@ -453,24 +400,24 @@ function Home() {
                 alt={cat.name}
                 sx={{
                   width: "100%",
-                  height: 200,
+                  height: 180,
                   objectFit: "cover",
-                  borderRadius: "12px",
+                  borderRadius: "10px",
                   mb: 2,
                 }}
               />
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 600, color: "#2f3640" }}
+                sx={{ fontWeight: 600, color: "#2d3436" }}
               >
                 {t(cat.name)}
               </Typography>
               <ActionButton
                 component={Link}
                 to={`/categories/${cat.name.toLowerCase()}`}
-                sx={{ mt: 2 }}
+                sx={{ mt: 1.5 }}
               >
-                {t("Shop Now")}
+                {t("Explore")}
               </ActionButton>
             </CategoryHighlight>
           </Grid>
@@ -480,7 +427,7 @@ function Home() {
       {/* Featured Products Slider */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2f3640" }}
+        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
       >
         {t("Featured Products")}
       </Typography>
@@ -490,13 +437,13 @@ function Home() {
           disabled={slideIndex === 0}
           sx={{
             position: "absolute",
-            left: 15,
+            left: 10,
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 2,
-            bgcolor: "#ffab40",
+            bgcolor: "#ffcc70",
             color: "#fff",
-            "&:hover": { bgcolor: "#ff6f61" },
+            "&:hover": { bgcolor: "#ff6b81" },
           }}
         >
           <ArrowBackIcon />
@@ -510,16 +457,16 @@ function Home() {
                 alt={product.name}
                 sx={{
                   width: "100%",
-                  height: { xs: 180, sm: 250 },
+                  height: { xs: 160, sm: 220 },
                   objectFit: "cover",
-                  borderRadius: "12px",
-                  mb: 2,
+                  borderRadius: "10px",
+                  mb: 1.5,
                 }}
               />
-              <Typography sx={{ fontWeight: 600, color: "#2f3640" }}>
+              <Typography sx={{ fontWeight: 600, color: "#2d3436" }}>
                 {product.name}
               </Typography>
-              <Typography sx={{ color: "#ff6f61", fontWeight: 500 }}>
+              <Typography sx={{ color: "#ff6b81", fontWeight: 500 }}>
                 ${product.price || "N/A"}
               </Typography>
             </SlideCard>
@@ -533,13 +480,13 @@ function Home() {
           }
           sx={{
             position: "absolute",
-            right: 15,
+            right: 10,
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 2,
-            bgcolor: "#ffab40",
+            bgcolor: "#ffcc70",
             color: "#fff",
-            "&:hover": { bgcolor: "#ff6f61" },
+            "&:hover": { bgcolor: "#ff6b81" },
           }}
         >
           <ArrowForwardIcon />
@@ -549,12 +496,12 @@ function Home() {
       {/* Browse Products Section */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2f3640" }}
+        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
       >
         {t("Browse Products")}
       </Typography>
       <FilterBar>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <FilterButton>
             <CategoryIcon />
           </FilterButton>
@@ -564,13 +511,13 @@ function Home() {
               onClick={() => setCategory(cat)}
               variant={category === cat ? "contained" : "outlined"}
               sx={{
-                bgcolor: category === cat ? "#ff6f61" : "#fff",
-                color: category === cat ? "#fff" : "#2f3640",
-                borderColor: "#ff6f61",
-                borderRadius: "12px",
-                px: 3,
+                bgcolor: category === cat ? "#ff6b81" : "#fff",
+                color: category === cat ? "#fff" : "#2d3436",
+                borderColor: "#ff6b81",
+                borderRadius: "10px",
+                px: 2,
                 "&:hover": {
-                  bgcolor: category === cat ? "#ff8a65" : "#ffebee",
+                  bgcolor: category === cat ? "#ff8e9a" : "#fff5f5",
                 },
               }}
             >
@@ -578,7 +525,7 @@ function Home() {
             </Button>
           ))}
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <FilterButton>
             <SortIcon />
           </FilterButton>
@@ -588,13 +535,13 @@ function Home() {
               onClick={() => setSort(option.value)}
               variant={sort === option.value ? "contained" : "outlined"}
               sx={{
-                bgcolor: sort === option.value ? "#ff6f61" : "#fff",
-                color: sort === option.value ? "#fff" : "#2f3640",
-                borderColor: "#ff6f61",
-                borderRadius: "12px",
-                px: 3,
+                bgcolor: sort === option.value ? "#ff6b81" : "#fff",
+                color: sort === option.value ? "#fff" : "#2d3436",
+                borderColor: "#ff6b81",
+                borderRadius: "10px",
+                px: 2,
                 "&:hover": {
-                  bgcolor: sort === option.value ? "#ff8a65" : "#ffebee",
+                  bgcolor: sort === option.value ? "#ff8e9a" : "#fff5f5",
                 },
               }}
             >
@@ -607,12 +554,12 @@ function Home() {
       {/* Product List */}
       {loading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
-          <CircularProgress sx={{ color: "#ff6f61" }} size={50} />
+          <CircularProgress sx={{ color: "#ff6b81" }} size={48} />
         </Box>
       ) : error ? (
         <Typography
           color="error"
-          sx={{ textAlign: "center", py: 2, fontSize: "1.2rem" }}
+          sx={{ textAlign: "center", py: 2, fontSize: "1.1rem" }}
         >
           {error}
         </Typography>
@@ -628,8 +575,8 @@ function Home() {
               justifyContent: "center",
               mt: 4,
               "& .MuiPaginationItem-root": {
-                color: "#ff6f61",
-                "&.Mui-selected": { bgcolor: "#ff6f61", color: "#fff" },
+                color: "#ff6b81",
+                "&.Mui-selected": { bgcolor: "#ff6b81", color: "#fff" },
               },
             }}
           />
@@ -637,54 +584,60 @@ function Home() {
       )}
 
       {/* Testimonials Section */}
-      <TestimonialSection>
+      <Section>
         <Typography
-          variant="h4"
-          sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2f3640" }}
+          variant={isMobile ? "h5" : "h4"}
+          sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
         >
           {t("What Our Customers Say")}
         </Typography>
-        <Grid container spacing={3}>
+        <Grid container spacing={isMobile ? 2 : 3}>
           {testimonials.map((testimonial, index) => (
             <Grid item xs={12} sm={4} key={index}>
               <Box
                 sx={{
-                  p: 3,
-                  borderRadius: "16px",
-                  backgroundColor: "#f9f9f9",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                  transition: "transform 0.3s ease",
-                  "&:hover": { transform: "translateY(-5px)" },
+                  p: 2.5,
+                  borderRadius: "12px",
+                  backgroundColor: "#fef8f5",
+                  boxShadow: "0 3px 10px rgba(0, 0, 0, 0.06)",
+                  "&:hover": { transform: "translateY(-4px)" },
+                  transition: "all 0.3s ease",
                 }}
               >
-                <Typography sx={{ color: "#2f3640", mb: 1 }}>
+                <Typography sx={{ color: "#2d3436", mb: 1 }}>
                   "{testimonial.text}"
                 </Typography>
-                <Typography sx={{ color: "#ff6f61", fontWeight: 600 }}>
+                <Typography sx={{ color: "#ff6b81", fontWeight: 600 }}>
                   - {testimonial.name}
                 </Typography>
               </Box>
             </Grid>
           ))}
         </Grid>
-      </TestimonialSection>
+      </Section>
 
       {/* About Section */}
-      <AboutSection>
+      <Section>
         <Typography
-          variant="h4"
-          sx={{ fontWeight: 700, mb: 2, textAlign: "center", color: "#2f3640" }}
+          variant={isMobile ? "h5" : "h4"}
+          sx={{ fontWeight: 700, mb: 2, textAlign: "center", color: "#2d3436" }}
         >
           {t("About EthioShop")}
         </Typography>
         <Typography
-          sx={{ color: "#636e72", lineHeight: 1.8, textAlign: "center" }}
+          sx={{
+            color: "#636e72",
+            lineHeight: 1.7,
+            textAlign: "center",
+            maxWidth: 800,
+            mx: "auto",
+          }}
         >
           {t(
             "EthioShop is your ultimate destination for premium fashion in Ethiopia. We offer a curated selection of clothing and accessories, ensuring quality, style, and fast delivery."
           )}
         </Typography>
-      </AboutSection>
+      </Section>
 
       {/* Footer */}
       <FooterSection>
@@ -692,23 +645,44 @@ function Home() {
           variant="h4"
           sx={{
             fontWeight: 800,
-            background: "linear-gradient(90deg, #ffab40 0%, #ff6f61 100%)",
+            background: "linear-gradient(90deg, #ffcc70 0%, #ff6b81 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            mb: 4,
+            mb: 3,
           }}
         >
           EthioShop
         </Typography>
-        <Grid container spacing={4}>
+        <Grid container spacing={isMobile ? 3 : 4}>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" sx={{ color: "#fff", mb: 2 }}>
               {t("Explore")}
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <FooterLink to="/">{t("Home")}</FooterLink>
-              <FooterLink to="/categories">{t("Categories")}</FooterLink>
-              <FooterLink to="/my-orders">{t("Orders")}</FooterLink>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Link
+                to="/"
+                style={{ color: "#dfe6e9", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
+                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+              >
+                {t("Home")}
+              </Link>
+              <Link
+                to="/categories"
+                style={{ color: "#dfe6e9", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
+                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+              >
+                {t("Categories")}
+              </Link>
+              <Link
+                to="/my-orders"
+                style={{ color: "#dfe6e9", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
+                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+              >
+                {t("Orders")}
+              </Link>
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -717,14 +691,24 @@ function Home() {
             </Typography>
             <Typography sx={{ color: "#dfe6e9", mb: 1 }}>
               Email:{" "}
-              <FooterLink to="mailto:support@ethioshop.com">
+              <Link
+                to="mailto:support@ethioshop.com"
+                style={{ color: "#ffcc70", textDecoration: "none" }}
+              >
                 support@ethioshop.com
-              </FooterLink>
+              </Link>
             </Typography>
-            <Typography sx={{ color: "#dfe6e9", mb: 2 }}>
+            <Typography sx={{ color: "#dfe6e9" }}>
               Phone: +251 991 792 427
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 1.5,
+                mt: 2,
+              }}
+            >
               <SocialIcon>
                 <FacebookIcon />
               </SocialIcon>
@@ -750,7 +734,7 @@ function Home() {
                 sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: "14px",
+                    borderRadius: "12px",
                     bgcolor: "#fff",
                   },
                 }}
@@ -759,8 +743,8 @@ function Home() {
             </form>
           </Grid>
         </Grid>
-        <Divider sx={{ bgcolor: "#dfe6e9", my: 4 }} />
-        <Typography sx={{ color: "#b2bec3", fontSize: "0.9rem" }}>
+        <Divider sx={{ bgcolor: "#dfe6e9", my: 3 }} />
+        <Typography sx={{ color: "#b2bec3", fontSize: "0.85rem" }}>
           © {new Date().getFullYear()} EthioShop. {t("All rights reserved.")}
         </Typography>
       </FooterSection>
@@ -772,8 +756,8 @@ function Home() {
           position: "fixed",
           bottom: 20,
           right: 20,
-          bgcolor: "#ff6f61",
-          "&:hover": { bgcolor: "#ff8a65" },
+          bgcolor: "#ff6b81",
+          "&:hover": { bgcolor: "#ff8e9a" },
           animation: `${pulse} 2s infinite`,
         }}
         onClick={() => alert(t("Contact support at +251 991 792 427"))}
