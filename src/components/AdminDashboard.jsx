@@ -285,8 +285,12 @@ function AdminDashboard() {
   });
   const [editingDiscount, setEditingDiscount] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const categories = ["T-Shirts", "Jackets", "Pants", "Accessories"];
+  const [categories, setCategories] = useState([]);
+  const [categoryFormData, setCategoryFormData] = useState({
+    name: "",
+    description: "",
+  });
+  const [editingCategory, setEditingCategory] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -312,6 +316,7 @@ function AdminDashboard() {
           fetchReferrals(),
           fetchDiscounts(),
           fetchChatMessages(),
+          fetchCategories(),
         ]);
       } catch (error) {
         setError(t("Failed to load dashboard data"));
@@ -656,6 +661,22 @@ function AdminDashboard() {
     } catch (error) {
       console.error(
         "Fetch discounts error:",
+        error.response?.data || error.message
+      );
+    }
+  };
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/categories",
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+      setCategories(response.data);
+    } catch (error) {
+      console.error(
+        "Fetch categories error:",
         error.response?.data || error.message
       );
     }
@@ -1131,6 +1152,98 @@ function AdminDashboard() {
       );
     }
   };
+  const handleCategoryInputChange = (e) => {
+    const { name, value } = e.target;
+    setCategoryFormData({ ...categoryFormData, [name]: value });
+  };
+
+  const validateCategoryForm = () => {
+    if (!categoryFormData.name) {
+      setError(t("Category name is required"));
+      return false;
+    }
+    return true;
+  };
+
+  const handleAddCategory = async () => {
+    if (!validateCategoryForm()) return;
+    try {
+      const response = await axios.post(
+        "https://eshop-backend-e11f.onrender.com/api/categories",
+        categoryFormData,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setCategories([...categories, response.data]);
+      resetCategoryForm();
+      setSuccess(t("Category added successfully"));
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      setError(
+        t("Failed to add category") +
+          ": " +
+          (error.response?.data.message || error.message)
+      );
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      name: category.name,
+      description: category.description || "",
+    });
+  };
+
+  const handleUpdateCategory = async () => {
+    if (!validateCategoryForm()) return;
+    try {
+      const response = await axios.put(
+        `https://eshop-backend-e11f.onrender.com/api/categories/${editingCategory._id}`,
+        categoryFormData,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setCategories(
+        categories.map((cat) =>
+          cat._id === editingCategory._id ? response.data : cat
+        )
+      );
+      resetCategoryForm();
+      setSuccess(t("Category updated successfully"));
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      setError(
+        t("Failed to update category") +
+          ": " +
+          (error.response?.data.message || error.message)
+      );
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    try {
+      await axios.delete(
+        `https://eshop-backend-e11f.onrender.com/api/categories/${id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+      setCategories(categories.filter((cat) => cat._id !== id));
+      setSuccess(t("Category deleted successfully"));
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      setError(
+        t("Failed to delete category") +
+          ": " +
+          (error.response?.data.message || error.message)
+      );
+    }
+  };
+
+  const resetCategoryForm = () => {
+    setEditingCategory(null);
+    setCategoryFormData({ name: "", description: "" });
+    setError("");
+  };
 
   const handleOpenChat = (userId) => {
     setSelectedChatUserId(userId);
@@ -1334,6 +1447,7 @@ function AdminDashboard() {
             <Tab label={t("Referrals")} />
             <Tab label={t("Support")} />
             <Tab label={t("Discounts")} />
+            <Tab label={t("Categories")} /> {/* New Tab */}
           </StyledTabs>
           {tabValue === 0 && (
             <Box>
@@ -1389,17 +1503,18 @@ function AdminDashboard() {
                     />
                   </Grid>
                   <Grid item xs={12} sm={3}>
-                    <StyledFormControl fullWidth margin="normal">
+                    <StyledFormControl fullWidth>
                       <InputLabel>{t("Category")}</InputLabel>
                       <Select
                         name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
+                        value={filterData.category}
+                        onChange={handleFilterChange}
                         label={t("Category")}
                       >
+                        <MenuItem value="">{t("All")}</MenuItem>
                         {categories.map((cat) => (
-                          <MenuItem key={cat} value={cat}>
-                            {t(cat)}
+                          <MenuItem key={cat._id} value={cat.name}>
+                            {t(cat.name)}
                           </MenuItem>
                         ))}
                       </Select>
@@ -2942,6 +3057,123 @@ function AdminDashboard() {
                           </StyledIconButton>
                           <StyledIconButton
                             onClick={() => handleDeleteDiscount(discount._id)}
+                          >
+                            <DeleteIcon />
+                          </StyledIconButton>
+                        </Box>
+                      </ListItem>
+                    ))
+                  )}
+                </List>
+              </SectionCard>
+            </Box>
+          )}
+
+          {tabValue === 11 && (
+            <Box>
+              <SectionCard>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {editingCategory ? t("Edit Category") : t("Add New Category")}
+                </Typography>
+                <Grid container spacing={isMobile ? 1 : 2}>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Name")}
+                      name="name"
+                      value={categoryFormData.name}
+                      onChange={handleCategoryInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Description")}
+                      name="description"
+                      value={categoryFormData.description}
+                      onChange={handleCategoryInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                </Grid>
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: "flex",
+                    gap: 1,
+                    justifyContent: isMobile ? "center" : "flex-start",
+                  }}
+                >
+                  <ActionButton
+                    onClick={
+                      editingCategory ? handleUpdateCategory : handleAddCategory
+                    }
+                    startIcon={<AddIcon />}
+                  >
+                    {editingCategory ? t("Update") : t("Add")}
+                  </ActionButton>
+                  {editingCategory && (
+                    <Button
+                      variant="outlined"
+                      onClick={resetCategoryForm}
+                      sx={{
+                        borderRadius: 2,
+                        color: "#555",
+                        borderColor: "#ccc",
+                      }}
+                    >
+                      {t("Cancel")}
+                    </Button>
+                  )}
+                </Box>
+              </SectionCard>
+
+              <SectionCard>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {t("Category List")}
+                </Typography>
+                <List>
+                  {categories.length === 0 ? (
+                    <Typography sx={{ textAlign: "center", color: "#555" }}>
+                      {t("No categories yet.")}
+                    </Typography>
+                  ) : (
+                    categories.map((category) => (
+                      <ListItem
+                        key={category._id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                          bgcolor: "#fff",
+                          borderRadius: 2,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                          flexDirection: isMobile ? "column" : "row",
+                          alignItems: isMobile ? "flex-start" : "center",
+                        }}
+                      >
+                        <ListItemText
+                          primary={category.name}
+                          secondary={
+                            category.description || t("No description")
+                          }
+                          sx={{ mb: isMobile ? 1 : 0 }}
+                        />
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <StyledIconButton
+                            onClick={() => handleEditCategory(category)}
+                          >
+                            <EditIcon />
+                          </StyledIconButton>
+                          <StyledIconButton
+                            onClick={() => handleDeleteCategory(category._id)}
                           >
                             <DeleteIcon />
                           </StyledIconButton>

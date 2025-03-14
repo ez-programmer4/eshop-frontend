@@ -27,7 +27,7 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
-// Animation keyframes
+// Animation keyframes (unchanged)
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -49,7 +49,7 @@ const shine = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-// Styled Components
+// Styled Components (unchanged)
 const HomeContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1440,
   margin: "0 auto",
@@ -234,6 +234,7 @@ function Home() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [categories, setCategories] = useState(["All"]); // Start with "All"
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("name-asc");
   const [page, setPage] = useState(1);
@@ -245,6 +246,18 @@ function Home() {
 
   const itemsPerPage = 8;
   const sliderVisibleItems = isMobile ? 1 : 3;
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        "https://eshop-backend-e11f.onrender.com/api/categories"
+      );
+      setCategories(["All", ...response.data.map((cat) => cat.name)]);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      setCategories(["All", "T-Shirts", "Jackets", "Pants", "Accessories"]); // Fallback
+    }
+  }, []);
 
   const fetchProducts = useCallback(
     async (cat, sortBy, pageNum) => {
@@ -284,11 +297,18 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    fetchCategories();
     fetchProducts(category, sort, page);
     fetchFeaturedProducts();
-  }, [category, sort, page, fetchProducts, fetchFeaturedProducts]);
+  }, [
+    category,
+    sort,
+    page,
+    fetchCategories,
+    fetchProducts,
+    fetchFeaturedProducts,
+  ]);
 
-  const categories = ["All", "T-Shirts", "Jackets", "Pants", "Accessories"];
   const sortOptions = [
     { value: "name-asc", label: t("Name: A-Z") },
     { value: "name-desc", label: t("Name: Z-A") },
