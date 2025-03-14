@@ -345,22 +345,33 @@ function AdminDashboard() {
   }, [chatMessages, selectedChatUserId]);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      const params = { ...filterData };
-      if (!params.category) delete params.category;
+      const params = {};
+      if (filterData.category) params.category = filterData.category;
+      if (filterData.minPrice) params.minPrice = filterData.minPrice;
+      if (filterData.maxPrice) params.maxPrice = filterData.maxPrice;
+      if (filterData.minStock) params.minStock = filterData.minStock;
+      if (filterData.maxStock) params.maxStock = filterData.maxStock;
+      if (filterData.sort) params.sort = filterData.sort;
+      if (filterData.search) params.search = filterData.search;
+
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products",
         {
-          headers: { Authorization: `Bearer ${user.token}` },
           params,
+          headers: { Authorization: `Bearer ${user.token}` },
         }
       );
       setProducts(response.data);
     } catch (error) {
-      console.error(
-        "Fetch products error:",
-        error.response?.data || error.message
+      setError(
+        t("Failed to fetch products") +
+          ": " +
+          (error.response?.data.message || error.message)
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -748,7 +759,7 @@ function AdminDashboard() {
       return false;
     }
     if (
-      !formData.stock ||
+      formData.stock === "" ||
       isNaN(formData.stock) ||
       Number(formData.stock) < 0
     ) {
@@ -798,31 +809,24 @@ function AdminDashboard() {
   };
 
   const handleAddProduct = async () => {
-    console.log("Submitting product:", formData); // Debug
     if (!validateForm()) return;
     try {
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/products",
         {
           ...formData,
-          description: formData.description || "", // Default to empty string
-          image: formData.image || "", // Default to empty string
+          description: formData.description || "",
+          image: formData.image || "",
+          stock: Number(formData.stock), // Ensure stock is a number
+          price: Number(formData.price), // Ensure price is a number
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setProducts([...products, response.data]);
-      setFormData({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        stock: "",
-        image: "",
-      });
+      resetProductForm();
       setSuccess(t("Product added successfully"));
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
-      console.log("Error:", error.response?.data); // Debug
       setError(
         t("Failed to add product") +
           ": " +
@@ -836,9 +840,9 @@ function AdminDashboard() {
     setFormData({
       name: product.name,
       description: product.description || "",
-      price: product.price,
+      price: product.price.toString(),
       category: product.category,
-      stock: product.stock,
+      stock: product.stock.toString(),
       image: product.image || "",
     });
   };
@@ -852,6 +856,8 @@ function AdminDashboard() {
           ...formData,
           description: formData.description || "",
           image: formData.image || "",
+          stock: Number(formData.stock),
+          price: Number(formData.price),
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -1517,6 +1523,7 @@ function AdminDashboard() {
                         onChange={handleInputChange}
                         label={t("Category")}
                       >
+                        <MenuItem value="">{t("Select Category")}</MenuItem>
                         {categories.map((cat) => (
                           <MenuItem key={cat._id} value={cat.name}>
                             {t(cat.name)}
@@ -1572,6 +1579,105 @@ function AdminDashboard() {
                 </Box>
               </SectionCard>
 
+              {/* Filter Products */}
+              <SectionCard sx={{ mt: 4 }}>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {t("Filter Products")}
+                </Typography>
+                <Grid container spacing={isMobile ? 1 : 2}>
+                  <Grid item xs={12} sm={4}>
+                    <StyledFormControl fullWidth>
+                      <InputLabel>{t("Category")}</InputLabel>
+                      <Select
+                        name="category"
+                        value={filterData.category}
+                        onChange={handleFilterChange}
+                        label={t("Category")}
+                      >
+                        <MenuItem value="">{t("All")}</MenuItem>
+                        {categories.map((cat) => (
+                          <MenuItem key={cat._id} value={cat.name}>
+                            {t(cat.name)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </StyledFormControl>
+                  </Grid>
+                  <Grid item xs={6} sm={2}>
+                    <StyledTextField
+                      label={t("Min Price")}
+                      name="minPrice"
+                      type="number"
+                      value={filterData.minPrice}
+                      onChange={handleFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={2}>
+                    <StyledTextField
+                      label={t("Max Price")}
+                      name="maxPrice"
+                      type="number"
+                      value={filterData.maxPrice}
+                      onChange={handleFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={2}>
+                    <StyledTextField
+                      label={t("Min Stock")}
+                      name="minStock"
+                      type="number"
+                      value={filterData.minStock}
+                      onChange={handleFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={2}>
+                    <StyledTextField
+                      label={t("Max Stock")}
+                      name="maxStock"
+                      type="number"
+                      value={filterData.maxStock}
+                      onChange={handleFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <StyledFormControl fullWidth>
+                      <InputLabel>{t("Sort By")}</InputLabel>
+                      <Select
+                        name="sort"
+                        value={filterData.sort}
+                        onChange={handleFilterChange}
+                        label={t("Sort By")}
+                      >
+                        <MenuItem value="name">{t("Name")}</MenuItem>
+                        <MenuItem value="price">{t("Price")}</MenuItem>
+                        <MenuItem value="stock">{t("Stock")}</MenuItem>
+                      </Select>
+                    </StyledFormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <StyledTextField
+                      label={t("Search")}
+                      name="search"
+                      value={filterData.search}
+                      onChange={handleFilterChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <ActionButton onClick={applyFilters} sx={{ mt: 2 }}>
+                      {t("Apply Filters")}
+                    </ActionButton>
+                  </Grid>
+                </Grid>
+              </SectionCard>
+
               {/* Product List */}
               <SectionCard sx={{ mt: 4 }}>
                 <Typography
@@ -1580,9 +1686,13 @@ function AdminDashboard() {
                 >
                   {t("Product List")}
                 </Typography>
-                {products.length === 0 ? (
+                {loading ? (
+                  <Box sx={{ textAlign: "center", py: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : products.length === 0 ? (
                   <Typography sx={{ textAlign: "center", color: "#555" }}>
-                    {t("No products yet.")}
+                    {t("No products match your filters.")}
                   </Typography>
                 ) : (
                   <List>
