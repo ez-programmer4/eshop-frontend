@@ -30,60 +30,63 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
-// Animation keyframes (unchanged)
-const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
+// Animation keyframes
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
 
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
 const pulse = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.7); }
-  70% { box-shadow: 0 0 0 12px rgba(255, 107, 129, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 107, 129, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0); }
 `;
 
-const shine = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
-
-// Styled Components
+// Styled Components (Figma-inspired)
 const HomeContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1440,
   margin: "0 auto",
   padding: theme.spacing(4),
-  background: "linear-gradient(180deg, #fef8f5 0%, #ebedf0 100%)",
+  backgroundColor: "#f8fafc", // Softer, neutral background
   minHeight: "100vh",
   animation: `${fadeIn} 0.8s ease-out`,
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ff6b81 0%, #ffcc70 100%)",
-  borderRadius: "28px",
+  background: "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)", // Softer gradient
+  borderRadius: "24px",
   padding: theme.spacing(6),
   marginBottom: theme.spacing(4),
   textAlign: "center",
-  position: "relative",
-  overflow: "hidden",
-  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-  "&:before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: "-100%",
-    width: "300%",
-    height: "100%",
-    background:
-      "linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
-    animation: `${shine} 3s infinite`,
-  },
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(4) },
+}));
+
+const CategoryCard = styled(Card)(({ theme }) => ({
+  borderRadius: "12px",
+  backgroundColor: "#fff",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+}));
+
+const CategoryTitle = styled(Typography)(({ theme }) => ({
+  color: "#1a202c", // Darker, neutral text
+  fontWeight: 600,
+  fontSize: { xs: "0.9rem", sm: "1rem" },
+  textAlign: "center",
+  padding: theme.spacing(1),
 }));
 
 const FilterBar = styled(Box)(({ theme }) => ({
@@ -92,8 +95,8 @@ const FilterBar = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1.5),
   padding: theme.spacing(2),
   backgroundColor: "#fff",
-  borderRadius: "14px",
-  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
+  borderRadius: "16px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   flexWrap: "wrap",
   justifyContent: "space-between",
   [theme.breakpoints.down("sm")]: {
@@ -103,11 +106,11 @@ const FilterBar = styled(Box)(({ theme }) => ({
 }));
 
 const FilterButton = styled(IconButton)(({ theme }) => ({
-  backgroundColor: "#ffcc70",
+  backgroundColor: "#feb47b",
   color: "#fff",
-  borderRadius: "12px",
+  borderRadius: "10px",
   padding: theme.spacing(1),
-  "&:hover": { backgroundColor: "#ff6b81", transform: "scale(1.1)" },
+  "&:hover": { backgroundColor: "#ff7e5f" },
   transition: "all 0.3s ease",
 }));
 
@@ -116,9 +119,9 @@ const SliderContainer = styled(Box)(({ theme }) => ({
   overflow: "hidden",
   marginBottom: theme.spacing(4),
   backgroundColor: "#fff",
-  borderRadius: "20px",
-  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(2.5),
+  borderRadius: "16px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+  padding: theme.spacing(2),
 }));
 
 const SlideTrack = styled(Box)(({ offset }) => ({
@@ -132,50 +135,28 @@ const SlideCard = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   textAlign: "center",
   backgroundColor: "#fff",
-  borderRadius: "14px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+  borderRadius: "12px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   "&:hover": {
-    transform: "translateY(-8px)",
-    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+    transform: "translateY(-6px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
   },
   transition: "all 0.3s ease",
   [theme.breakpoints.down("sm")]: { flex: "0 0 100%" },
 }));
 
-const CategoryCard = styled(Card)(({ theme }) => ({
-  borderRadius: "10px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-  backgroundColor: "#fff",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-  "&:hover": {
-    transform: "scale(1.05)",
-    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
-  },
-  cursor: "pointer",
-  overflow: "hidden",
-}));
-
-const CategoryTitle = styled(Typography)(({ theme }) => ({
-  color: "#333",
-  fontWeight: 500,
-  textAlign: "center",
-  fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1rem" },
-  padding: theme.spacing(1),
-}));
-
 const ActionButton = styled(Button)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ffcc70 0%, #ff6b81 100%)",
+  background: "linear-gradient(135deg, #feb47b 0%, #ff7e5f 100%)",
   color: "#fff",
-  padding: theme.spacing(1.2, 3),
+  padding: theme.spacing(1.5, 3),
   borderRadius: "12px",
-  fontWeight: 700,
+  fontWeight: 600,
   fontSize: "1rem",
-  textTransform: "uppercase",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+  textTransform: "none",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   "&:hover": {
-    background: "linear-gradient(135deg, #ff6b81 0%, #ffcc70 100%)",
-    transform: "translateY(-2px)",
-    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.2)",
+    background: "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)",
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
   },
   transition: "all 0.3s ease",
   [theme.breakpoints.down("sm")]: {
@@ -186,27 +167,27 @@ const ActionButton = styled(Button)(({ theme }) => ({
 
 const Section = styled(Box)(({ theme }) => ({
   backgroundColor: "#fff",
-  borderRadius: "20px",
+  borderRadius: "16px",
   padding: theme.spacing(4),
   marginTop: theme.spacing(4),
-  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2.5) },
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #2d3436 0%, #636e72 100%)",
+  background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)", // Darker, modern footer
   color: "#fff",
   padding: theme.spacing(5),
   marginTop: theme.spacing(4),
-  borderRadius: "20px 20px 0 0",
-  boxShadow: "0 -6px 20px rgba(0, 0, 0, 0.15)",
+  borderRadius: "16px 16px 0 0",
+  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
 }));
 
 const SocialIcon = styled(IconButton)(({ theme }) => ({
   color: "#fff",
-  background: "rgba(255, 255, 255, 0.15)",
-  padding: theme.spacing(1.2),
-  "&:hover": { background: "#ffcc70", transform: "scale(1.15)" },
+  background: "rgba(255, 255, 255, 0.1)",
+  padding: theme.spacing(1),
+  "&:hover": { background: "#feb47b" },
   transition: "all 0.3s ease",
 }));
 
@@ -240,7 +221,6 @@ function Home() {
       setCategoriesWithImages(response.data);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
-      // Fallback: Extract from products if /api/categories isn't available
       const productResponse = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products"
       );
@@ -336,7 +316,7 @@ function Home() {
   };
 
   const handleImageError = (e) => {
-    e.target.src = "https://via.placeholder.com/150"; // Fallback image
+    e.target.src = "https://via.placeholder.com/150";
   };
 
   return (
@@ -346,18 +326,18 @@ function Home() {
         <Typography
           variant={isMobile ? "h4" : "h2"}
           sx={{
-            fontWeight: 900,
+            fontWeight: 700,
             color: "#fff",
             mb: 2,
-            textShadow: "0 3px 10px rgba(0,0,0,0.3)",
+            letterSpacing: "-0.5px",
           }}
         >
           {t("Welcome to EthioShop")}
         </Typography>
         <Typography
           sx={{
-            color: "#fff",
-            fontSize: { xs: "1rem", sm: "1.2rem" },
+            color: "rgba(255, 255, 255, 0.9)",
+            fontSize: { xs: "1rem", sm: "1.25rem" },
             mb: 3,
             maxWidth: 600,
             mx: "auto",
@@ -373,14 +353,23 @@ function Home() {
       {/* Compact Category Grid */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
+        sx={{
+          fontWeight: 700,
+          mb: 3,
+          textAlign: "center",
+          color: "#1a202c",
+          letterSpacing: "-0.2px",
+        }}
       >
         {t("Top Categories")}
       </Typography>
-      <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 4 }}>
+      <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 5 }}>
         {categoriesWithImages.map((cat) => (
           <Grid item xs={6} sm={4} md={2} key={cat.name}>
-            <CategoryCard onClick={() => handleCategoryClick(cat.name)}>
+            <CategoryCard
+              onClick={() => handleCategoryClick(cat.name)}
+              sx={{ animation: `${slideUp} 0.5s ease-out` }}
+            >
               <CardMedia
                 component="img"
                 height={isMobile ? "80" : "100"}
@@ -400,7 +389,13 @@ function Home() {
       {/* Featured Products Slider */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
+        sx={{
+          fontWeight: 700,
+          mb: 3,
+          textAlign: "center",
+          color: "#1a202c",
+          letterSpacing: "-0.2px",
+        }}
       >
         {t("Featured Products")}
       </Typography>
@@ -414,9 +409,9 @@ function Home() {
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 2,
-            bgcolor: "#ffcc70",
+            bgcolor: "#feb47b",
             color: "#fff",
-            "&:hover": { bgcolor: "#ff6b81" },
+            "&:hover": { bgcolor: "#ff7e5f" },
           }}
         >
           <ArrowBackIcon />
@@ -436,10 +431,10 @@ function Home() {
                   mb: 1.5,
                 }}
               />
-              <Typography sx={{ fontWeight: 600, color: "#2d3436" }}>
+              <Typography sx={{ fontWeight: 600, color: "#1a202c" }}>
                 {product.name}
               </Typography>
-              <Typography sx={{ color: "#ff6b81", fontWeight: 500 }}>
+              <Typography sx={{ color: "#ff7e5f", fontWeight: 500 }}>
                 ${product.price || "N/A"}
               </Typography>
             </SlideCard>
@@ -457,9 +452,9 @@ function Home() {
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 2,
-            bgcolor: "#ffcc70",
+            bgcolor: "#feb47b",
             color: "#fff",
-            "&:hover": { bgcolor: "#ff6b81" },
+            "&:hover": { bgcolor: "#ff7e5f" },
           }}
         >
           <ArrowForwardIcon />
@@ -469,7 +464,13 @@ function Home() {
       {/* Browse Products Section */}
       <Typography
         variant={isMobile ? "h5" : "h4"}
-        sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
+        sx={{
+          fontWeight: 700,
+          mb: 3,
+          textAlign: "center",
+          color: "#1a202c",
+          letterSpacing: "-0.2px",
+        }}
       >
         {t("Browse Products")}
       </Typography>
@@ -484,13 +485,14 @@ function Home() {
               onClick={() => setCategory(cat)}
               variant={category === cat ? "contained" : "outlined"}
               sx={{
-                bgcolor: category === cat ? "#ff6b81" : "#fff",
-                color: category === cat ? "#fff" : "#2d3436",
-                borderColor: "#ff6b81",
+                bgcolor: category === cat ? "#ff7e5f" : "#fff",
+                color: category === cat ? "#fff" : "#1a202c",
+                borderColor: "#e2e8f0",
                 borderRadius: "10px",
                 px: 2,
                 "&:hover": {
-                  bgcolor: category === cat ? "#ff8e9a" : "#fff5f5",
+                  bgcolor: category === cat ? "#feb47b" : "#f7fafc",
+                  borderColor: "#e2e8f0",
                 },
               }}
             >
@@ -508,13 +510,14 @@ function Home() {
               onClick={() => setSort(option.value)}
               variant={sort === option.value ? "contained" : "outlined"}
               sx={{
-                bgcolor: sort === option.value ? "#ff6b81" : "#fff",
-                color: sort === option.value ? "#fff" : "#2d3436",
-                borderColor: "#ff6b81",
+                bgcolor: sort === option.value ? "#ff7e5f" : "#fff",
+                color: sort === option.value ? "#fff" : "#1a202c",
+                borderColor: "#e2e8f0",
                 borderRadius: "10px",
                 px: 2,
                 "&:hover": {
-                  bgcolor: sort === option.value ? "#ff8e9a" : "#fff5f5",
+                  bgcolor: sort === option.value ? "#feb47b" : "#f7fafc",
+                  borderColor: "#e2e8f0",
                 },
               }}
             >
@@ -527,7 +530,7 @@ function Home() {
       {/* Product List */}
       {loading ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
-          <CircularProgress sx={{ color: "#ff6b81" }} size={48} />
+          <CircularProgress sx={{ color: "#ff7e5f" }} size={48} />
         </Box>
       ) : error ? (
         <Typography
@@ -548,8 +551,8 @@ function Home() {
               justifyContent: "center",
               mt: 4,
               "& .MuiPaginationItem-root": {
-                color: "#ff6b81",
-                "&.Mui-selected": { bgcolor: "#ff6b81", color: "#fff" },
+                color: "#ff7e5f",
+                "&.Mui-selected": { bgcolor: "#ff7e5f", color: "#fff" },
               },
             }}
           />
@@ -560,7 +563,13 @@ function Home() {
       <Section>
         <Typography
           variant={isMobile ? "h5" : "h4"}
-          sx={{ fontWeight: 700, mb: 3, textAlign: "center", color: "#2d3436" }}
+          sx={{
+            fontWeight: 700,
+            mb: 3,
+            textAlign: "center",
+            color: "#1a202c",
+            letterSpacing: "-0.2px",
+          }}
         >
           {t("What Our Customers Say")}
         </Typography>
@@ -575,16 +584,16 @@ function Home() {
                 sx={{
                   p: 2.5,
                   borderRadius: "12px",
-                  backgroundColor: "#fef8f5",
-                  boxShadow: "0 3px 10px rgba(0, 0, 0, 0.06)",
+                  backgroundColor: "#f7fafc",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
                   "&:hover": { transform: "translateY(-4px)" },
                   transition: "all 0.3s ease",
                 }}
               >
-                <Typography sx={{ color: "#2d3436", mb: 1 }}>
+                <Typography sx={{ color: "#4a5568", mb: 1 }}>
                   "{testimonial.text}"
                 </Typography>
-                <Typography sx={{ color: "#ff6b81", fontWeight: 600 }}>
+                <Typography sx={{ color: "#ff7e5f", fontWeight: 600 }}>
                   - {testimonial.name}
                 </Typography>
               </Box>
@@ -597,13 +606,19 @@ function Home() {
       <Section>
         <Typography
           variant={isMobile ? "h5" : "h4"}
-          sx={{ fontWeight: 700, mb: 2, textAlign: "center", color: "#2d3436" }}
+          sx={{
+            fontWeight: 700,
+            mb: 2,
+            textAlign: "center",
+            color: "#1a202c",
+            letterSpacing: "-0.2px",
+          }}
         >
           {t("About EthioShop")}
         </Typography>
         <Typography
           sx={{
-            color: "#636e72",
+            color: "#4a5568",
             lineHeight: 1.7,
             textAlign: "center",
             maxWidth: 800,
@@ -621,11 +636,10 @@ function Home() {
         <Typography
           variant="h4"
           sx={{
-            fontWeight: 800,
-            background: "linear-gradient(90deg, #ffcc70 0%, #ff6b81 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            fontWeight: 700,
+            color: "#fff",
             mb: 3,
+            letterSpacing: "-0.5px",
           }}
         >
           EthioShop
@@ -638,25 +652,25 @@ function Home() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Link
                 to="/"
-                style={{ color: "#dfe6e9", textDecoration: "none" }}
-                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
-                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+                style={{ color: "#e2e8f0", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#feb47b")}
+                onMouseOut={(e) => (e.target.style.color = "#e2e8f0")}
               >
                 {t("Home")}
               </Link>
               <Link
                 to="/categories"
-                style={{ color: "#dfe6e9", textDecoration: "none" }}
-                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
-                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+                style={{ color: "#e2e8f0", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#feb47b")}
+                onMouseOut={(e) => (e.target.style.color = "#e2e8f0")}
               >
                 {t("Categories")}
               </Link>
               <Link
                 to="/my-orders"
-                style={{ color: "#dfe6e9", textDecoration: "none" }}
-                onMouseOver={(e) => (e.target.style.color = "#ffcc70")}
-                onMouseOut={(e) => (e.target.style.color = "#dfe6e9")}
+                style={{ color: "#e2e8f0", textDecoration: "none" }}
+                onMouseOver={(e) => (e.target.style.color = "#feb47b")}
+                onMouseOut={(e) => (e.target.style.color = "#e2e8f0")}
               >
                 {t("Orders")}
               </Link>
@@ -666,16 +680,16 @@ function Home() {
             <Typography variant="h6" sx={{ color: "#fff", mb: 2 }}>
               {t("Contact Us")}
             </Typography>
-            <Typography sx={{ color: "#dfe6e9", mb: 1 }}>
+            <Typography sx={{ color: "#e2e8f0", mb: 1 }}>
               Email:{" "}
               <Link
                 to="mailto:support@ethioshop.com"
-                style={{ color: "#ffcc70", textDecoration: "none" }}
+                style={{ color: "#feb47b", textDecoration: "none" }}
               >
                 support@ethioshop.com
               </Link>
             </Typography>
-            <Typography sx={{ color: "#dfe6e9" }}>
+            <Typography sx={{ color: "#e2e8f0" }}>
               Phone: +251 991 792 427
             </Typography>
             <Box
@@ -713,6 +727,8 @@ function Home() {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
                     bgcolor: "#fff",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#feb47b" },
                   },
                 }}
               />
@@ -720,8 +736,8 @@ function Home() {
             </form>
           </Grid>
         </Grid>
-        <Divider sx={{ bgcolor: "#dfe6e9", my: 3 }} />
-        <Typography sx={{ color: "#b2bec3", fontSize: "0.85rem" }}>
+        <Divider sx={{ bgcolor: "#4a5568", my: 3 }} />
+        <Typography sx={{ color: "#a0aec0", fontSize: "0.85rem" }}>
           © {new Date().getFullYear()} EthioShop. {t("All rights reserved.")}
         </Typography>
       </FooterSection>
@@ -733,8 +749,8 @@ function Home() {
           position: "fixed",
           bottom: 20,
           right: 20,
-          bgcolor: "#ff6b81",
-          "&:hover": { bgcolor: "#ff8e9a" },
+          bgcolor: "#ff7e5f",
+          "&:hover": { bgcolor: "#feb47b" },
           animation: `${pulse} 2s infinite`,
         }}
         onClick={() => alert(t("Contact support at +251 991 792 427"))}
