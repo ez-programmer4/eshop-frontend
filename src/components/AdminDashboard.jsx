@@ -833,20 +833,26 @@ function AdminDashboard() {
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
-    setFormData(product);
+    setFormData({
+      name: product.name,
+      description: product.description || "",
+      price: product.price,
+      category: product.category,
+      stock: product.stock,
+      image: product.image || "",
+    });
   };
 
   const handleUpdateProduct = async () => {
     if (!validateForm()) return;
     try {
-      const payload = {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-      };
       const response = await axios.put(
         `https://eshop-backend-e11f.onrender.com/api/products/${editingProduct._id}`,
-        payload,
+        {
+          ...formData,
+          description: formData.description || "",
+          image: formData.image || "",
+        },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setProducts(
@@ -882,6 +888,19 @@ function AdminDashboard() {
           (error.response?.data.message || error.message)
       );
     }
+  };
+
+  const resetProductForm = () => {
+    setEditingProduct(null);
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      stock: "",
+      image: "",
+    });
+    setError("");
   };
 
   const handleUpdateOrderStatus = async (orderId, status) => {
@@ -1461,88 +1480,167 @@ function AdminDashboard() {
             <Tab label={t("Categories")} /> {/* New Tab */}
           </StyledTabs>
           {tabValue === 0 && (
-            <SectionCard>
-              <Typography
-                variant={isMobile ? "subtitle1" : "h6"}
-                sx={{ fontWeight: 600, mb: 2 }}
-              >
-                {t("Add New Product")}
-              </Typography>
-              <Grid container spacing={isMobile ? 1 : 2}>
-                <Grid item xs={12} sm={6}>
-                  <StyledTextField
-                    label={t("Name")}
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <StyledTextField
-                    label={t("Description")}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <StyledTextField
-                    label={t("Price")}
-                    name="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <StyledFormControl fullWidth margin="normal">
-                    <InputLabel>{t("Category")}</InputLabel>
-                    <Select
-                      name="category"
-                      value={formData.category}
+            <Box>
+              {/* Add/Edit Product Form */}
+              <SectionCard>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {editingProduct ? t("Edit Product") : t("Add New Product")}
+                </Typography>
+                <Grid container spacing={isMobile ? 1 : 2}>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Name")}
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
-                      label={t("Category")}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Description")}
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Price")}
+                      name="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledFormControl fullWidth margin="normal">
+                      <InputLabel>{t("Category")}</InputLabel>
+                      <Select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleInputChange}
+                        label={t("Category")}
+                      >
+                        {categories.map((cat) => (
+                          <MenuItem key={cat._id} value={cat.name}>
+                            {t(cat.name)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </StyledFormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Stock")}
+                      name="stock"
+                      type="number"
+                      value={formData.stock}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      label={t("Image URL")}
+                      name="image"
+                      value={formData.image}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                  </Grid>
+                </Grid>
+                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                  <ActionButton
+                    onClick={
+                      editingProduct ? handleUpdateProduct : handleAddProduct
+                    }
+                    startIcon={<AddIcon />}
+                  >
+                    {editingProduct ? t("Update") : t("Add")}
+                  </ActionButton>
+                  {editingProduct && (
+                    <Button
+                      variant="outlined"
+                      onClick={resetProductForm}
+                      sx={{
+                        borderRadius: 2,
+                        color: "#555",
+                        borderColor: "#ccc",
+                      }}
                     >
-                      {categories.map((cat) => (
-                        <MenuItem key={cat._id} value={cat.name}>
-                          {t(cat.name)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </StyledFormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <StyledTextField
-                    label={t("Stock")}
-                    name="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <StyledTextField
-                    label={t("Image URL")}
-                    name="image"
-                    value={formData.image}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                </Grid>
-              </Grid>
-              <ActionButton onClick={handleAddProduct} sx={{ mt: 2 }}>
-                {t("Add Product")}
-              </ActionButton>
-            </SectionCard>
+                      {t("Cancel")}
+                    </Button>
+                  )}
+                </Box>
+              </SectionCard>
+
+              {/* Product List */}
+              <SectionCard sx={{ mt: 4 }}>
+                <Typography
+                  variant={isMobile ? "subtitle1" : "h6"}
+                  sx={{ fontWeight: 600, mb: 2 }}
+                >
+                  {t("Product List")}
+                </Typography>
+                {products.length === 0 ? (
+                  <Typography sx={{ textAlign: "center", color: "#555" }}>
+                    {t("No products yet.")}
+                  </Typography>
+                ) : (
+                  <List>
+                    {products.map((product) => (
+                      <ListItem
+                        key={product._id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                          bgcolor: "#fff",
+                          borderRadius: 2,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                          flexDirection: isMobile ? "column" : "row",
+                          alignItems: isMobile ? "flex-start" : "center",
+                          p: 2,
+                        }}
+                      >
+                        <ListItemText
+                          primary={product.name}
+                          secondary={`${t("Price")}: $${product.price} | ${t(
+                            "Category"
+                          )}: ${product.category} | ${t("Stock")}: ${
+                            product.stock
+                          }`}
+                          sx={{ mb: isMobile ? 1 : 0 }}
+                        />
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <StyledIconButton
+                            onClick={() => handleEditProduct(product)}
+                          >
+                            <EditIcon />
+                          </StyledIconButton>
+                          <StyledIconButton
+                            onClick={() => handleDeleteProduct(product._id)}
+                          >
+                            <DeleteIcon />
+                          </StyledIconButton>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </SectionCard>
+            </Box>
           )}
 
           {tabValue === 1 && (
