@@ -731,23 +731,28 @@ function AdminDashboard() {
   };
 
   const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError(t("Product name is required"));
+      return false;
+    }
     if (
-      !formData.name ||
-      !formData.description ||
       !formData.price ||
-      !formData.image ||
-      !formData.category ||
-      !formData.stock
+      isNaN(formData.price) ||
+      Number(formData.price) <= 0
     ) {
-      setError(t("All fields are required"));
+      setError(t("Valid price is required"));
       return false;
     }
-    if (isNaN(formData.price) || Number(formData.price) <= 0) {
-      setError(t("Price must be a positive number"));
+    if (!formData.category) {
+      setError(t("Category is required"));
       return false;
     }
-    if (isNaN(formData.stock) || Number(formData.stock) < 0) {
-      setError(t("Stock must be a non-negative number"));
+    if (
+      !formData.stock ||
+      isNaN(formData.stock) ||
+      Number(formData.stock) < 0
+    ) {
+      setError(t("Valid stock quantity is required"));
       return false;
     }
     return true;
@@ -793,25 +798,31 @@ function AdminDashboard() {
   };
 
   const handleAddProduct = async () => {
+    console.log("Submitting product:", formData); // Debug
     if (!validateForm()) return;
     try {
-      const payload = {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-      };
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/products",
-        payload,
         {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
+          ...formData,
+          description: formData.description || "", // Default to empty string
+          image: formData.image || "", // Default to empty string
+        },
+        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       setProducts([...products, response.data]);
-      resetProductForm();
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        stock: "",
+        image: "",
+      });
       setSuccess(t("Product added successfully"));
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
+      console.log("Error:", error.response?.data); // Debug
       setError(
         t("Failed to add product") +
           ": " +
@@ -1450,268 +1461,88 @@ function AdminDashboard() {
             <Tab label={t("Categories")} /> {/* New Tab */}
           </StyledTabs>
           {tabValue === 0 && (
-            <Box>
-              <SectionCard>
-                <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
-                >
-                  {editingProduct ? t("Edit Product") : t("Add New Product")}
-                </Typography>
-                <Grid container spacing={isMobile ? 1 : 2}>
-                  <Grid item xs={12} sm={6}>
-                    <StyledTextField
-                      label={t("Name")}
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <StyledTextField
-                      label={t("Price")}
-                      name="price"
-                      type="number"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <StyledTextField
-                      label={t("Description")}
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      multiline
-                      rows={2}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <StyledTextField
-                      label={t("Image URL")}
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <StyledFormControl fullWidth>
-                      <InputLabel>{t("Category")}</InputLabel>
-                      <Select
-                        name="category"
-                        value={filterData.category}
-                        onChange={handleFilterChange}
-                        label={t("Category")}
-                      >
-                        <MenuItem value="">{t("All")}</MenuItem>
-                        {categories.map((cat) => (
-                          <MenuItem key={cat._id} value={cat.name}>
-                            {t(cat.name)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </StyledFormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <StyledTextField
-                      label={t("Stock")}
-                      name="stock"
-                      type="number"
-                      value={formData.stock}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                  </Grid>
+            <SectionCard>
+              <Typography
+                variant={isMobile ? "subtitle1" : "h6"}
+                sx={{ fontWeight: 600, mb: 2 }}
+              >
+                {t("Add New Product")}
+              </Typography>
+              <Grid container spacing={isMobile ? 1 : 2}>
+                <Grid item xs={12} sm={6}>
+                  <StyledTextField
+                    label={t("Name")}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
                 </Grid>
-                <Box
-                  sx={{
-                    mt: 2,
-                    display: "flex",
-                    gap: 1,
-                    justifyContent: isMobile ? "center" : "flex-start",
-                  }}
-                >
-                  <ActionButton
-                    onClick={
-                      editingProduct ? handleUpdateProduct : handleAddProduct
-                    }
-                    startIcon={<AddIcon />}
-                  >
-                    {editingProduct ? t("Update") : t("Add")}
-                  </ActionButton>
-                  {editingProduct && (
-                    <Button
-                      variant="outlined"
-                      onClick={resetProductForm}
-                      sx={{
-                        borderRadius: 2,
-                        color: "#555",
-                        borderColor: "#ccc",
-                      }}
-                    >
-                      {t("Cancel")}
-                    </Button>
-                  )}
-                </Box>
-              </SectionCard>
-
-              <SectionCard>
-                <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
-                >
-                  {t("Filter Products")}
-                </Typography>
-                <Grid container spacing={isMobile ? 1 : 2}>
-                  <Grid item xs={12} sm={2}>
-                    <StyledFormControl fullWidth>
-                      <InputLabel>{t("Category")}</InputLabel>
-                      <Select
-                        name="category"
-                        value={filterData.category}
-                        onChange={handleFilterChange}
-                        label={t("Category")}
-                      >
-                        <MenuItem value="">{t("All")}</MenuItem>
-                        {categories.map((cat) => (
-                          <MenuItem key={cat} value={cat}>
-                            {t(cat)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </StyledFormControl>
-                  </Grid>
-                  <Grid item xs={6} sm={2}>
-                    <StyledTextField
-                      label={t("Min Price")}
-                      name="minPrice"
-                      type="number"
-                      value={filterData.minPrice}
-                      onChange={handleFilterChange}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={2}>
-                    <StyledTextField
-                      label={t("Max Price")}
-                      name="maxPrice"
-                      type="number"
-                      value={filterData.maxPrice}
-                      onChange={handleFilterChange}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={2}>
-                    <StyledTextField
-                      label={t("Min Stock")}
-                      name="minStock"
-                      type="number"
-                      value={filterData.minStock}
-                      onChange={handleFilterChange}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={2}>
-                    <StyledTextField
-                      label={t("Max Stock")}
-                      name="maxStock"
-                      type="number"
-                      value={filterData.maxStock}
-                      onChange={handleFilterChange}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2}>
-                    <StyledTextField
-                      label={t("Search")}
-                      name="search"
-                      value={filterData.search}
-                      onChange={handleFilterChange}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      justifyContent: isMobile ? "center" : "flex-start",
-                    }}
-                  >
-                    <ActionButton onClick={applyFilters}>
-                      {t("Apply Filters")}
-                    </ActionButton>
-                    <Button
-                      variant="outlined"
-                      onClick={clearFilters}
-                      sx={{
-                        borderRadius: 2,
-                        color: "#555",
-                        borderColor: "#ccc",
-                      }}
-                    >
-                      {t("Clear")}
-                    </Button>
-                  </Grid>
+                <Grid item xs={12} sm={6}>
+                  <StyledTextField
+                    label={t("Description")}
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
                 </Grid>
-              </SectionCard>
-
-              <SectionCard>
-                <Typography
-                  variant={isMobile ? "subtitle1" : "h6"}
-                  sx={{ fontWeight: 600, mb: 2 }}
-                >
-                  {t("Product List")}
-                </Typography>
-                <List>
-                  {products.map((product) => (
-                    <ListItem
-                      key={product._id}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1,
-                        bgcolor: "#fff",
-                        borderRadius: 2,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                        flexDirection: isMobile ? "column" : "row",
-                        alignItems: isMobile ? "flex-start" : "center",
-                      }}
+                <Grid item xs={12} sm={6}>
+                  <StyledTextField
+                    label={t("Price")}
+                    name="price"
+                    type="number"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <StyledFormControl fullWidth margin="normal">
+                    <InputLabel>{t("Category")}</InputLabel>
+                    <Select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      label={t("Category")}
                     >
-                      <ListItemText
-                        primary={product.name}
-                        secondary={`${t("$")}${product.price} - ${t(
-                          product.category
-                        )} - ${t("Stock")}: ${product.stock}`}
-                        sx={{ mb: isMobile ? 1 : 0 }}
-                      />
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <StyledIconButton
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          <EditIcon />
-                        </StyledIconButton>
-                        <StyledIconButton
-                          onClick={() => handleDeleteProduct(product._id)}
-                        >
-                          <DeleteIcon />
-                        </StyledIconButton>
-                      </Box>
-                    </ListItem>
-                  ))}
-                </List>
-              </SectionCard>
-            </Box>
+                      {categories.map((cat) => (
+                        <MenuItem key={cat._id} value={cat.name}>
+                          {t(cat.name)}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </StyledFormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <StyledTextField
+                    label={t("Stock")}
+                    name="stock"
+                    type="number"
+                    value={formData.stock}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <StyledTextField
+                    label={t("Image URL")}
+                    name="image"
+                    value={formData.image}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                </Grid>
+              </Grid>
+              <ActionButton onClick={handleAddProduct} sx={{ mt: 2 }}>
+                {t("Add Product")}
+              </ActionButton>
+            </SectionCard>
           )}
 
           {tabValue === 1 && (
