@@ -1290,19 +1290,6 @@ function AdminDashboard() {
     }
   };
 
-  const resetProductForm = () => {
-    setEditingProduct(null);
-    setFormData({
-      name: "",
-      description: "",
-      price: "",
-      image: "",
-      category: "",
-      stock: "",
-    });
-    setError("");
-  };
-
   const resetUserForm = () => {
     setEditingUser(null);
     setUserFormData({ name: "", email: "", role: "" });
