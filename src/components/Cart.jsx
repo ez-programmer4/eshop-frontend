@@ -40,6 +40,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// Load Stripe with your public key
 const stripePromise = loadStripe(
   "pk_test_51Qw6R4KGvURwtTvTPtLs0IgjxOM4YWvnTghKcFfbkJZdEaZbeW5oar2DaGrcr6uUZPb2YRQtuFM3Ah3Ah3dR430ok9900C8ATrI9w"
 ).catch((err) => {
@@ -47,6 +48,7 @@ const stripePromise = loadStripe(
   return null;
 });
 
+// Animation keyframes
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -58,6 +60,7 @@ const bounce = keyframes`
   100% { transform: scale(1); }
 `;
 
+// Styled components
 const CartCard = styled(Card)(({ theme }) => ({
   borderRadius: "16px",
   boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12)",
@@ -121,7 +124,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 function Cart() {
-  const { cart, removeFromCart, updateQuantity, setCart } =
+  const { cart, removeFromCart, updateQuantity, setCart, loading } =
     useContext(CartContext);
   const { user } = useContext(AuthContext);
   const { t } = useTranslation();
@@ -160,51 +163,57 @@ function Cart() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [validationErrors, setValidationErrors] = useState({});
 
+  // Effect to group cart items into bundles and singles, including new clothing items
   useEffect(() => {
-    console.log("Cart data:", cart);
-    const bundles = {};
-    const singles = [];
-    const processedBundleIds = new Set();
+    if (!loading) {
+      console.log("Cart data:", cart);
+      const bundles = {};
+      const singles = [];
+      const processedBundleIds = new Set();
 
-    cart.forEach((item) => {
-      if (
-        item.bundle &&
-        item.bundle.bundleId &&
-        !processedBundleIds.has(item.bundle.bundleId)
-      ) {
-        const bundleId = item.bundle.bundleId;
-        const bundleItems = cart.filter((i) => i.bundle?.bundleId === bundleId);
-        bundles[bundleId] = {
-          bundleId,
-          name: item.bundle.name,
-          discount: item.bundle.discount || 0,
-          price: item.bundle.bundlePrice || 0,
-          quantity: 1,
-          items: bundleItems.map((bi) => ({
-            ...bi.productId,
-            cartItemId: bi._id || bi.productId,
-          })),
-        };
-        processedBundleIds.add(bundleId);
-      } else if (!item.bundle) {
-        singles.push({
-          ...item.productId,
-          quantity: item.quantity,
-          cartItemId: item._id || item.productId,
-        });
-      }
-    });
-    console.log("Grouped items:", { bundles, singles });
-    setGroupedItems({ bundles, singles });
-  }, [cart]);
+      cart.forEach((item) => {
+        if (
+          item.bundle &&
+          item.bundle.bundleId &&
+          !processedBundleIds.has(item.bundle.bundleId)
+        ) {
+          const bundleId = item.bundle.bundleId;
+          const bundleItems = cart.filter(
+            (i) => i.bundle?.bundleId === bundleId
+          );
+          bundles[bundleId] = {
+            bundleId,
+            name: item.bundle.name,
+            discount: item.bundle.discount || 0,
+            price: item.bundle.bundlePrice || 0,
+            quantity: 1,
+            items: bundleItems.map((bi) => ({
+              ...bi.productId,
+              cartItemId: bi._id || bi.productId,
+            })),
+          };
+          processedBundleIds.add(bundleId);
+        } else if (!item.bundle) {
+          singles.push({
+            ...(typeof item.productId === "object" ? item.productId : {}),
+            quantity: item.quantity,
+            cartItemId: item._id || item.productId,
+          });
+        }
+      });
 
+      console.log("Grouped items:", { bundles, singles });
+      setGroupedItems({ bundles, singles });
+    }
+  }, [cart, loading]);
+
+  // Remove an entire bundle from the cart
   const handleRemoveBundle = async (bundleId) => {
     const bundleItems = groupedItems.bundles[bundleId].items;
     try {
       await Promise.all(
         bundleItems.map((item) => removeFromCart(item.cartItemId))
       );
-      // Ensure state reflects removal
       setGroupedItems((prev) => {
         const newBundles = { ...prev.bundles };
         delete newBundles[bundleId];
@@ -215,15 +224,18 @@ function Cart() {
     }
   };
 
+  // Remove a single item from the cart
   const handleRemoveSingle = (cartItemId) => {
     removeFromCart(cartItemId);
   };
 
+  // Increase item quantity
   const handleIncreaseQuantity = (id) => {
     const item = cart.find((i) => i._id === id || i.productId === id);
     if (item) updateQuantity(id, item.quantity + 1);
   };
 
+  // Decrease item quantity or remove if it reaches 1
   const handleDecreaseQuantity = (id) => {
     const item = cart.find((i) => i._id === id || i.productId === id);
     if (item && item.quantity > 1) {
@@ -233,6 +245,7 @@ function Cart() {
     }
   };
 
+  // Apply discount code
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) {
       setError(t("Please enter a discount code"));
@@ -252,8 +265,10 @@ function Cart() {
     }
   };
 
+  // Calculate price for a bundle
   const calculateBundlePrice = (bundle) => (bundle.price || 0).toFixed(2);
 
+  // Calculate total cart value with discount
   const calculateTotal = () => {
     const bundleTotal = Object.values(groupedItems.bundles).reduce(
       (sum, bundle) => sum + (bundle.price || 0),
@@ -268,6 +283,7 @@ function Cart() {
     return (subtotal - discountAmount).toFixed(2);
   };
 
+  // Generate a PNR code
   const generatePNR = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return Array(6)
@@ -276,12 +292,14 @@ function Cart() {
       .join("");
   };
 
+  // Validate phone number based on payment method
   const validatePhoneNumber = (value) => {
     if (paymentMethod === "telebirr") return /^09\d{8}$/.test(value);
     if (paymentMethod === "mpesa") return /^07\d{8}$/.test(value);
     return true;
   };
 
+  // Handle phone number input
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 10);
     setPhoneNumber(value);
@@ -296,6 +314,7 @@ function Cart() {
     }
   };
 
+  // Validate address fields
   const validateAddress = (address, type) => {
     const errors = {};
     if (!address.street.trim()) errors.street = t(`${type} street is required`);
@@ -309,6 +328,7 @@ function Cart() {
     return errors;
   };
 
+  // Handle checkout process
   const handleCheckout = () => {
     if (!user || !user.email) {
       navigate("/login");
@@ -332,11 +352,13 @@ function Cart() {
     setError("");
   };
 
+  // Copy PNR to clipboard
   const handleCopyPNR = () => {
     navigator.clipboard.writeText(pnrCode);
     alert(t("PNR copied: ") + pnrCode);
   };
 
+  // Create order and send to backend
   const createOrder = async (paymentDetails) => {
     try {
       const orderData = {
@@ -345,7 +367,7 @@ function Cart() {
         items: [
           ...Object.values(groupedItems.bundles).map((bundle) => ({
             bundleId: bundle.bundleId,
-            quantity: 1, // Fixed at 1 for bundles
+            quantity: 1,
             price: bundle.price,
           })),
           ...groupedItems.singles.map((item) => ({
@@ -355,7 +377,6 @@ function Cart() {
           })),
         ],
         total: calculateTotal(),
-        status: "Pending",
         shippingAddress,
         billingAddress,
         paymentMethod: {
@@ -377,7 +398,7 @@ function Cart() {
         orderData,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      setCart([]);
+      setCart([]); // Clear cart after successful order
       setIsPaymentStep(false);
       navigate("/order-confirmation", { state: { order: response.data } });
     } catch (err) {
@@ -388,11 +409,9 @@ function Cart() {
     }
   };
 
+  // Handle payment processing
   const handlePayment = async () => {
-    console.log("User object:", user);
-    console.log("Token:", user?.token);
     const headers = { Authorization: `Bearer ${user?.token}` };
-    console.log("Headers being sent:", headers);
     if (!user?.token) {
       navigate("/login");
       setError(t("Please log in to proceed with payment"));
@@ -436,6 +455,8 @@ function Cart() {
       setError(err.response?.data.message || t("Payment failed"));
     }
   };
+
+  // Payment form component
   const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
@@ -638,7 +659,11 @@ function Cart() {
       >
         {t("Your Cart")}
       </Typography>
-      {cart.length === 0 ? (
+      {loading ? (
+        <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
+          {t("Loading cart...")}
+        </Typography>
+      ) : cart.length === 0 ? (
         <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
           {t("Cart is empty")}
         </Typography>
@@ -695,12 +720,16 @@ function Cart() {
                           <Typography
                             sx={{ fontWeight: 600, fontSize: "1.1rem" }}
                           >
-                            {item.name}
+                            {item.name || "Unknown Product"}
                           </Typography>
                         }
                         secondary={
                           <Typography sx={{ color: "#666" }}>
-                            ${item.price || "N/A"} x {item.quantity}
+                            $
+                            {item.price !== undefined
+                              ? item.price.toFixed(2)
+                              : "N/A"}{" "}
+                            x {item.quantity}
                           </Typography>
                         }
                       />
@@ -889,11 +918,11 @@ function Cart() {
                     $
                     {(
                       Object.values(groupedItems.bundles).reduce(
-                        (sum, b) => sum + b.price,
+                        (sum, b) => sum + (b.price || 0),
                         0
                       ) +
                       groupedItems.singles.reduce(
-                        (sum, i) => sum + (i.price || 0) * i.quantity,
+                        (sum, i) => sum + (i.price || 0) * (i.quantity || 1),
                         0
                       )
                     ).toFixed(2)}
@@ -914,11 +943,12 @@ function Cart() {
                       -$
                       {(
                         (Object.values(groupedItems.bundles).reduce(
-                          (sum, b) => sum + b.price,
+                          (sum, b) => sum + (b.price || 0),
                           0
                         ) +
                           groupedItems.singles.reduce(
-                            (sum, i) => sum + (i.price || 0) * i.quantity,
+                            (sum, i) =>
+                              sum + (i.price || 0) * (i.quantity || 1),
                             0
                           )) *
                         (discount / 100)

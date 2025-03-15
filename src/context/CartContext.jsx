@@ -5,16 +5,19 @@ export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCart();
   }, []);
 
   const fetchCart = async () => {
+    setLoading(true); // Start loading
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         setCart([]);
+        setLoading(false);
         return;
       }
       const response = await axios.get(
@@ -23,7 +26,6 @@ export const CartProvider = ({ children }) => {
       );
       let items = response.data.items || [];
 
-      // If productId is a string, fetch product details
       if (items.length > 0 && typeof items[0].productId === "string") {
         const productIds = items.map((item) => item.productId);
         const productPromises = productIds.map((id) =>
@@ -45,6 +47,8 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to fetch cart:", error);
       setCart([]);
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
