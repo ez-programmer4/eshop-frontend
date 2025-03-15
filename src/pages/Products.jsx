@@ -38,9 +38,9 @@ const pulse = keyframes`
 `;
 
 const ribbonPulse = keyframes`
-  0% { transform: scale(1) rotate(-45deg) translateZ(0); }
-  50% { transform: scale(1.03) rotate(-45deg) translateZ(5px); }
-  100% { transform: scale(1) rotate(-45deg) translateZ(0); }
+  0% { transform: scale(1) rotate(-45deg); }
+  50% { transform: scale(1.03) rotate(-45deg); }
+  100% { transform: scale(1) rotate(-45deg); }
 `;
 
 const shine = keyframes`
@@ -48,55 +48,42 @@ const shine = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const rotate3D = keyframes`
-  0% { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-  50% { transform: perspective(1000px) rotateY(5deg) rotateX(5deg); }
-  100% { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-`;
-
-// Custom styled components
+// Styled Components
 const ProductsContainer = styled(Box)(({ theme }) => ({
-  maxWidth: 1400,
-  margin: "auto",
-  padding: theme.spacing(3),
-  background: "linear-gradient(135deg, #f9e8d9 0%, #f2d7b8 100%)", // Warm, festive gradient
-  borderRadius: "20px",
-  minHeight: "80vh",
-  animation: `${slideIn} 0.7s ease-out`,
-  boxShadow: "0 6px 25px rgba(0, 0, 0, 0.08)",
-  border: "1px solid rgba(255, 215, 0, 0.2)",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-  },
+  maxWidth: 1440,
+  margin: "0 auto",
+  padding: theme.spacing(4),
+  minHeight: "100vh",
+  background: `url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`,
+  animation: `${slideIn} 0.8s ease-out`,
+  [theme.breakpoints.down("md")]: { padding: theme.spacing(3) },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const ProductCard = styled(Card)(({ theme }) => ({
-  borderRadius: "14px",
-  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   backgroundColor: "#fff",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  transition: "all 0.3s ease",
   "&:hover": {
-    transform: "translateY(-6px)",
-    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
+    transform: "translateY(-8px)",
+    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.12)",
   },
   cursor: "pointer",
   overflow: "hidden",
+  [theme.breakpoints.down("sm")]: { borderRadius: "12px" },
 }));
 
 const GiftBoxCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  borderRadius: "24px",
-  boxShadow:
-    "0 10px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(255, 105, 135, 0.3)", // 3D shadow with glow
-  background: "linear-gradient(145deg, #ff6b81 0%, #ff8e53 50%, #ffcc70 100%)", // Vibrant 3D gradient
+  borderRadius: "20px",
+  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+  background: "linear-gradient(145deg, #ff6b81 0%, #feb47b 100%)",
   overflow: "hidden",
-  transform: "perspective(1000px) rotateY(0deg) rotateX(0deg)",
-  transition: "transform 0.5s ease, box-shadow 0.5s ease",
+  transition: "all 0.3s ease",
   "&:hover": {
-    transform: "perspective(1000px) rotateY(5deg) rotateX(5deg) scale(1.03)",
-    boxShadow:
-      "0 15px 50px rgba(0, 0, 0, 0.25), 0 0 30px rgba(255, 105, 135, 0.5)",
-    animation: `${rotate3D} 4s infinite ease-in-out`,
+    transform: "translateY(-6px)",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
   },
   "&:before": {
     content: '""',
@@ -106,141 +93,112 @@ const GiftBoxCard = styled(Card)(({ theme }) => ({
     width: "200%",
     height: "200%",
     background:
-      "linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent)",
-    animation: `${shine} 2.5s infinite`,
+      "linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+    animation: `${shine} 3s infinite`,
     zIndex: 1,
   },
-  "&:after": {
-    content: '""',
-    position: "absolute",
-    inset: "4px",
-    background: "rgba(255, 255, 255, 0.1)", // Inner 3D depth layer
-    borderRadius: "20px",
-    zIndex: 0,
-  },
-  [theme.breakpoints.down("sm")]: {
-    borderRadius: "18px",
-  },
+  [theme.breakpoints.down("sm")]: { borderRadius: "16px" },
 }));
 
 const Ribbon = styled(Box)(({ theme }) => ({
   position: "absolute",
-  top: "20px",
-  left: "-60px",
-  width: "200px",
-  height: "50px",
-  background: "linear-gradient(90deg, #ffd700 0%, #ffec80 100%)", // Luxurious gold ribbon
-  transform: "rotate(-45deg) translateZ(10px)",
+  top: "15px",
+  left: "-50px",
+  width: "180px",
+  height: "40px",
+  background: "linear-gradient(90deg, #ffd700 0%, #ffec80 100%)",
+  transform: "rotate(-45deg)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: "#4a2c00",
-  fontWeight: 800,
-  fontSize: "1.1rem",
-  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.25)",
+  color: "#1a202c",
+  fontWeight: 700,
+  fontSize: "1rem",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   animation: `${ribbonPulse} 2s infinite`,
-  zIndex: 3,
+  zIndex: 2,
   textTransform: "uppercase",
-  letterSpacing: "1.5px",
-  border: "2px solid #ffcc00",
+  letterSpacing: "1px",
   [theme.breakpoints.down("sm")]: {
-    width: "160px",
-    height: "40px",
-    fontSize: "0.9rem",
-    left: "-50px",
+    width: "140px",
+    height: "35px",
+    fontSize: "0.85rem",
+    left: "-40px",
   },
 }));
 
 const Bow = styled(Box)(({ theme }) => ({
   position: "absolute",
-  bottom: "15px",
-  right: "15px",
-  width: "60px",
-  height: "60px",
-  background: "radial-gradient(circle, #ff4040 20%, #ff8080 70%, #ffcccc 100%)", // 3D bow effect
+  bottom: "10px",
+  right: "10px",
+  width: "50px",
+  height: "50px",
+  background: "radial-gradient(circle, #ff4040 20%, #ff8080 70%)",
   borderRadius: "50%",
   boxShadow:
-    "0 4px 12px rgba(0, 0, 0, 0.25), inset 0 0 10px rgba(255, 255, 255, 0.3)",
-  zIndex: 2,
-  transform: "translateZ(5px)",
+    "0 4px 12px rgba(0, 0, 0, 0.15), inset 0 0 8px rgba(255, 255, 255, 0.2)",
   "&:before": {
     content: '""',
     position: "absolute",
     top: "50%",
     left: "50%",
-    width: "30px",
-    height: "30px",
-    background: "rgba(255, 255, 255, 0.8)",
+    width: "25px",
+    height: "25px",
+    background: "rgba(255, 255, 255, 0.7)",
     borderRadius: "50%",
     transform: "translate(-50%, -50%)",
-    boxShadow: "inset 0 0 5px rgba(0, 0, 0, 0.2)",
   },
-  "&:after": {
-    content: '""',
-    position: "absolute",
-    width: "70px",
-    height: "10px",
-    background: "#ff4040",
-    top: "50%",
-    left: "-5px",
-    transform: "translateY(-50%) rotate(20deg)",
-    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
-    zIndex: -1,
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "45px",
-    height: "45px",
-  },
+  [theme.breakpoints.down("sm")]: { width: "40px", height: "40px" },
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#f0c14b",
-  color: "#111",
+  background: "linear-gradient(135deg, #feb47b 0%, #ff6b81 100%)",
+  color: "#fff",
   padding: theme.spacing(1, 2.5),
-  borderRadius: "10px",
-  fontWeight: 700,
+  borderRadius: "12px",
+  fontWeight: 600,
+  fontSize: "0.95rem",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   "&:hover": {
-    backgroundColor: "#d9a32a",
-    transform: "scale(1.06)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-  },
-  transition: "background-color 0.3s, transform 0.3s",
-  [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(0.75, 1.5),
-    fontSize: "0.8rem",
-  },
-}));
-
-const BundleButton = styled(Button)(({ theme, added }) => ({
-  backgroundColor: added ? "#4caf50" : "#ffffff",
-  color: added ? "#fff" : "#ff6b81",
-  padding: theme.spacing(1.5, 3.5),
-  borderRadius: "14px",
-  fontWeight: 800,
-  fontSize: { xs: "0.9rem", sm: "1.1rem" },
-  textTransform: "uppercase",
-  boxShadow: added
-    ? "0 4px 15px rgba(76, 175, 80, 0.4)"
-    : "0 4px 15px rgba(255, 107, 129, 0.3)",
-  border: `3px solid ${added ? "#4caf50" : "#ff6b81"}`,
-  "&:hover": {
-    backgroundColor: added ? "#388e3c" : "#ffebee",
-    animation: `${pulse} 0.6s infinite`,
+    background: "linear-gradient(135deg, #ff6b81 0%, #feb47b 100%)",
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
   },
   transition: "all 0.3s ease",
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(1, 2),
+    padding: theme.spacing(0.75, 2),
     fontSize: "0.85rem",
   },
 }));
 
-const FavoriteButton = styled(IconButton)(({ theme, active }) => ({
-  color: active ? "#e91e63" : "#777",
+const BundleButton = styled(Button)(({ theme, added }) => ({
+  backgroundColor: added ? "#4caf50" : "#fff",
+  color: added ? "#fff" : "#ff6b81",
+  padding: theme.spacing(1.5, 3),
+  borderRadius: "12px",
+  fontWeight: 700,
+  fontSize: "1rem",
+  boxShadow: added
+    ? "0 4px 12px rgba(76, 175, 80, 0.3)"
+    : "0 4px 12px rgba(0, 0, 0, 0.05)",
+  border: `2px solid ${added ? "#4caf50" : "#ff6b81"}`,
   "&:hover": {
-    transform: "scale(1.15)",
-    transition: "transform 0.2s",
+    backgroundColor: added ? "#388e3c" : "#fff0f0",
+    boxShadow: added
+      ? "0 6px 16px rgba(76, 175, 80, 0.4)"
+      : "0 6px 16px rgba(255, 107, 129, 0.2)",
   },
-  boxShadow: active ? "0 2px 8px rgba(233, 30, 99, 0.3)" : "none",
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 2),
+    fontSize: "0.9rem",
+  },
+}));
+
+const FavoriteButton = styled(IconButton)(({ theme, active }) => ({
+  color: active ? "#ff6b81" : "#4a5568",
+  "&:hover": { transform: "scale(1.2)", color: "#feb47b" },
+  transition: "all 0.3s ease",
+  boxShadow: active ? "0 2px 8px rgba(255, 107, 129, 0.3)" : "none",
 }));
 
 function Products() {
@@ -252,6 +210,7 @@ function Products() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [products, setProducts] = useState([]);
   const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -262,8 +221,6 @@ function Products() {
     fetchProducts();
     fetchBundles();
   }, []);
-
-  useEffect(() => {}, [cart]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -355,44 +312,38 @@ function Products() {
     <ProductsContainer>
       {/* Bundles Section */}
       <Typography
-        variant={isMobile ? "h6" : "h4"}
+        variant={isMobile ? "h5" : "h4"}
         sx={{
-          color: "#4a2c00",
-          fontWeight: 800,
+          fontWeight: 700,
+          color: "#1a202c",
           textAlign: "center",
-          mb: isMobile ? 2 : 4,
-          textShadow: "0 2px 4px rgba(0, 0, 0, 0.15)",
-          letterSpacing: "1px",
+          mb: isMobile ? 3 : 5,
+          letterSpacing: "-0.3px",
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
         }}
       >
         {t("Gift Bundles")}
       </Typography>
       {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            py: isMobile ? 2 : 4,
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
           <CircularProgress
-            sx={{ color: "#ff8e53" }}
-            size={isMobile ? 30 : 40}
+            sx={{ color: "#ff6b81" }}
+            size={isMobile ? 40 : 50}
           />
         </Box>
       ) : bundles.length === 0 ? (
         <Typography
           sx={{
-            color: "#777",
+            color: "#4a5568",
             textAlign: "center",
-            py: isMobile ? 2 : 4,
-            fontSize: { xs: 14, sm: 16 },
+            py: 4,
+            fontSize: "1.1rem",
           }}
         >
           {t("No bundles available")}
         </Typography>
       ) : (
-        <Grid container spacing={isMobile ? 2 : 4}>
+        <Grid container spacing={isMobile ? 2 : isTablet ? 3 : 4}>
           {bundles.map((bundle) => (
             <Grid item xs={12} sm={6} md={4} key={bundle._id}>
               <GiftBoxCard>
@@ -404,21 +355,20 @@ function Products() {
                   <Typography
                     variant="h6"
                     sx={{
-                      fontWeight: 800,
+                      fontWeight: 700,
                       mb: 2,
-                      textShadow: "0 3px 6px rgba(0, 0, 0, 0.4)",
-                      letterSpacing: "0.8px",
+                      textShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                     }}
                   >
                     {bundle.name || t("Unnamed Bundle")}
                   </Typography>
                   <Typography
-                    sx={{ fontSize: { xs: 13, sm: 15 }, mb: 1.5, opacity: 0.9 }}
+                    sx={{ fontSize: "0.95rem", mb: 1.5, opacity: 0.9 }}
                   >
                     {bundle.description || t("No description")}
                   </Typography>
                   <Typography
-                    sx={{ fontSize: { xs: 13, sm: 15 }, mb: 1.5, opacity: 0.9 }}
+                    sx={{ fontSize: "0.95rem", mb: 1.5, opacity: 0.9 }}
                   >
                     {t("Includes")}:{" "}
                     {(bundle.products || [])
@@ -427,20 +377,19 @@ function Products() {
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: { xs: 14, sm: 16 },
+                      fontSize: "1rem",
                       mb: 1,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       color: "#ffd700",
-                      textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
                     }}
                   >
                     {t("Save")}: {bundle.discount || 0}%
                   </Typography>
                   <Typography
                     sx={{
-                      fontWeight: 900,
-                      fontSize: { xs: 20, sm: 24 },
-                      textShadow: "0 3px 8px rgba(0, 0, 0, 0.4)",
+                      fontWeight: 800,
+                      fontSize: "1.5rem",
+                      textShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                     }}
                   >
                     ${bundle.price || "N/A"}
@@ -451,12 +400,8 @@ function Products() {
                     added={addedBundles[bundle._id]}
                     onClick={() => handleAddBundleToCart(bundle)}
                   >
-                    <ShoppingCartIcon
-                      sx={{ mr: 1, fontSize: isMobile ? 18 : 22 }}
-                    />
-                    {addedBundles[bundle._id]
-                      ? t("Added!")
-                      : `${t("Add Bundle")} - ${bundle.discount}%`}
+                    <ShoppingCartIcon sx={{ mr: 1 }} />
+                    {addedBundles[bundle._id] ? t("Added!") : t("Add Bundle")}
                   </BundleButton>
                 </Box>
               </GiftBoxCard>
@@ -466,63 +411,69 @@ function Products() {
       )}
 
       {/* Products Section */}
-      <Divider sx={{ my: isMobile ? 3 : 5, bgcolor: "rgba(0, 0, 0, 0.1)" }} />
+      <Divider sx={{ my: isMobile ? 4 : 6, bgcolor: "rgba(0, 0, 0, 0.05)" }} />
       <Typography
-        variant={isMobile ? "h6" : "h4"}
+        variant={isMobile ? "h5" : "h4"}
         sx={{
-          color: "#4a2c00",
-          fontWeight: 800,
+          fontWeight: 700,
+          color: "#1a202c",
           textAlign: "center",
-          mb: isMobile ? 2 : 4,
-          textShadow: "0 2px 4px rgba(0, 0, 0, 0.15)",
-          letterSpacing: "1px",
+          mb: isMobile ? 3 : 5,
+          letterSpacing: "-0.3px",
+          textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
         }}
       >
         {t("Products")}
       </Typography>
       {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            py: isMobile ? 2 : 4,
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
           <CircularProgress
-            sx={{ color: "#ff8e53" }}
-            size={isMobile ? 30 : 40}
+            sx={{ color: "#ff6b81" }}
+            size={isMobile ? 40 : 50}
           />
         </Box>
+      ) : error ? (
+        <Typography
+          color="error"
+          sx={{
+            textAlign: "center",
+            py: 3,
+            fontSize: "1.2rem",
+            fontWeight: 500,
+          }}
+        >
+          {error}
+        </Typography>
       ) : products.length === 0 ? (
         <Typography
           sx={{
-            color: "#777",
+            color: "#4a5568",
             textAlign: "center",
-            py: isMobile ? 2 : 4,
-            fontSize: { xs: 14, sm: 16 },
+            py: 4,
+            fontSize: "1.1rem",
           }}
         >
           {t("No products available")}
         </Typography>
       ) : (
-        <Grid container spacing={isMobile ? 2 : 4}>
+        <Grid container spacing={isMobile ? 2 : isTablet ? 3 : 4}>
           {products.map((product) => (
             <Grid item xs={12} sm={6} md={4} key={product._id}>
               <ProductCard onClick={() => navigate(`/product/${product._id}`)}>
                 <CardMedia
                   component="img"
-                  height={isMobile ? "160" : "220"}
+                  height={isMobile ? "160" : isTablet ? "200" : "240"}
                   image={product.image || "https://via.placeholder.com/150"}
                   alt={product.name || "Product"}
-                  sx={{ borderRadius: "14px 14px 0 0", objectFit: "cover" }}
+                  sx={{ borderRadius: "16px 16px 0 0", objectFit: "cover" }}
                 />
                 <CardContent>
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: 600,
-                      color: "#333",
-                      fontSize: { xs: 15, sm: 17 },
+                      color: "#1a202c",
+                      fontSize: isMobile ? "1rem" : "1.1rem",
                       mb: 1,
                     }}
                   >
@@ -530,17 +481,15 @@ function Products() {
                   </Typography>
                   <Typography
                     sx={{
-                      color: "#333",
+                      color: "#ff6b81",
                       fontWeight: 700,
-                      fontSize: { xs: 15, sm: 17 },
+                      fontSize: isMobile ? "1rem" : "1.1rem",
                       mb: 1,
                     }}
                   >
                     ${product.price || "N/A"}
                   </Typography>
-                  <Typography
-                    sx={{ color: "#666", fontSize: { xs: 13, sm: 15 } }}
-                  >
+                  <Typography sx={{ color: "#4a5568", fontSize: "0.95rem" }}>
                     {t(product.category || "Uncategorized")}
                   </Typography>
                 </CardContent>
@@ -583,9 +532,7 @@ function Products() {
                       handleAddToCart(product._id);
                     }}
                   >
-                    <ShoppingCartIcon
-                      sx={{ mr: 1, fontSize: isMobile ? 18 : 22 }}
-                    />
+                    <ShoppingCartIcon sx={{ mr: 1 }} />
                     {t("Add to Cart")}
                   </ActionButton>
                 </Box>
