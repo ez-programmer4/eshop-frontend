@@ -9,14 +9,10 @@ import {
   Grid,
   CircularProgress,
   Pagination,
-  Divider,
   TextField,
   useMediaQuery,
   keyframes,
   Fab,
-  Card,
-  CardMedia,
-  CardContent,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/system";
 import { useTranslation } from "react-i18next";
@@ -47,61 +43,54 @@ const pulse = keyframes`
   100% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0); }
 `;
 
-// Styled Components (Figma-inspired)
+// Styled Components with Figma-inspired design
 const HomeContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1440,
   margin: "0 auto",
   padding: theme.spacing(4),
-  backgroundColor: "#f8fafc", // Softer, neutral background
   minHeight: "100vh",
+  background: `url("https://www.transparenttextures.com/patterns/subtle-white-feathers.png") repeat, linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)`, // Subtle pattern + gradient
   animation: `${fadeIn} 0.8s ease-out`,
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)", // Softer gradient
+  background: `url("https://www.transparenttextures.com/patterns/light-wool.png") repeat, linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)`, // Textured gradient
   borderRadius: "24px",
   padding: theme.spacing(6),
   marginBottom: theme.spacing(4),
   textAlign: "center",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(4) },
-}));
-
-const CategoryCard = styled(Card)(({ theme }) => ({
-  borderRadius: "12px",
-  backgroundColor: "#fff",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-  "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
-  },
-  cursor: "pointer",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+  position: "relative",
   overflow: "hidden",
-}));
-
-const CategoryTitle = styled(Typography)(({ theme }) => ({
-  color: "#1a202c", // Darker, neutral text
-  fontWeight: 600,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
-  textAlign: "center",
-  padding: theme.spacing(1),
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(255, 255, 255, 0.1)",
+    zIndex: 1,
+  },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(4) },
 }));
 
 const FilterBar = styled(Box)(({ theme }) => ({
   display: "flex",
+  flexDirection: "row",
   alignItems: "center",
-  gap: theme.spacing(1.5),
+  gap: theme.spacing(1),
   padding: theme.spacing(2),
   backgroundColor: "#fff",
   borderRadius: "16px",
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
+  marginBottom: theme.spacing(3),
   [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "stretch",
     padding: theme.spacing(1.5),
-    gap: theme.spacing(1),
+    gap: theme.spacing(1.5),
   },
 }));
 
@@ -112,6 +101,24 @@ const FilterButton = styled(IconButton)(({ theme }) => ({
   padding: theme.spacing(1),
   "&:hover": { backgroundColor: "#ff7e5f" },
   transition: "all 0.3s ease",
+}));
+
+const FilterOptionButton = styled(Button)(({ theme, active }) => ({
+  bgcolor: active ? "#ff7e5f" : "#fff",
+  color: active ? "#fff" : "#1a202c",
+  borderColor: "#e2e8f0",
+  borderRadius: "10px",
+  px: 2,
+  py: 1,
+  fontSize: "0.9rem",
+  "&:hover": {
+    bgcolor: active ? "#feb47b" : "#f7fafc",
+    borderColor: "#e2e8f0",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    justifyContent: "flex-start",
+  },
 }));
 
 const SliderContainer = styled(Box)(({ theme }) => ({
@@ -165,27 +172,31 @@ const ActionButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Section = styled(Box)(({ theme }) => ({
-  backgroundColor: "#fff",
-  borderRadius: "16px",
-  padding: theme.spacing(4),
-  marginTop: theme.spacing(4),
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2.5) },
-}));
-
 const FooterSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)", // Darker, modern footer
+  background: `url("https://www.transparenttextures.com/patterns/dark-mosaic.png") repeat, linear-gradient(135deg, #1a202c 0%, #2d3748 100%)`, // Textured dark gradient
   color: "#fff",
   padding: theme.spacing(5),
-  marginTop: theme.spacing(4),
+  marginTop: theme.spacing(6),
   borderRadius: "16px 16px 0 0",
-  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.2)",
+  position: "relative",
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0, 0, 0, 0.3)",
+    zIndex: 1,
+  },
+  "& > *": { position: "relative", zIndex: 2 },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(3) },
 }));
 
 const SocialIcon = styled(IconButton)(({ theme }) => ({
   color: "#fff",
-  background: "rgba(255, 255, 255, 0.1)",
+  background: "rgba(255, 255, 255, 0.15)",
   padding: theme.spacing(1),
   "&:hover": { background: "#feb47b" },
   transition: "all 0.3s ease",
@@ -199,7 +210,6 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [categories, setCategories] = useState(["All"]);
-  const [categoriesWithImages, setCategoriesWithImages] = useState([]);
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("name-asc");
   const [page, setPage] = useState(1);
@@ -218,25 +228,15 @@ function Home() {
         "https://eshop-backend-e11f.onrender.com/api/categories"
       );
       setCategories(["All", ...response.data.map((cat) => cat.name)]);
-      setCategoriesWithImages(response.data);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
       const productResponse = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/products"
       );
-      const categoryMap = productResponse.data.reduce((acc, product) => {
-        if (!acc[product.category]) {
-          acc[product.category] =
-            product.image || "https://via.placeholder.com/150";
-        }
-        return acc;
-      }, {});
-      const uniqueCategories = Object.keys(categoryMap).map((name) => ({
-        name,
-        image: categoryMap[name],
-      }));
-      setCategories(["All", ...uniqueCategories.map((cat) => cat.name)]);
-      setCategoriesWithImages(uniqueCategories);
+      const uniqueCategories = [
+        ...new Set(productResponse.data.map((p) => p.category)),
+      ];
+      setCategories(["All", ...uniqueCategories]);
     }
   }, []);
 
@@ -311,14 +311,6 @@ function Home() {
     alert(t("Thank you for subscribing!"));
   };
 
-  const handleCategoryClick = (categoryName) => {
-    navigate(`/products?category=${encodeURIComponent(categoryName)}`);
-  };
-
-  const handleImageError = (e) => {
-    e.target.src = "https://via.placeholder.com/150";
-  };
-
   return (
     <HomeContainer>
       {/* Hero Section */}
@@ -330,6 +322,7 @@ function Home() {
             color: "#fff",
             mb: 2,
             letterSpacing: "-0.5px",
+            zIndex: 2,
           }}
         >
           {t("Welcome to EthioShop")}
@@ -341,6 +334,7 @@ function Home() {
             mb: 3,
             maxWidth: 600,
             mx: "auto",
+            zIndex: 2,
           }}
         >
           {t("Discover premium fashion with unbeatable style and quality.")}
@@ -349,42 +343,6 @@ function Home() {
           {t("Shop Now")}
         </ActionButton>
       </HeroSection>
-
-      {/* Compact Category Grid */}
-      <Typography
-        variant={isMobile ? "h5" : "h4"}
-        sx={{
-          fontWeight: 700,
-          mb: 3,
-          textAlign: "center",
-          color: "#1a202c",
-          letterSpacing: "-0.2px",
-        }}
-      >
-        {t("Top Categories")}
-      </Typography>
-      <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 5 }}>
-        {categoriesWithImages.map((cat) => (
-          <Grid item xs={6} sm={4} md={2} key={cat.name}>
-            <CategoryCard
-              onClick={() => handleCategoryClick(cat.name)}
-              sx={{ animation: `${slideUp} 0.5s ease-out` }}
-            >
-              <CardMedia
-                component="img"
-                height={isMobile ? "80" : "100"}
-                image={cat.image}
-                alt={cat.name}
-                onError={handleImageError}
-                sx={{ objectFit: "cover" }}
-              />
-              <CardContent sx={{ py: 0.5 }}>
-                <CategoryTitle>{t(cat.name)}</CategoryTitle>
-              </CardContent>
-            </CategoryCard>
-          </Grid>
-        ))}
-      </Grid>
 
       {/* Featured Products Slider */}
       <Typography
@@ -475,54 +433,32 @@ function Home() {
         {t("Browse Products")}
       </Typography>
       <FilterBar>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, width: "100%" }}>
           <FilterButton>
             <CategoryIcon />
           </FilterButton>
           {categories.map((cat) => (
-            <Button
+            <FilterOptionButton
               key={cat}
               onClick={() => setCategory(cat)}
-              variant={category === cat ? "contained" : "outlined"}
-              sx={{
-                bgcolor: category === cat ? "#ff7e5f" : "#fff",
-                color: category === cat ? "#fff" : "#1a202c",
-                borderColor: "#e2e8f0",
-                borderRadius: "10px",
-                px: 2,
-                "&:hover": {
-                  bgcolor: category === cat ? "#feb47b" : "#f7fafc",
-                  borderColor: "#e2e8f0",
-                },
-              }}
+              active={category === cat}
             >
               {t(cat)}
-            </Button>
+            </FilterOptionButton>
           ))}
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, width: "100%" }}>
           <FilterButton>
             <SortIcon />
           </FilterButton>
           {sortOptions.map((option) => (
-            <Button
+            <FilterOptionButton
               key={option.value}
               onClick={() => setSort(option.value)}
-              variant={sort === option.value ? "contained" : "outlined"}
-              sx={{
-                bgcolor: sort === option.value ? "#ff7e5f" : "#fff",
-                color: sort === option.value ? "#fff" : "#1a202c",
-                borderColor: "#e2e8f0",
-                borderRadius: "10px",
-                px: 2,
-                "&:hover": {
-                  bgcolor: sort === option.value ? "#feb47b" : "#f7fafc",
-                  borderColor: "#e2e8f0",
-                },
-              }}
+              active={sort === option.value}
             >
               {option.label}
-            </Button>
+            </FilterOptionButton>
           ))}
         </Box>
       </FilterBar>
@@ -559,95 +495,23 @@ function Home() {
         </>
       )}
 
-      {/* Testimonials Section */}
-      <Section>
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
-          sx={{
-            fontWeight: 700,
-            mb: 3,
-            textAlign: "center",
-            color: "#1a202c",
-            letterSpacing: "-0.2px",
-          }}
-        >
-          {t("What Our Customers Say")}
-        </Typography>
-        <Grid container spacing={isMobile ? 2 : 3}>
-          {[
-            { name: "Abebe K.", text: t("Amazing quality and fast delivery!") },
-            { name: "Selam T.", text: t("Best shopping experience ever.") },
-            { name: "Yonas M.", text: t("Love the variety of styles.") },
-          ].map((testimonial, index) => (
-            <Grid item xs={12} sm={4} key={index}>
-              <Box
-                sx={{
-                  p: 2.5,
-                  borderRadius: "12px",
-                  backgroundColor: "#f7fafc",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-                  "&:hover": { transform: "translateY(-4px)" },
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography sx={{ color: "#4a5568", mb: 1 }}>
-                  "{testimonial.text}"
-                </Typography>
-                <Typography sx={{ color: "#ff7e5f", fontWeight: 600 }}>
-                  - {testimonial.name}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Section>
-
-      {/* About Section */}
-      <Section>
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
-          sx={{
-            fontWeight: 700,
-            mb: 2,
-            textAlign: "center",
-            color: "#1a202c",
-            letterSpacing: "-0.2px",
-          }}
-        >
-          {t("About EthioShop")}
-        </Typography>
-        <Typography
-          sx={{
-            color: "#4a5568",
-            lineHeight: 1.7,
-            textAlign: "center",
-            maxWidth: 800,
-            mx: "auto",
-          }}
-        >
-          {t(
-            "EthioShop is your ultimate destination for premium fashion in Ethiopia. We offer a curated selection of clothing and accessories, ensuring quality, style, and fast delivery."
-          )}
-        </Typography>
-      </Section>
-
-      {/* Footer */}
+      {/* Enhanced Footer */}
       <FooterSection>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            color: "#fff",
-            mb: 3,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          EthioShop
-        </Typography>
         <Grid container spacing={isMobile ? 3 : 4}>
           <Grid item xs={12} sm={4}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, color: "#fff", mb: 2 }}
+            >
+              EthioShop
+            </Typography>
+            <Typography sx={{ color: "#e2e8f0", lineHeight: 1.6 }}>
+              {t("Your one-stop shop for premium fashion in Ethiopia.")}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={4}>
             <Typography variant="h6" sx={{ color: "#fff", mb: 2 }}>
-              {t("Explore")}
+              {t("Quick Links")}
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Link
@@ -678,41 +542,6 @@ function Home() {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" sx={{ color: "#fff", mb: 2 }}>
-              {t("Contact Us")}
-            </Typography>
-            <Typography sx={{ color: "#e2e8f0", mb: 1 }}>
-              Email:{" "}
-              <Link
-                to="mailto:support@ethioshop.com"
-                style={{ color: "#feb47b", textDecoration: "none" }}
-              >
-                support@ethioshop.com
-              </Link>
-            </Typography>
-            <Typography sx={{ color: "#e2e8f0" }}>
-              Phone: +251 991 792 427
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 1.5,
-                mt: 2,
-              }}
-            >
-              <SocialIcon>
-                <FacebookIcon />
-              </SocialIcon>
-              <SocialIcon>
-                <TwitterIcon />
-              </SocialIcon>
-              <SocialIcon>
-                <InstagramIcon />
-              </SocialIcon>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="h6" sx={{ color: "#fff", mb: 2 }}>
               {t("Newsletter")}
             </Typography>
             <form onSubmit={handleNewsletterSubmit}>
@@ -726,7 +555,7 @@ function Home() {
                   mb: 2,
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
-                    bgcolor: "#fff",
+                    bgcolor: "rgba(255, 255, 255, 0.9)",
                     "& fieldset": { borderColor: "#e2e8f0" },
                     "&:hover fieldset": { borderColor: "#feb47b" },
                   },
@@ -736,8 +565,25 @@ function Home() {
             </form>
           </Grid>
         </Grid>
-        <Divider sx={{ bgcolor: "#4a5568", my: 3 }} />
-        <Typography sx={{ color: "#a0aec0", fontSize: "0.85rem" }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}>
+          <SocialIcon>
+            <FacebookIcon />
+          </SocialIcon>
+          <SocialIcon>
+            <TwitterIcon />
+          </SocialIcon>
+          <SocialIcon>
+            <InstagramIcon />
+          </SocialIcon>
+        </Box>
+        <Typography
+          sx={{
+            color: "#a0aec0",
+            fontSize: "0.85rem",
+            mt: 3,
+            textAlign: "center",
+          }}
+        >
           © {new Date().getFullYear()} EthioShop. {t("All rights reserved.")}
         </Typography>
       </FooterSection>
