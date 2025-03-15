@@ -54,7 +54,7 @@ const ProductsContainer = styled(Box)(({ theme }) => ({
   margin: "0 auto",
   padding: theme.spacing(4),
   minHeight: "100vh",
-  background: `url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`,
+  background: `url("https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TWluaW1hbGlzdCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`,
   animation: `${slideIn} 0.8s ease-out`,
   [theme.breakpoints.down("md")]: { padding: theme.spacing(3) },
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
