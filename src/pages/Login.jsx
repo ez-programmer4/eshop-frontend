@@ -40,131 +40,142 @@ const iconPop = keyframes`
   100% { transform: scale(1) rotate(0deg); }
 `;
 
-// Custom styled components
-const AuthCard = styled(Box)(({ theme }) => ({
-  maxWidth: 480,
-  width: "100%",
-  margin: "auto",
+// Styled Components
+const AuthContainer = styled(Box)(({ theme }) => ({
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: `url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`,
   padding: theme.spacing(4),
-  background: "linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)",
-  borderRadius: "20px",
-  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
-  border: "1px solid rgba(240, 193, 75, 0.2)",
-  animation: `${slideIn} 0.6s ease-out`,
   position: "relative",
-  overflow: "hidden",
   "&:before": {
     content: '""',
     position: "absolute",
-    top: "-50%",
-    left: "-50%",
-    width: "200%",
-    height: "200%",
-    background:
-      "radial-gradient(circle, rgba(240, 193, 75, 0.2), transparent 70%)",
-    transform: "rotate(30deg)",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(255, 255, 255, 0.1)",
     zIndex: 0,
   },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
+}));
+
+const AuthCard = styled(Box)(({ theme }) => ({
+  maxWidth: 500,
+  width: "100%",
+  margin: "auto",
+  padding: theme.spacing(5),
+  background: "rgba(255, 255, 255, 0.95)",
+  borderRadius: "24px",
+  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+  animation: `${slideIn} 0.6s ease-out`,
+  position: "relative",
+  zIndex: 1,
+  [theme.breakpoints.down("md")]: { padding: theme.spacing(4) },
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(3),
-    borderRadius: "16px",
+    borderRadius: "20px",
   },
 }));
 
 const AuthButton = styled(Button)(({ theme }) => ({
-  background: "linear-gradient(to right, #f0c14b, #e0b03a)",
-  color: "#111",
+  background: "linear-gradient(135deg, #feb47b 0%, #ff6b81 100%)",
+  color: "#fff",
   padding: theme.spacing(1.5, 4),
-  borderRadius: "12px",
+  borderRadius: "14px",
   fontWeight: 700,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
-  textTransform: "uppercase",
-  boxShadow: "0 4px 12px rgba(240, 193, 75, 0.4)",
-  transition: "all 0.3s ease",
+  fontSize: "1.1rem",
+  textTransform: "none",
+  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
   "&:hover": {
-    background: "linear-gradient(to right, #e0b03a, #d0a029)",
-    boxShadow: "0 6px 18px rgba(240, 193, 75, 0.6)",
-    animation: `${pulse} 0.5s infinite`,
+    background: "linear-gradient(135deg, #ff6b81 0%, #feb47b 100%)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.18)",
   },
   "&:disabled": {
     background: "#ccc",
     boxShadow: "none",
+    color: "#999",
   },
-  position: "relative",
-  zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 3) },
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 3),
+    fontSize: "0.95rem",
+  },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#fff",
-  color: "#444",
-  border: "1px solid #e0e0e0",
+  color: "#1a202c",
+  border: "1px solid #e2e8f0",
   padding: theme.spacing(1.5, 4),
-  borderRadius: "12px",
+  borderRadius: "14px",
   fontWeight: 600,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
+  fontSize: "1rem",
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-  transition: "all 0.3s ease",
   "&:hover": {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#f7fafc",
     transform: "scale(1.03)",
     boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
   },
-  position: "relative",
-  zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 3) },
+  "&:disabled": {
+    background: "#eee",
+    color: "#999",
+  },
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 3),
+    fontSize: "0.9rem",
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: "12px",
     backgroundColor: "#fff",
-    "& fieldset": { borderColor: "#e0e0e0" },
-    "&:hover fieldset": { borderColor: "#f0c14b" },
-    "&.Mui-focused fieldset": { borderColor: "#1976d2" },
-    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+    "& fieldset": { borderColor: "#e2e8f0" },
+    "&:hover fieldset": { borderColor: "#feb47b" },
+    "&.Mui-focused fieldset": { borderColor: "#ff6b81" },
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
     transition: "all 0.3s ease",
   },
   "& .MuiInputLabel-root": {
-    color: "#777",
-    fontSize: { xs: "0.9rem", sm: "1rem" },
+    color: "#4a5568",
+    fontSize: "1rem",
+    fontWeight: 500,
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#1976d2" },
-  "& input": { padding: { xs: "14px", sm: "16px" } },
-  position: "relative",
-  zIndex: 1,
+  "& .MuiInputLabel-root.Mui-focused": { color: "#ff6b81" },
+  "& input": { padding: theme.spacing(2), fontSize: "1rem" },
+  [theme.breakpoints.down("sm")]: {
+    "& input": { padding: theme.spacing(1.5) },
+  },
 }));
 
 const SuccessMessage = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "linear-gradient(to right, #e6ffe6, #ccffcc)",
+  background: "linear-gradient(135deg, #e6ffe6 0%, #ccffcc 100%)",
   color: "#2e7d32",
-  padding: theme.spacing(2.5),
-  borderRadius: "14px",
-  boxShadow:
-    "0 6px 18px rgba(46, 125, 50, 0.25), 0 0 10px rgba(46, 125, 50, 0.15)",
-  border: "1px solid rgba(46, 125, 50, 0.3)",
-  animation: `${slideUp} 0.4s ease-out`,
-  transition: "all 0.3s ease",
+  padding: theme.spacing(3),
+  borderRadius: "16px",
+  boxShadow: "0 8px 24px rgba(46, 125, 50, 0.3)",
+  animation: `${slideUp} 0.5s ease-out`,
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "90%",
-  maxWidth: 420,
+  maxWidth: 450,
   zIndex: 2,
-  "&:hover": {
-    boxShadow:
-      "0 8px 24px rgba(46, 125, 50, 0.35), 0 0 15px rgba(46, 125, 50, 0.2)",
-  },
+  "&:hover": { boxShadow: "0 10px 30px rgba(46, 125, 50, 0.4)" },
+  transition: "all 0.3s ease",
 }));
 
-const AnimatedIcon = styled(CheckCircleIcon)(({ theme }) => ({
-  animation: `${iconPop} 0.5s ease-out`,
-  marginRight: theme.spacing(1.5),
-}));
+const AnimatedIcon = styled(CheckCircleIcon)({
+  animation: `${iconPop} 0.6s ease-out`,
+});
 
 function Login() {
   const { login } = useContext(AuthContext);
@@ -181,14 +192,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Handle Google OAuth redirect
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     if (token) {
       login(null, null, token);
       setSuccess(true);
-      setTimeout(() => navigate("/", { replace: true }), 1000); // Increased delay
+      setTimeout(() => navigate("/", { replace: true }), 1500);
     }
   }, [location, login, navigate]);
 
@@ -226,7 +236,7 @@ function Login() {
     try {
       await login(email, password);
       setSuccess(true);
-      setTimeout(() => navigate("/"), 1000); // Increased delay
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       setError(err.response?.data.message || t("Login failed"));
       console.error("Login error:", err);
@@ -242,44 +252,17 @@ function Login() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(to bottom, #f7fafc, #e2e8f0)",
-        p: { xs: 2, sm: 4 },
-        position: "relative",
-        "&:before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background:
-            "url('https://www.transparenttextures.com/patterns/subtle-stripes.png')",
-          opacity: 0.05,
-          zIndex: 0,
-        },
-      }}
-    >
-      <AuthCard sx={{ position: "relative" }}>
+    <AuthContainer>
+      <AuthCard>
         <Typography
           variant={isMobile ? "h5" : "h4"}
           sx={{
+            fontWeight: 700,
             color: "#1a202c",
-            fontWeight: 800,
-            mb: success ? 0 : 3,
+            mb: success ? 0 : 4,
             textAlign: "center",
-            textTransform: "uppercase",
-            letterSpacing: "1.5px",
-            position: "relative",
-            zIndex: 1,
-            background: "linear-gradient(to right, #1976d2, #f0c14b)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            letterSpacing: "-0.5px",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
             transition: "opacity 0.3s ease",
             opacity: success ? 0 : 1,
           }}
@@ -290,10 +273,10 @@ function Login() {
         {success && (
           <Fade in={success}>
             <SuccessMessage>
-              <AnimatedIcon sx={{ fontSize: "2rem", color: "#2e7d32" }} />
+              <AnimatedIcon sx={{ fontSize: "2.5rem", color: "#2e7d32" }} />
               <Typography
-                variant="body1"
-                sx={{ fontWeight: 600, fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                variant="h6"
+                sx={{ fontWeight: 600, color: "#2e7d32" }}
               >
                 {t("Login successful! Redirecting...")}
               </Typography>
@@ -305,16 +288,13 @@ function Login() {
           <Typography
             color="error"
             sx={{
-              mb: 2,
+              mb: 3,
               textAlign: "center",
-              fontSize: { xs: "0.85rem", sm: "0.9rem" },
-              bgcolor: "#ffebee",
-              p: 1.5,
-              borderRadius: "10px",
-              fontWeight: 500,
-              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-              position: "relative",
-              zIndex: 1,
+              fontSize: "1rem",
+              bgcolor: "#fff0f0",
+              p: 2,
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(255, 0, 0, 0.1)",
             }}
           >
             {error}
@@ -323,7 +303,7 @@ function Login() {
 
         {!success && (
           <Fade in={!success}>
-            <Box sx={{ position: "relative", zIndex: 1 }}>
+            <Box>
               <form onSubmit={handleSubmit}>
                 <StyledTextField
                   label={t("Email")}
@@ -362,11 +342,8 @@ function Login() {
               <Divider
                 sx={{
                   my: 3,
-                  color: "#777",
-                  "&::before, &::after": { borderColor: "#e0e0e0" },
-                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
-                  position: "relative",
-                  zIndex: 1,
+                  color: "#4a5568",
+                  "&::before, &::after": { borderColor: "#e2e8f0" },
                 }}
               >
                 {t("or")}
@@ -385,10 +362,8 @@ function Login() {
                 sx={{
                   mt: 3,
                   textAlign: "center",
-                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
-                  color: "#666",
-                  position: "relative",
-                  zIndex: 1,
+                  fontSize: "0.95rem",
+                  color: "#4a5568",
                 }}
               >
                 {t("Don't have an account?")}{" "}
@@ -398,7 +373,8 @@ function Login() {
                   sx={{
                     textTransform: "none",
                     fontWeight: 600,
-                    "&:hover": { color: "#f0c14b", transform: "scale(1.05)" },
+                    color: "#ff6b81",
+                    "&:hover": { color: "#feb47b" },
                     transition: "all 0.3s ease",
                   }}
                 >
@@ -409,7 +385,7 @@ function Login() {
           </Fade>
         )}
       </AuthCard>
-    </Box>
+    </AuthContainer>
   );
 }
 

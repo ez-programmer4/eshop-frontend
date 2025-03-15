@@ -44,135 +44,160 @@ const iconPop = keyframes`
   100% { transform: scale(1) rotate(0deg); }
 `;
 
-// Custom styled components
-const AuthCard = styled(Box)(({ theme }) => ({
-  maxWidth: 450,
-  width: "100%",
-  margin: "auto",
+// Styled Components
+const AuthContainer = styled(Box)(({ theme }) => ({
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: `url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`,
   padding: theme.spacing(4),
-  background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
-  borderRadius: "16px",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-  border: "1px solid #eee",
-  animation: `${slideIn} 0.6s ease-out`,
   position: "relative",
-  overflow: "hidden",
   "&:before": {
     content: '""',
     position: "absolute",
-    top: "-50%",
-    left: "-50%",
-    width: "200%",
-    height: "200%",
-    background:
-      "radial-gradient(circle, rgba(240, 193, 75, 0.15), transparent 70%)",
-    transform: "rotate(30deg)",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(255, 255, 255, 0.1)",
     zIndex: 0,
   },
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
+}));
+
+const AuthCard = styled(Box)(({ theme }) => ({
+  maxWidth: 500,
+  width: "100%",
+  margin: "auto",
+  padding: theme.spacing(5),
+  background: "rgba(255, 255, 255, 0.95)",
+  borderRadius: "24px",
+  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+  animation: `${slideIn} 0.6s ease-out`,
+  position: "relative",
+  zIndex: 1,
+  [theme.breakpoints.down("md")]: { padding: theme.spacing(4) },
   [theme.breakpoints.down("sm")]: {
-    padding: theme.spacing(2),
-    borderRadius: "12px",
+    padding: theme.spacing(3),
+    borderRadius: "20px",
   },
 }));
 
 const AuthButton = styled(Button)(({ theme }) => ({
-  background: "linear-gradient(to right, #f0c14b, #e0b03a)",
-  color: "#111",
-  padding: theme.spacing(1.5, 3),
-  borderRadius: "10px",
+  background: "linear-gradient(135deg, #feb47b 0%, #ff6b81 100%)",
+  color: "#fff",
+  padding: theme.spacing(1.5, 4),
+  borderRadius: "14px",
   fontWeight: 700,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
-  textTransform: "uppercase",
-  boxShadow: "0 4px 12px rgba(240, 193, 75, 0.4)",
-  transition: "all 0.3s ease",
+  fontSize: "1.1rem",
+  textTransform: "none",
+  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.12)",
   "&:hover": {
-    background: "linear-gradient(to right, #e0b03a, #d0a029)",
-    boxShadow: "0 6px 18px rgba(240, 193, 75, 0.6)",
-    animation: `${pulse} 0.5s infinite`,
+    background: "linear-gradient(135deg, #ff6b81 0%, #feb47b 100%)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.18)",
   },
   "&:disabled": {
     background: "#ccc",
     boxShadow: "none",
+    color: "#999",
   },
-  position: "relative",
-  zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 3),
+    fontSize: "0.95rem",
+  },
 }));
 
 const GoogleButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#fff",
-  color: "#555",
-  border: "1px solid #ddd",
-  padding: theme.spacing(1.5, 3),
-  borderRadius: "10px",
+  color: "#1a202c",
+  border: "1px solid #e2e8f0",
+  padding: theme.spacing(1.5, 4),
+  borderRadius: "14px",
   fontWeight: 600,
-  fontSize: { xs: "0.9rem", sm: "1rem" },
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-  transition: "all 0.3s ease",
+  fontSize: "1rem",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   "&:hover": {
-    backgroundColor: "#f5f5f5",
-    transform: "scale(1.05)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#f7fafc",
+    transform: "scale(1.03)",
+    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.1)",
   },
   "&:disabled": {
     background: "#eee",
     color: "#999",
   },
-  position: "relative",
-  zIndex: 1,
-  [theme.breakpoints.down("sm")]: { padding: theme.spacing(1, 2) },
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 3),
+    fontSize: "0.9rem",
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: "10px",
+    borderRadius: "12px",
     backgroundColor: "#fff",
-    "& fieldset": { borderColor: "#ddd" },
-    "&:hover fieldset": { borderColor: "#f0c14b" },
-    "&.Mui-focused fieldset": { borderColor: "#1976d2" },
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+    "& fieldset": { borderColor: "#e2e8f0" },
+    "&:hover fieldset": { borderColor: "#feb47b" },
+    "&.Mui-focused fieldset": { borderColor: "#ff6b81" },
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
     transition: "all 0.3s ease",
   },
   "& .MuiInputLabel-root": {
-    color: "#666",
-    fontSize: { xs: "0.9rem", sm: "1rem" },
+    color: "#4a5568",
+    fontSize: "1rem",
+    fontWeight: 500,
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#1976d2" },
-  "& input": { padding: { xs: "12px", sm: "14px" } },
-  position: "relative",
-  zIndex: 1,
+  "& .MuiInputLabel-root.Mui-focused": { color: "#ff6b81" },
+  "& input": { padding: theme.spacing(2), fontSize: "1rem" },
+  [theme.breakpoints.down("sm")]: {
+    "& input": { padding: theme.spacing(1.5) },
+  },
+}));
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    "& fieldset": { borderColor: "#e2e8f0" },
+    "&:hover fieldset": { borderColor: "#feb47b" },
+    "&.Mui-focused fieldset": { borderColor: "#ff6b81" },
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+    transition: "all 0.3s ease",
+  },
+  "& .MuiInputLabel-root": {
+    color: "#4a5568",
+    fontSize: "1rem",
+    fontWeight: 500,
+  },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#ff6b81" },
 }));
 
 const SuccessMessage = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "linear-gradient(to right, #e6ffe6, #ccffcc)",
+  background: "linear-gradient(135deg, #e6ffe6 0%, #ccffcc 100%)",
   color: "#2e7d32",
-  padding: theme.spacing(2.5),
-  borderRadius: "14px",
-  boxShadow:
-    "0 6px 18px rgba(46, 125, 50, 0.25), 0 0 10px rgba(46, 125, 50, 0.15)",
-  border: "1px solid rgba(46, 125, 50, 0.3)",
-  animation: `${slideUp} 0.4s ease-out`,
-  transition: "all 0.3s ease",
+  padding: theme.spacing(3),
+  borderRadius: "16px",
+  boxShadow: "0 8px 24px rgba(46, 125, 50, 0.3)",
+  animation: `${slideUp} 0.5s ease-out`,
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "90%",
-  maxWidth: 420,
+  maxWidth: 450,
   zIndex: 2,
-  "&:hover": {
-    boxShadow:
-      "0 8px 24px rgba(46, 125, 50, 0.35), 0 0 15px rgba(46, 125, 50, 0.2)",
-  },
+  "&:hover": { boxShadow: "0 10px 30px rgba(46, 125, 50, 0.4)" },
+  transition: "all 0.3s ease",
 }));
 
-const AnimatedIcon = styled(CheckCircleIcon)(({ theme }) => ({
-  animation: `${iconPop} 0.5s ease-out`,
-  marginRight: theme.spacing(1.5),
-}));
+const AnimatedIcon = styled(CheckCircleIcon)({
+  animation: `${iconPop} 0.6s ease-out`,
+});
 
 function Register() {
   const { register } = useContext(AuthContext);
@@ -192,14 +217,13 @@ function Register() {
   const [success, setSuccess] = useState(false);
   const [language, setLanguage] = useState(i18n.language || "en");
 
-  // Handle Google OAuth redirect
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     if (token) {
       register(null, null, null, token);
       setSuccess(true);
-      setTimeout(() => navigate("/", { replace: true }), 1000);
+      setTimeout(() => navigate("/", { replace: true }), 1500);
     }
   }, [location, register, navigate]);
 
@@ -246,7 +270,7 @@ function Register() {
     try {
       await register(email, password, name);
       setSuccess(true);
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       setError(err.response?.data.message || t("Registration failed"));
       console.error("Registration error:", err);
@@ -267,37 +291,25 @@ function Register() {
     i18n.changeLanguage(newLang);
   };
 
-  // Simplified language list (expand as needed)
   const languages = [
     { code: "en", name: "English" },
     { code: "am", name: "አማርኛ (Amharic)" },
     { code: "es", name: "Español" },
     { code: "fr", name: "Français" },
-    // Add more from Google's list as needed
   ];
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "radial-gradient(circle, #f7f7f7 0%, #e8ecef 100%)",
-        p: { xs: 2, sm: 4 },
-      }}
-    >
-      <AuthCard sx={{ position: "relative" }}>
+    <AuthContainer>
+      <AuthCard>
         <Typography
-          variant={isMobile ? "h6" : "h5"}
+          variant={isMobile ? "h5" : "h4"}
           sx={{
-            color: "#111",
             fontWeight: 700,
+            color: "#1a202c",
             mb: success ? 0 : 2,
             textAlign: "center",
-            letterSpacing: "0.5px",
-            position: "relative",
-            zIndex: 1,
+            letterSpacing: "-0.5px",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
             transition: "opacity 0.3s ease",
             opacity: success ? 0 : 1,
           }}
@@ -307,11 +319,9 @@ function Register() {
         <Typography
           variant="body2"
           sx={{
-            color: "#666",
+            color: "#4a5568",
             textAlign: "center",
             mb: success ? 0 : 3,
-            position: "relative",
-            zIndex: 1,
             transition: "opacity 0.3s ease",
             opacity: success ? 0 : 1,
           }}
@@ -322,10 +332,10 @@ function Register() {
         {success && (
           <Fade in={success}>
             <SuccessMessage>
-              <AnimatedIcon sx={{ fontSize: "2rem", color: "#2e7d32" }} />
+              <AnimatedIcon sx={{ fontSize: "2.5rem", color: "#2e7d32" }} />
               <Typography
-                variant="body1"
-                sx={{ fontWeight: 600, fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                variant="h6"
+                sx={{ fontWeight: 600, color: "#2e7d32" }}
               >
                 {t("Registration successful! Redirecting...")}
               </Typography>
@@ -337,16 +347,13 @@ function Register() {
           <Typography
             color="error"
             sx={{
-              mb: 2,
+              mb: 3,
               textAlign: "center",
-              fontSize: { xs: "0.85rem", sm: "0.9rem" },
-              bgcolor: "#ffebee",
-              p: 1.5,
-              borderRadius: "10px",
-              fontWeight: 500,
-              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-              position: "relative",
-              zIndex: 1,
+              fontSize: "1rem",
+              bgcolor: "#fff0f0",
+              p: 2,
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(255, 0, 0, 0.1)",
             }}
           >
             {error}
@@ -355,25 +362,22 @@ function Register() {
 
         {!success && (
           <Fade in={!success}>
-            <Box sx={{ position: "relative", zIndex: 1 }}>
+            <Box>
               <GoogleButton
                 fullWidth
                 startIcon={<GoogleIcon />}
                 onClick={handleGoogleSignup}
                 disabled={loading}
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
               >
                 {t("Sign up with Google")}
               </GoogleButton>
 
               <Divider
                 sx={{
-                  my: 2,
-                  color: "#666",
-                  "&::before, &::after": { borderColor: "#ddd" },
-                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
-                  position: "relative",
-                  zIndex: 1,
+                  my: 3,
+                  color: "#4a5568",
+                  "&::before, &::after": { borderColor: "#e2e8f0" },
                 }}
               >
                 {t("or")}
@@ -414,7 +418,7 @@ function Register() {
                 <AuthButton
                   type="submit"
                   fullWidth
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 3 }}
                   disabled={loading}
                   startIcon={
                     loading && <CircularProgress size={20} color="inherit" />
@@ -426,12 +430,10 @@ function Register() {
 
               <Typography
                 sx={{
-                  mt: 2,
+                  mt: 3,
                   textAlign: "center",
-                  fontSize: { xs: "0.85rem", sm: "0.9rem" },
-                  color: "#666",
-                  position: "relative",
-                  zIndex: 1,
+                  fontSize: "0.95rem",
+                  color: "#4a5568",
                 }}
               >
                 {t("Already have an account?")}{" "}
@@ -441,38 +443,34 @@ function Register() {
                   sx={{
                     textTransform: "none",
                     fontWeight: 600,
-                    "&:hover": { color: "#f0c14b" },
+                    color: "#ff6b81",
+                    "&:hover": { color: "#feb47b" },
                     transition: "all 0.3s ease",
                   }}
                 >
                   {t("Sign in")}
                 </Button>
               </Typography>
+
+              <StyledFormControl fullWidth sx={{ mt: 3 }}>
+                <InputLabel>{t("Language")}</InputLabel>
+                <Select
+                  value={language}
+                  onChange={handleLanguageChange}
+                  label={t("Language")}
+                >
+                  {languages.map((lang) => (
+                    <MenuItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </StyledFormControl>
             </Box>
           </Fade>
         )}
-
-        {/* Language Selector */}
-        <FormControl
-          fullWidth
-          sx={{ mt: 3, position: "relative", zIndex: 1 }}
-          size="small"
-        >
-          <InputLabel>{t("Language")}</InputLabel>
-          <Select
-            value={language}
-            onChange={handleLanguageChange}
-            label={t("Language")}
-          >
-            {languages.map((lang) => (
-              <MenuItem key={lang.code} value={lang.code}>
-                {lang.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </AuthCard>
-    </Box>
+    </AuthContainer>
   );
 }
 
