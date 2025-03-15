@@ -52,27 +52,31 @@ const slideIn = keyframes`
 
 const bounce = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  50% { transform: scale(1.15); }
   100% { transform: scale(1); }
 `;
 
-// Styled components
+// Styled Components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: "#fff",
-  color: "#111",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-  animation: `${fadeIn} 0.5s ease-out`,
-  borderRadius: "0 0 8px 8px",
+  background: `linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%), url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover`,
+  color: "#1a202c",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+  animation: `${fadeIn} 0.6s ease-out`,
+  borderRadius: "0 0 16px 16px",
+  backdropFilter: "blur(5px)",
+  [theme.breakpoints.down("sm")]: { borderRadius: "0 0 12px 12px" },
 }));
 
 const NavIconButton = styled(IconButton)(({ theme }) => ({
-  color: "#111",
-  padding: { xs: "6px", sm: "8px" },
+  color: "#4a5568",
+  padding: theme.spacing(1),
   "&:hover": {
-    color: "#f0c14b",
+    color: "#ff6b81",
     transform: "scale(1.1)",
-    transition: "color 0.2s, transform 0.2s",
+    backgroundColor: "rgba(255, 107, 129, 0.1)",
   },
+  transition: "all 0.3s ease",
+  [theme.breakpoints.down("sm")]: { padding: theme.spacing(0.75) },
 }));
 
 const CartIconButton = styled(NavIconButton)(({ theme, animate }) => ({
@@ -83,28 +87,42 @@ const CartIconButton = styled(NavIconButton)(({ theme, animate }) => ({
 
 const LogoTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  color: "#f0c14b",
+  color: "#ff6b81",
   cursor: "pointer",
-  fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" },
+  fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
+  textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+  letterSpacing: "-0.2px",
   flexShrink: 0,
 }));
 
 const SearchBox = styled(TextField)(({ theme }) => ({
-  backgroundColor: "#f5f5f5",
-  borderRadius: "20px",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
   "& .MuiInputBase-root": {
-    padding: "2px 8px",
-    fontSize: { xs: "0.8rem", sm: "0.9rem" },
+    padding: theme.spacing(0.5, 1),
+    fontSize: { xs: "0.9rem", sm: "1rem" },
+    color: "#4a5568",
   },
-  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-  width: { xs: "100px", sm: "150px", md: "250px" },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#e2e8f0",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#feb47b",
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#ff6b81",
+  },
+  width: { xs: "120px", sm: "200px", md: "300px" },
+  transition: "all 0.3s ease",
 }));
 
 const DrawerList = styled(List)(({ theme }) => ({
-  width: 250,
+  width: 260,
   backgroundColor: "#fff",
   height: "100%",
-  animation: `${slideIn} 0.3s ease-out`,
+  animation: `${slideIn} 0.4s ease-out`,
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
 }));
 
 function Navbar() {
@@ -125,22 +143,13 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
 
-  // Calculate total cart items (bundles + singles)
   const totalCartItems = cart.reduce(
     (sum, item) => sum + (item.quantity || 1),
     0
   );
 
-  // Log user and language for debugging
   useEffect(() => {
-    console.log("Navbar user:", user);
-    console.log("Current language:", i18n.language);
-  }, [user, i18n.language]);
-
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-    }
+    if (user) fetchNotifications();
   }, [user]);
 
   useEffect(() => {
@@ -155,9 +164,7 @@ function Navbar() {
     try {
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/notifications",
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
+        { headers: { Authorization: `Bearer ${user?.token}` } }
       );
       setNotifications(response.data.filter((n) => !n.read));
     } catch (error) {
@@ -210,7 +217,6 @@ function Navbar() {
   const toggleLanguage = () => {
     const newLang = i18n.language === "en" ? "am" : "en";
     i18n.changeLanguage(newLang);
-    console.log("Language toggled to:", newLang);
   };
 
   const navItems = [
@@ -238,9 +244,13 @@ function Navbar() {
             navigate(item.path);
             setDrawerOpen(false);
           }}
+          sx={{ py: 1.5 }}
         >
-          <ListItemIcon sx={{ color: "#111" }}>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.label} sx={{ color: "#111" }} />
+          <ListItemIcon sx={{ color: "#4a5568" }}>{item.icon}</ListItemIcon>
+          <ListItemText
+            primary={item.label}
+            sx={{ color: "#1a202c", fontWeight: 500 }}
+          />
         </ListItem>
       ))}
       <ListItem
@@ -249,13 +259,17 @@ function Navbar() {
           navigate("/cart");
           setDrawerOpen(false);
         }}
+        sx={{ py: 1.5 }}
       >
-        <ListItemIcon sx={{ color: "#111" }}>
+        <ListItemIcon sx={{ color: "#4a5568" }}>
           <Badge badgeContent={totalCartItems} color="error">
             <ShoppingCartIcon />
           </Badge>
         </ListItemIcon>
-        <ListItemText primary={t("Cart")} sx={{ color: "#111" }} />
+        <ListItemText
+          primary={t("Cart")}
+          sx={{ color: "#1a202c", fontWeight: 500 }}
+        />
       </ListItem>
       <ListItem
         button
@@ -263,21 +277,28 @@ function Navbar() {
           navigate("/wishlist");
           setDrawerOpen(false);
         }}
+        sx={{ py: 1.5 }}
       >
-        <ListItemIcon sx={{ color: "#111" }}>
+        <ListItemIcon sx={{ color: "#4a5568" }}>
           <Badge badgeContent={wishlist.length} color="error">
             <FavoriteIcon />
           </Badge>
         </ListItemIcon>
-        <ListItemText primary={t("Wishlist")} sx={{ color: "#111" }} />
+        <ListItemText
+          primary={t("Wishlist")}
+          sx={{ color: "#1a202c", fontWeight: 500 }}
+        />
       </ListItem>
-      <ListItem button onClick={handleNotifMenuOpen}>
-        <ListItemIcon sx={{ color: "#111" }}>
+      <ListItem button onClick={handleNotifMenuOpen} sx={{ py: 1.5 }}>
+        <ListItemIcon sx={{ color: "#4a5568" }}>
           <Badge badgeContent={notifications.length} color="error">
             <NotificationsIcon />
           </Badge>
         </ListItemIcon>
-        <ListItemText primary={t("Notifications")} sx={{ color: "#111" }} />
+        <ListItemText
+          primary={t("Notifications")}
+          sx={{ color: "#1a202c", fontWeight: 500 }}
+        />
       </ListItem>
       {user ? (
         <>
@@ -287,11 +308,15 @@ function Navbar() {
               navigate("/profile");
               setDrawerOpen(false);
             }}
+            sx={{ py: 1.5 }}
           >
-            <ListItemIcon sx={{ color: "#111" }}>
+            <ListItemIcon sx={{ color: "#4a5568" }}>
               <PersonIcon />
             </ListItemIcon>
-            <ListItemText primary={t("Profile")} sx={{ color: "#111" }} />
+            <ListItemText
+              primary={t("Profile")}
+              sx={{ color: "#1a202c", fontWeight: 500 }}
+            />
           </ListItem>
           <ListItem
             button
@@ -299,11 +324,15 @@ function Navbar() {
               handleLogout();
               setDrawerOpen(false);
             }}
+            sx={{ py: 1.5 }}
           >
-            <ListItemIcon sx={{ color: "#111" }}>
+            <ListItemIcon sx={{ color: "#4a5568" }}>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary={t("Logout")} sx={{ color: "#111" }} />
+            <ListItemText
+              primary={t("Logout")}
+              sx={{ color: "#1a202c", fontWeight: 500 }}
+            />
           </ListItem>
         </>
       ) : (
@@ -313,17 +342,21 @@ function Navbar() {
             navigate("/login");
             setDrawerOpen(false);
           }}
+          sx={{ py: 1.5 }}
         >
-          <ListItemIcon sx={{ color: "#111" }}>
+          <ListItemIcon sx={{ color: "#4a5568" }}>
             <PersonIcon />
           </ListItemIcon>
-          <ListItemText primary={t("Login")} sx={{ color: "#111" }} />
+          <ListItemText
+            primary={t("Login")}
+            sx={{ color: "#1a202c", fontWeight: 500 }}
+          />
         </ListItem>
       )}
-      <ListItem button onClick={toggleLanguage}>
+      <ListItem button onClick={toggleLanguage} sx={{ py: 1.5 }}>
         <ListItemText
-          primary={i18n.language === "en" ? "en" : "አማ"}
-          sx={{ color: "#111" }}
+          primary={i18n.language === "en" ? "English" : "አማርኛ"}
+          sx={{ color: "#ff6b81", fontWeight: 600 }}
         />
       </ListItem>
     </DrawerList>
@@ -334,40 +367,38 @@ function Navbar() {
       <Toolbar
         sx={{
           py: { xs: 1, md: 1.5 },
-          minHeight: { xs: 48, sm: 56, md: 64 },
+          minHeight: { xs: 56, sm: 64, md: 72 },
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: { xs: 1, md: 2 },
         }}
       >
-        {/* Logo and Title */}
+        {/* Logo */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Link to="/" style={{ display: "flex", alignItems: "center" }}>
-            <img
-              src="/logo.png" // Path to your logo in public/
-              alt="EthioShop Logo"
-              style={{ height: "50px", marginRight: "10px" }} // Adjust size as needed
-            />
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <LogoTypography variant="h6">EthioShop</LogoTypography>
           </Link>
         </Box>
 
         {/* Search Bar */}
-        <SearchBox
-          variant="outlined"
-          size="small"
-          placeholder={t("Search products...")}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#555" }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+        {isLaptop && (
+          <SearchBox
+            variant="outlined"
+            size="small"
+            placeholder={t("Search products...")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: "#4a5568" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
 
         {/* Navigation and Cart */}
         <Box
@@ -445,28 +476,20 @@ function Navbar() {
                   >
                     <PersonIcon />
                   </NavIconButton>
-                  <NavIconButton onClick={toggleLanguage}>
-                    <Typography variant="body2">
-                      {i18n.language === "en" ? "en" : "አማ"}
-                    </Typography>
-                  </NavIconButton>
                 </>
               ) : (
-                <>
-                  <NavIconButton
-                    component={Link}
-                    to="/login"
-                    title={t("Login")}
-                  >
-                    <PersonIcon />
-                  </NavIconButton>
-                  <NavIconButton onClick={toggleLanguage}>
-                    <Typography variant="body2">
-                      {i18n.language === "en" ? "en" : "አማ"}
-                    </Typography>
-                  </NavIconButton>
-                </>
+                <NavIconButton component={Link} to="/login" title={t("Login")}>
+                  <PersonIcon />
+                </NavIconButton>
               )}
+              <NavIconButton onClick={toggleLanguage} title={t("Language")}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 600, color: "#ff6b81" }}
+                >
+                  {i18n.language === "en" ? "EN" : "AM"}
+                </Typography>
+              </NavIconButton>
             </>
           ) : (
             <NavIconButton edge="end" onClick={toggleDrawer(true)}>
@@ -476,13 +499,40 @@ function Navbar() {
         </Box>
       </Toolbar>
 
+      {/* Mobile/Tablet Search Bar */}
+      {(isMobile || isTablet) && (
+        <Box sx={{ px: 2, pb: 1 }}>
+          <SearchBox
+            variant="outlined"
+            size="small"
+            placeholder={t("Search products...")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: "#4a5568" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+      )}
+
       {/* Menus and Drawer */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         PaperProps={{
-          sx: { mt: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
+          sx: {
+            mt: 1,
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+            borderRadius: "12px",
+            bgcolor: "#fff",
+          },
         }}
       >
         <MenuItem
@@ -490,6 +540,7 @@ function Navbar() {
             navigate("/profile");
             handleMenuClose();
           }}
+          sx={{ color: "#1a202c", fontWeight: 500, py: 1 }}
         >
           {t("Profile")}
         </MenuItem>
@@ -499,11 +550,17 @@ function Navbar() {
               navigate("/admin");
               handleMenuClose();
             }}
+            sx={{ color: "#1a202c", fontWeight: 500, py: 1 }}
           >
             {t("Admin Dashboard")}
           </MenuItem>
         )}
-        <MenuItem onClick={handleLogout}>{t("Logout")}</MenuItem>
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ color: "#ff6b81", fontWeight: 500, py: 1 }}
+        >
+          {t("Logout")}
+        </MenuItem>
       </Menu>
       <Menu
         anchorEl={notifAnchorEl}
@@ -514,17 +571,18 @@ function Navbar() {
         PaperProps={{
           sx: {
             maxHeight: 300,
-            width: { xs: 200, sm: 250, md: 300 },
+            width: { xs: 220, sm: 280, md: 320 },
             mt: 1,
             overflowY: "auto",
             bgcolor: "#fff",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+            borderRadius: "12px",
           },
         }}
       >
         {notifications.length === 0 ? (
-          <MenuItem>
-            <Typography sx={{ fontSize: 14 }}>
+          <MenuItem sx={{ py: 1.5 }}>
+            <Typography sx={{ fontSize: "0.95rem", color: "#4a5568" }}>
               {t("No new notifications")}
             </Typography>
           </MenuItem>
@@ -533,9 +591,15 @@ function Navbar() {
             <MenuItem
               key={notif._id}
               onClick={() => markAsRead(notif._id)}
-              sx={{ whiteSpace: "normal", py: 1 }}
+              sx={{
+                whiteSpace: "normal",
+                py: 1.5,
+                "&:hover": { bgcolor: "#f7fafc" },
+              }}
             >
-              <Typography sx={{ fontSize: 14 }}>{notif.message}</Typography>
+              <Typography sx={{ fontSize: "0.95rem", color: "#1a202c" }}>
+                {notif.message}
+              </Typography>
             </MenuItem>
           ))
         )}
@@ -544,7 +608,7 @@ function Navbar() {
         anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
-        sx={{ "& .MuiDrawer-paper": { width: 250 } }}
+        sx={{ "& .MuiDrawer-paper": { width: { xs: 240, sm: 260 } } }}
       >
         {drawerContent}
       </Drawer>
