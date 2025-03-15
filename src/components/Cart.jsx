@@ -161,6 +161,7 @@ function Cart() {
   const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
+    console.log("Cart data:", cart);
     const bundles = {};
     const singles = [];
     const processedBundleIds = new Set();
@@ -180,20 +181,20 @@ function Cart() {
           price: item.bundle.bundlePrice || 0,
           quantity: 1,
           items: bundleItems.map((bi) => ({
-            ...bi.product,
+            ...bi.productId,
             cartItemId: bi._id || bi.productId,
           })),
         };
         processedBundleIds.add(bundleId);
       } else if (!item.bundle) {
         singles.push({
-          ...item.product,
+          ...item.productId,
           quantity: item.quantity,
           cartItemId: item._id || item.productId,
         });
       }
     });
-
+    console.log("Grouped items:", { bundles, singles });
     setGroupedItems({ bundles, singles });
   }, [cart]);
 
