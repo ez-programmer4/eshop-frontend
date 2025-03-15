@@ -19,11 +19,29 @@ export const CartProvider = ({ children }) => {
       }
       const response = await axios.get(
         "https://eshop-backend-e11f.onrender.com/api/cart",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setCart(response.data.items || []);
+      let items = response.data.items || [];
+
+      // If productId is a string, fetch product details
+      if (items.length > 0 && typeof items[0].productId === "string") {
+        const productIds = items.map((item) => item.productId);
+        const productPromises = productIds.map((id) =>
+          axios.get(
+            `https://eshop-backend-e11f.onrender.com/api/products/${id}`
+          )
+        );
+        const productResponses = await Promise.all(productPromises);
+        const productsMap = new Map(
+          productResponses.map((res) => [res.data._id, res.data])
+        );
+        items = items.map((item) => ({
+          ...item,
+          productId: productsMap.get(item.productId) || { _id: item.productId },
+        }));
+      }
+
+      setCart(items);
     } catch (error) {
       console.error("Failed to fetch cart:", error);
       setCart([]);
