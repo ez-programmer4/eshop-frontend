@@ -43,19 +43,19 @@ const pulse = keyframes`
   100% { box-shadow: 0 0 0 0 rgba(255, 107, 129, 0); }
 `;
 
-// Styled Components with Figma-inspired design
+// Styled Components with Background Images
 const HomeContainer = styled(Box)(({ theme }) => ({
   maxWidth: 1440,
   margin: "0 auto",
   padding: theme.spacing(4),
   minHeight: "100vh",
-  background: `url("https://www.transparenttextures.com/patterns/subtle-white-feathers.png") repeat, linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)`, // Subtle pattern + gradient
+  background: `url("https://images.unsplash.com/photo-1528459801416-a263057e4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)`, // Subtle fashion background
   animation: `${fadeIn} 0.8s ease-out`,
   [theme.breakpoints.down("sm")]: { padding: theme.spacing(2) },
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  background: `url("https://www.transparenttextures.com/patterns/light-wool.png") repeat, linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)`, // Textured gradient
+  background: `url("https://www.transparenttextures.com/patterns/light-wool.png") repeat, linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)`,
   borderRadius: "24px",
   padding: theme.spacing(6),
   marginBottom: theme.spacing(4),
@@ -173,7 +173,7 @@ const ActionButton = styled(Button)(({ theme }) => ({
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  background: `url("https://www.transparenttextures.com/patterns/dark-mosaic.png") repeat, linear-gradient(135deg, #1a202c 0%, #2d3748 100%)`, // Textured dark gradient
+  background: `url("https://images.unsplash.com/photo-1528459105426-b9548367069b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") no-repeat center/cover, linear-gradient(135deg, rgba(26, 32, 44, 0.9) 0%, rgba(45, 55, 72, 0.9) 100%)`, // Dark fashion background
   color: "#fff",
   padding: theme.spacing(5),
   marginTop: theme.spacing(6),
@@ -187,7 +187,7 @@ const FooterSection = styled(Box)(({ theme }) => ({
     left: 0,
     width: "100%",
     height: "100%",
-    background: "rgba(0, 0, 0, 0.3)",
+    background: "rgba(0, 0, 0, 0.4)", // Darker overlay for readability
     zIndex: 1,
   },
   "& > *": { position: "relative", zIndex: 2 },
@@ -495,7 +495,7 @@ function Home() {
         </>
       )}
 
-      {/* Enhanced Footer */}
+      {/* Enhanced Footer with Background */}
       <FooterSection>
         <Grid container spacing={isMobile ? 3 : 4}>
           <Grid item xs={12} sm={4}>
