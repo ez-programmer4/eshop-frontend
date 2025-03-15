@@ -180,7 +180,7 @@ const ActionButton = styled(Button)(({ theme }) => ({
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
-  background: `url("https://images.unsplash.com/photo-1731398916709-19c7ae1be371?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHdlYnNpdGUlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fHww") no-repeat center/cover, linear-gradient(135deg, rgba(26, 32, 44, 0.9) 0%, rgba(45, 55, 72, 0.9) 100%)`,
+  background: `url("https://plus.unsplash.com/premium_photo-1705346743712-ba31e9a37bc4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDQ5fHx8ZW58MHx8fHx8") no-repeat center/cover, linear-gradient(135deg, rgba(26, 32, 44, 0.9) 0%, rgba(45, 55, 72, 0.9) 100%)`,
   color: "#fff",
   padding: theme.spacing(6),
   marginTop: theme.spacing(6),
