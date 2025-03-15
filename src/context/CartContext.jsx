@@ -17,7 +17,6 @@ export const CartProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (!token) {
         setCart([]);
-        setLoading(false);
         return;
       }
       const response = await axios.get(
@@ -53,32 +52,72 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (productId, bundleData = null) => {
-    setLoading(true); // Set loading when adding to cart
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please log in to add items to your cart");
+      }
+      const payload = bundleData
+        ? { productId, quantity: 1, bundle: bundleData }
+        : { productId, quantity: 1 };
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/cart/add",
-        { productId, bundle: bundleData },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCart(); // Refetch cart to ensure updated data
+      const newItem = response.data.item;
+
+      // Fetch product details if productId is a string in the response
+      if (typeof newItem.productId === "string") {
+        const productResponse = await axios.get(
+          `https://eshop-backend-e11f.onrender.com/api/products/${newItem.productId}`
+        );
+        newItem.productId = productResponse.data;
+      }
+
+      setCart((prevCart) => {
+        const existingItemIndex = prevCart.findIndex(
+          (item) =>
+            (typeof item.productId === "object"
+              ? item.productId._id
+              : item.productId) === newItem.productId &&
+            (bundleData
+              ? item.bundle?.bundleId === bundleData.bundleId
+              : !item.bundle)
+        );
+        if (existingItemIndex > -1) {
+          const updatedCart = [...prevCart];
+          updatedCart[existingItemIndex].quantity += 1;
+          return updatedCart;
+        }
+        return [...prevCart, newItem];
+      });
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      alert(error.message || "Failed to add to cart. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    // Loading is set to false in fetchCart's finally block
   };
 
   const removeFromCart = async (cartItemId) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please log in to modify your cart");
+      }
       await axios.delete(
         `https://eshop-backend-e11f.onrender.com/api/cart/remove/${cartItemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCart();
+      setCart((prevCart) => prevCart.filter((item) => item._id !== cartItemId));
     } catch (error) {
       console.error("Failed to remove from cart:", error);
+      alert(error.message || "Failed to remove from cart. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,14 +125,24 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please log in to modify your cart");
+      }
       await axios.put(
-        `https://eshop-backend-e11f.onrender.com/api/cart/update`,
-        { cartItemId, quantity },
+        `https://eshop-backend-e11f.onrender.com/api/cart/update/${cartItemId}`,
+        { quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCart();
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item._id === cartItemId ? { ...item, quantity } : item
+        )
+      );
     } catch (error) {
       console.error("Failed to update quantity:", error);
+      alert(error.message || "Failed to update quantity. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
