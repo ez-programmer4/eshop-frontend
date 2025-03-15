@@ -12,7 +12,7 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const fetchCart = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -48,90 +48,65 @@ export const CartProvider = ({ children }) => {
       console.error("Failed to fetch cart:", error);
       setCart([]);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
   const addToCart = async (productId, bundleData = null) => {
+    setLoading(true); // Set loading when adding to cart
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please log in to add items to your cart");
-      }
-      const payload = bundleData
-        ? { productId, quantity: 1, bundle: bundleData }
-        : { productId, quantity: 1 };
       const response = await axios.post(
         "https://eshop-backend-e11f.onrender.com/api/cart/add",
-        payload,
+        { productId, bundle: bundleData },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const newItem = response.data.item;
-      setCart((prevCart) => {
-        const existingItemIndex = prevCart.findIndex(
-          (item) =>
-            item.productId === productId &&
-            (bundleData
-              ? item.bundle?.bundleId === bundleData.bundleId
-              : !item.bundle)
-        );
-        if (existingItemIndex > -1) {
-          const updatedCart = [...prevCart];
-          updatedCart[existingItemIndex].quantity += 1;
-          return updatedCart;
-        }
-        return [...prevCart, newItem];
-      });
+      await fetchCart(); // Refetch cart to ensure updated data
     } catch (error) {
       console.error("Failed to add to cart:", error);
-      alert(error.message || "Failed to add to cart. Please try again.");
     }
+    // Loading is set to false in fetchCart's finally block
   };
 
   const removeFromCart = async (cartItemId) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please log in to modify your cart");
-      }
       await axios.delete(
         `https://eshop-backend-e11f.onrender.com/api/cart/remove/${cartItemId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setCart((prevCart) => prevCart.filter((item) => item._id !== cartItemId));
+      await fetchCart();
     } catch (error) {
       console.error("Failed to remove from cart:", error);
-      alert(error.message || "Failed to remove from cart. Please try again.");
     }
   };
 
   const updateQuantity = async (cartItemId, quantity) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please log in to modify your cart");
-      }
       await axios.put(
-        `https://eshop-backend-e11f.onrender.com/api/cart/update/${cartItemId}`,
-        { quantity },
+        `https://eshop-backend-e11f.onrender.com/api/cart/update`,
+        { cartItemId, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setCart((prevCart) =>
-        prevCart.map((item) =>
-          item._id === cartItemId ? { ...item, quantity } : item
-        )
-      );
+      await fetchCart();
     } catch (error) {
       console.error("Failed to update quantity:", error);
-      alert(error.message || "Failed to update quantity. Please try again.");
     }
   };
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, updateQuantity, setCart }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        setCart,
+        loading,
+      }}
     >
       {children}
     </CartContext.Provider>

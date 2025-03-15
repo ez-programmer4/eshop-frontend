@@ -163,10 +163,18 @@ function Cart() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Effect to group cart items into bundles and singles, including new clothing items
+  // Effect to group cart items into bundles and singles
   useEffect(() => {
-    if (!loading && cart.length > 0 && cart[0]?.productId?._id) {
-      // Only process when fully loaded
+    if (
+      !loading &&
+      cart.length > 0 &&
+      cart.every(
+        (item) =>
+          item.productId &&
+          typeof item.productId === "object" &&
+          item.productId._id
+      )
+    ) {
       console.log("Cart data:", cart);
       const bundles = {};
       const singles = [];
@@ -190,21 +198,23 @@ function Cart() {
             quantity: 1,
             items: bundleItems.map((bi) => ({
               ...bi.productId,
-              cartItemId: bi._id || bi.productId,
+              cartItemId: bi._id || bi.productId._id,
             })),
           };
           processedBundleIds.add(bundleId);
         } else if (!item.bundle) {
           singles.push({
-            ...(typeof item.productId === "object" ? item.productId : {}),
+            ...item.productId,
             quantity: item.quantity,
-            cartItemId: item._id || item.productId,
+            cartItemId: item._id || item.productId._id,
           });
         }
       });
 
       console.log("Grouped items:", { bundles, singles });
       setGroupedItems({ bundles, singles });
+    } else if (!loading && cart.length > 0) {
+      console.log("Cart data incomplete, waiting for product details:", cart);
     }
   }, [cart, loading]);
 
@@ -232,13 +242,13 @@ function Cart() {
 
   // Increase item quantity
   const handleIncreaseQuantity = (id) => {
-    const item = cart.find((i) => i._id === id || i.productId === id);
+    const item = cart.find((i) => i._id === id || i.productId._id === id);
     if (item) updateQuantity(id, item.quantity + 1);
   };
 
   // Decrease item quantity or remove if it reaches 1
   const handleDecreaseQuantity = (id) => {
-    const item = cart.find((i) => i._id === id || i.productId === id);
+    const item = cart.find((i) => i._id === id || i.productId._id === id);
     if (item && item.quantity > 1) {
       updateQuantity(id, item.quantity - 1);
     } else if (item) {
@@ -246,10 +256,11 @@ function Cart() {
     }
   };
 
-  // Apply discount code
+  // Apply discount code (optional)
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) {
-      setError(t("Please enter a discount code"));
+      setDiscount(0); // Reset discount if code is empty
+      setError("");
       return;
     }
     try {
@@ -262,7 +273,7 @@ function Cart() {
       setError("");
     } catch (err) {
       setDiscount(0);
-      setError(err.response?.data.message || t("Discount validation failed"));
+      setError(err.response?.data.message || t("Invalid discount code"));
     }
   };
 
@@ -660,15 +671,20 @@ function Cart() {
       >
         {t("Your Cart")}
       </Typography>
-      {loading ? (
+      {loading ||
+      (cart.length > 0 &&
+        !cart.every(
+          (item) =>
+            item.productId &&
+            typeof item.productId === "object" &&
+            item.productId._id
+        )) ? (
         <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
           {t("Loading cart...")}
         </Typography>
-      ) : cart.length === 0 || !cart[0]?.productId?._id ? ( // Check if productId is still a string
+      ) : cart.length === 0 ? (
         <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
-          {cart.length === 0
-            ? t("Cart is empty")
-            : t("Loading product details...")}
+          {t("Cart is empty")}
         </Typography>
       ) : !isPaymentStep ? (
         <Grid container spacing={3}>
@@ -976,11 +992,12 @@ function Cart() {
                 </Box>
                 <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
                   <StyledTextField
-                    label={t("Discount Code")}
+                    label={t("Discount Code (Optional)")}
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)}
                     size="small"
                     fullWidth
+                    placeholder={t("Enter code if available")}
                   />
                   <Button
                     variant="contained"
