@@ -165,7 +165,8 @@ function Cart() {
 
   // Effect to group cart items into bundles and singles, including new clothing items
   useEffect(() => {
-    if (!loading) {
+    if (!loading && cart.length > 0 && cart[0]?.productId?._id) {
+      // Only process when fully loaded
       console.log("Cart data:", cart);
       const bundles = {};
       const singles = [];
@@ -663,9 +664,11 @@ function Cart() {
         <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
           {t("Loading cart...")}
         </Typography>
-      ) : cart.length === 0 ? (
+      ) : cart.length === 0 || !cart[0]?.productId?._id ? ( // Check if productId is still a string
         <Typography sx={{ textAlign: "center", py: 4, color: "#555" }}>
-          {t("Cart is empty")}
+          {cart.length === 0
+            ? t("Cart is empty")
+            : t("Loading product details...")}
         </Typography>
       ) : !isPaymentStep ? (
         <Grid container spacing={3}>
